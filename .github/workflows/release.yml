@@ -1,0 +1,60 @@
+name: Quarkiverse Release
+
+on:
+  pull_request:
+    types: [closed]
+    paths:
+      - '.github/project.yml'
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    name: release
+    if: ${{github.event.pull_request.merged == true}}
+    env:
+      GITHUB_TOKEN: ${{secrets.RELEASE_TOKEN}}
+
+    steps:
+      - uses: radcortez/project-metadata-action@master
+        name: retrieve project metadata
+        id: metadata
+        with:
+          github-token: ${{secrets.GITHUB_TOKEN}}
+          metadata-file-path: '.github/project.yml'
+
+      - uses: actions/checkout@v2
+        with:
+          token: ${{secrets.RELEASE_TOKEN}}
+
+      - name: Import GPG key
+        id: import_gpg
+        uses: crazy-max/ghaction-import-gpg@v3
+        with:
+          gpg-private-key: ${{ secrets.GPG_PRIVATE_KEY }}
+          passphrase: ${{ secrets.GPG_PASSPHRASE }}
+
+      - uses: actions/setup-java@v1.4.3
+        with:
+          java-version: 8
+
+      - name: Cache local Maven repository
+        uses: actions/cache@v2
+        with:
+          path: ~/.m2/repository
+          key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
+          restore-keys: |
+            ${{ runner.os }}-maven-
+
+      - name: maven release ${{steps.metadata.outputs.current-version}}
+        run: |
+          java -version
+          gpg --quiet --batch --yes --decrypt --passphrase="${{secrets.GPG_PASSPHRASE}}" --output maven-settings.xml .github/release/maven-settings.xml.gpg
+          git config --global user.name "quarkiversebot"
+          git config --global user.email "quarkusio+quarkiverse@gmail.com"
+          git checkout -b release
+          mvn -B release:prepare -Prelease -DreleaseVersion=${{steps.metadata.outputs.current-version}} -DdevelopmentVersion=${{steps.metadata.outputs.next-version}} -s maven-settings.xml
+          git checkout ${{github.base_ref}}
+          git rebase release
+          mvn -B release:perform -Darguments=-DperformRelease -Prelease -s maven-settings.xml
+          git push
+          git push --tags
