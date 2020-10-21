@@ -1,29 +1,35 @@
-# Welcome to Quarkiverse!
+# Quarkus MyBatis Extension
 <!-- ALL-CONTRIBUTORS-BADGE:START - Do not remove or modify this section -->
 [![All Contributors](https://img.shields.io/badge/all_contributors-1-orange.svg?style=flat-square)](#contributors-)
 <!-- ALL-CONTRIBUTORS-BADGE:END -->
 
-Congratulations and thank you for creating a new Quarkus extension project in Quarkiverse!
+MyBatis is a first class persistence framework with support for custom SQL, stored procedures and advanced mappings. This extension provides the developers ease of configuration and native support. Add the following dependency in your pom.xml to get started,
 
-Feel free to replace this content with the proper description of your new project and necessary instructions how to use and contribute to it.
-
-You can find the basic info, Quarkiverse policies and conventions in [the Quarkiverse wiki](https://github.com/quarkiverse/quarkiverse/wiki).
-
-Need to quickly create a new Quarkus extension Maven project? Just execute the command below replacing the template values with your preferred ones:
 ```
-mvn io.quarkus:quarkus-maven-plugin:<QUARKUS_VERSION>:create-extension -N \
-    -DgroupId=io.quarkiverse.<REPO_NAME> \ 
-    -DartifactId=<EXTENSION_ARTIFACT_ID> \  
-    -Dversion=<INITIAL_VERSION> \ 
-    -Dquarkus.nameBase="<EXTENSION_SIMPLE_NAME>"
+<dependency>
+    <groupId>io.quarkiverse.mybatis</groupId>
+    <artifactId>quarkus-mybatis</artifactId>
+</dependency>
 ```
-**IMPORTANT:** make sure your project uses [io.quarkiverse:quarkiverse-parent](https://github.com/quarkiverse/quarkiverse-parent) as the parent POM. It will make sure the release and artifact publishing plugins are properly configured for your project.
 
-In case you are creating a Quarkus extension project for the first time, please follow [Building My First Extension](https://quarkus.io/guides/building-my-first-extension) guide.
+And then your can use the ```@Mapper``` in your application just like
 
-Other useful articles related to Quarkus extension development can be found under the [Writing Extensions](https://quarkus.io/guides/#writing-extensions) guide category on the [Quarkus.io](http://quarkus.io) website.
+```
+@Mapper
+public interface UserMapper {
 
-Thanks again, good luck and have fun!
+    @Select("SELECT * FROM USERS WHERE id = #{id}")
+    User getUser(Integer id);
+
+    @Insert("INSERT INTO USERS (id, name) VALUES (#{id}, #{name})")
+    Integer createUser(@Param("id") Integer id, @Param("name") String name);
+
+    @Delete("DELETE FROM USERS WHERE id = #{id}")
+    Integer removeUser(Integer id);
+}
+```
+
+For more information and quickstart, you can check the complete [documentation](https://quarkus.io/guides/mybatis).
 
 ## Contributors ✨
 
