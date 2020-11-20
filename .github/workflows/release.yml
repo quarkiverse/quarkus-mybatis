@@ -42,9 +42,9 @@ jobs:
             ${{ runner.os }}-maven-
 
       - name: Configure Git author
-        uses: oleksiyrudenko/gha-git-credentials@v1
-        with:
-          token: '${{ secrets.GITHUB_TOKEN }}'
+        run: |
+          git config --local user.email "action@github.com"
+          git config --local user.name "GitHub Action"
 
       - name: maven release ${{steps.metadata.outputs.current-version}}
         run: |
