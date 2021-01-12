@@ -11,7 +11,7 @@
     <groupId>io.quarkiverse.mybatis</groupId>
     <artifactId>quarkus-mybatis-parent</artifactId>
     <name>Quarkus - Mybatis - Parent</name>
-    <version>0.0.2-SNAPSHOT</version>
+    <version>0.0.2</version>
     <packaging>pom</packaging>
 
     <properties>
@@ -89,4 +89,8 @@
             </modules>
         </profile>
     </profiles>
+
+  <scm>
+    <tag>0.0.2</tag>
+  </scm>
 </project>
