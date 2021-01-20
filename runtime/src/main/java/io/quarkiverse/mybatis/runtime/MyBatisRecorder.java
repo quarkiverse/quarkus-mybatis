@@ -28,7 +28,8 @@ public class MyBatisRecorder {
     private static final Logger LOG = Logger.getLogger(MyBatisRecorder.class);
 
     public RuntimeValue<SqlSessionFactory> createSqlSessionFactory(
-            String environment, String transactionFactory, String dataSourceName, List<String> mappers) {
+            String environment, String transactionFactory, String dataSourceName, String mapUnderscoreToCamelCase,
+            List<String> mappers) {
         Configuration configuration = new Configuration();
 
         TransactionFactory factory;
@@ -36,6 +37,10 @@ public class MyBatisRecorder {
             factory = new ManagedTransactionFactory();
         } else {
             factory = new JdbcTransactionFactory();
+        }
+
+        if ("true".equals(mapUnderscoreToCamelCase)) {
+            configuration.setMapUnderscoreToCamelCase(true);
         }
 
         Environment.Builder environmentBuilder = new Environment.Builder(environment).transactionFactory(factory).dataSource(

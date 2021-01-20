@@ -124,6 +124,7 @@ class MyBatisProcessor {
                 myBatisRuntimeConfig.environment,
                 myBatisRuntimeConfig.transactionFactory,
                 dataSourceName,
+                myBatisRuntimeConfig.mapUnderscoreToCamelCase,
                 mappers));
     }
 

@@ -31,4 +31,11 @@ public class MyBatisRuntimeConfig {
      */
     @ConfigItem(name = "initial-sql")
     public Optional<String> initialSql;
+
+    /**
+     * MyBatis mapUnderscoreToCamelCase
+     */
+    @ConfigItem(defaultValue = "false")
+    public String mapUnderscoreToCamelCase;
+
 }
