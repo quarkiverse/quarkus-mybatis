@@ -1,15 +1,9 @@
-////
-This guide is maintained in the main Quarkus repository
-and pull requests should be submitted there:
-https://github.com/quarkusio/quarkus/tree/master/docs/src/main/asciidoc
-////
+include::./includes/attributes.adoc[]
 = Quarkus - Using MyBatis
-include::./attributes.adoc[]
+
 :extension-status: preview
 
-This guide demonstrates how your Quarkus application can use link:https://mybatis.org/mybatis-3/[MyBatis] to support custom SQL, stored procedures and advanced mappings.
-
-include::./status-include.adoc[]
+This guide demonstrates how your Quarkus application can use link:{mybatis-root-url}[MyBatis] to support custom SQL, stored procedures and advanced mappings.
 
 == Prerequisites
 
@@ -18,7 +12,7 @@ To complete this guide, you need:
 * less than 15 minutes
 * an IDE
 * JDK 1.8+ installed with `JAVA_HOME` configured appropriately
-* Apache Maven {maven-version}
+* Apache Maven
 * A running Mysql Database server
 * GraalVM, or Docker, installed if you want to run in native mode.
 
@@ -35,31 +29,32 @@ We recommend that you follow the instructions in the next sections and create th
 
 First, we need a new project. Create a new project with the following command:
 
-[source, subs=attributes+]
+[source, bash, subs=attributes+]
 ----
 mvn io.quarkus:quarkus-maven-plugin:{quarkus-version}:create \
     -DprojectGroupId=org.acme \
     -DprojectArtifactId=mybatis-quickstart \
-    -Dextensions="mybatis,restesay-jackson,jdbc-mysql"
+    -Dextensions="resteasy-jackson,jdbc-mysql,io.quarkiverse.mybatis:quarkus-mybatis:{quarkus-mybatis-version}" \
+    -DnoExamples
 cd mybatis-quickstart
 ----
+
+[TIP]
+====
+Maven 3.6.2+ is required for this to work.
+====
+
 This command generates a Maven project, with its pom.xml importing the quarkus-mybatis extension.
 
-If you already have your Quarkus project configured, you can add the `mybatis` extension
-to your project by running the following command in your project base directory:
+If you already have your Quarkus project configured, you can add the `quarkus-mybatis` extension
+to your project by adding the following dependency in your `pom.xml`:
 
-[source,bash]
-----
-./mvnw quarkus:add-extension -Dextensions="mybatis"
-----
-
-This will add the following to your `pom.xml`:
-
-[source]
+[source, subs=attributes+]
 ----
 <dependency>
-    <groupId>io.quarkus</groupId>
+    <groupId>io.quarkiverse.mybatis</groupId>
     <artifactId>quarkus-mybatis</artifactId>
+    <version>{quarkus-mybatis-version}</version>
 </dependency>
 ----
 
@@ -271,4 +266,4 @@ and then run with:
 You have to set `readWrite=false` when building the native image since the `ObjectOutputStream.writeObject` has not been supported by Graal VM.
 
 == Configuration References
-include::{generated-dir}/config/quarkus-mybatis.adoc[opts=optional, leveloffset=+1]
+include::includes/quarkus-mybatis.adoc[opts=optional, leveloffset=+1]
