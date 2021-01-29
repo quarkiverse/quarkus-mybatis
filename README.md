@@ -29,7 +29,7 @@ public interface UserMapper {
 }
 ```
 
-For more information and quickstart, you can check the complete [documentation](https://quarkus.io/guides/mybatis).
+For more information and quickstart, you can check the complete [documentation](https://quarkiverse.github.io/quarkiverse-docs/quarkus-mybatis/dev/index.html).
 
 ## Contributors ✨
 
