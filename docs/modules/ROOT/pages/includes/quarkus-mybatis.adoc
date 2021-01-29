@@ -1,0 +1,55 @@
+[.configuration-legend]
+icon:lock[title=Fixed at build time] Configuration property fixed at build time - All other configuration properties are overridable at runtime
+[.configuration-reference.searchable, cols="80,.^10,.^10"]
+|===
+
+h|[[quarkus-mybatis_configuration]]link:#quarkus-mybatis_configuration[Configuration property]
+
+h|Type
+h|Default
+
+a|icon:lock[title=Fixed at build time] [[quarkus-mybatis_quarkus.mybatis.environment]]`link:#quarkus-mybatis_quarkus.mybatis.environment[quarkus.mybatis.environment]`
+
+[.description]
+--
+MyBatis environment id
+--|string 
+|`quarkus`
+
+
+a|icon:lock[title=Fixed at build time] [[quarkus-mybatis_quarkus.mybatis.transaction-factory]]`link:#quarkus-mybatis_quarkus.mybatis.transaction-factory[quarkus.mybatis.transaction-factory]`
+
+[.description]
+--
+MyBatis transaction factory
+--|string 
+|`MANAGED`
+
+
+a|icon:lock[title=Fixed at build time] [[quarkus-mybatis_quarkus.mybatis.datasource]]`link:#quarkus-mybatis_quarkus.mybatis.datasource[quarkus.mybatis.datasource]`
+
+[.description]
+--
+MyBatis data source
+--|string 
+|
+
+
+a|icon:lock[title=Fixed at build time] [[quarkus-mybatis_quarkus.mybatis.initial-sql]]`link:#quarkus-mybatis_quarkus.mybatis.initial-sql[quarkus.mybatis.initial-sql]`
+
+[.description]
+--
+MyBatis initial sql
+--|string 
+|
+
+
+a|icon:lock[title=Fixed at build time] [[quarkus-mybatis_quarkus.mybatis.map-underscore-to-camel-case]]`link:#quarkus-mybatis_quarkus.mybatis.map-underscore-to-camel-case[quarkus.mybatis.map-underscore-to-camel-case]`
+
+[.description]
+--
+MyBatis mapUnderscoreToCamelCase
+--|string 
+|`false`
+
+|===

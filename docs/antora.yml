@@ -1,0 +1,5 @@
+name: quarkus-mybatis
+title: Quarkus MyBatis
+version: dev
+nav:
+- modules/ROOT/nav.adoc

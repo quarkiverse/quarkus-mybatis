@@ -1,0 +1,4 @@
+:quarkus-version: ${quarkus.version}
+:quarkus-mybatis-version: ${release.current-version}
+
+:mybatis-root-url: https://mybatis.org/mybatis-3/
