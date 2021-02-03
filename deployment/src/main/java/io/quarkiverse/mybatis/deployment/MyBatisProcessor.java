@@ -91,7 +91,7 @@ class MyBatisProcessor {
         }
     }
 
-    @Record(ExecutionTime.RUNTIME_INIT)
+    @Record(ExecutionTime.STATIC_INIT)
     @BuildStep
     SqlSessionFactoryBuildItem generateSqlSessionFactory(MyBatisRuntimeConfig myBatisRuntimeConfig,
             List<MyBatisMapperBuildItem> myBatisMapperBuildItems,
@@ -128,7 +128,7 @@ class MyBatisProcessor {
                 mappers));
     }
 
-    @Record(ExecutionTime.RUNTIME_INIT)
+    @Record(ExecutionTime.STATIC_INIT)
     @BuildStep
     SqlSessionManagerBuildItem generateSqlSessionManager(SqlSessionFactoryBuildItem sqlSessionFactoryBuildItem,
             MyBatisRecorder recorder) {

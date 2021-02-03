@@ -1,9 +1,14 @@
 package io.quarkiverse.mybatis.runtime;
 
+import java.io.PrintWriter;
 import java.io.Reader;
 import java.sql.Connection;
+import java.sql.SQLException;
+import java.sql.SQLFeatureNotSupportedException;
 import java.util.List;
 import java.util.function.Supplier;
+
+import javax.sql.DataSource;
 
 import org.apache.ibatis.io.Resources;
 import org.apache.ibatis.jdbc.ScriptRunner;
@@ -18,6 +23,7 @@ import org.apache.ibatis.transaction.jdbc.JdbcTransactionFactory;
 import org.apache.ibatis.transaction.managed.ManagedTransactionFactory;
 import org.jboss.logging.Logger;
 
+import io.agroal.api.AgroalDataSource;
 import io.quarkus.agroal.runtime.DataSources;
 import io.quarkus.arc.runtime.BeanContainer;
 import io.quarkus.runtime.RuntimeValue;
@@ -43,8 +49,9 @@ public class MyBatisRecorder {
             configuration.setMapUnderscoreToCamelCase(true);
         }
 
-        Environment.Builder environmentBuilder = new Environment.Builder(environment).transactionFactory(factory).dataSource(
-                DataSources.fromName(dataSourceName));
+        Environment.Builder environmentBuilder = new Environment.Builder(environment)
+                .transactionFactory(factory)
+                .dataSource(new QuarkusDataSource(dataSourceName));
 
         configuration.setEnvironment(environmentBuilder.build());
         for (String mapper : mappers) {
@@ -89,5 +96,67 @@ public class MyBatisRecorder {
 
     public void register(RuntimeValue<SqlSessionFactory> sqlSessionFactory, BeanContainer beanContainer) {
         beanContainer.instance(MyBatisProducers.class).setSqlSessionFactory(sqlSessionFactory.getValue());
+    }
+}
+
+class QuarkusDataSource implements DataSource {
+    private String dataSourceName;
+    private AgroalDataSource dataSource;
+
+    public QuarkusDataSource(String dataSourceName) {
+        this.dataSourceName = dataSourceName;
+        this.dataSource = null;
+    }
+
+    private DataSource getDataSource() {
+        if (dataSource == null) {
+            dataSource = DataSources.fromName(dataSourceName);
+        }
+        return dataSource;
+    }
+
+    @Override
+    public Connection getConnection() throws SQLException {
+        return getDataSource().getConnection();
+    }
+
+    @Override
+    public Connection getConnection(String user, String passwd) throws SQLException {
+        return getDataSource().getConnection(user, passwd);
+    }
+
+    @Override
+    public <T> T unwrap(Class<T> aClass) throws SQLException {
+        return getDataSource().unwrap(aClass);
+    }
+
+    @Override
+    public boolean isWrapperFor(Class<?> aClass) throws SQLException {
+        return getDataSource().isWrapperFor(aClass);
+    }
+
+    @Override
+    public PrintWriter getLogWriter() throws SQLException {
+        return getDataSource().getLogWriter();
+    }
+
+    @Override
+    public void setLogWriter(PrintWriter printWriter) throws SQLException {
+        getDataSource().setLogWriter(printWriter);
+    }
+
+    @Override
+    public void setLoginTimeout(int timeout) throws SQLException {
+        getDataSource().setLoginTimeout(timeout);
+    }
+
+    @Override
+    public int getLoginTimeout() throws SQLException {
+        return getDataSource().getLoginTimeout();
+    }
+
+    @Override
+    public java.util.logging.Logger getParentLogger() throws SQLFeatureNotSupportedException {
+        return getDataSource().getParentLogger();
     }
 }
