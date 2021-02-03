@@ -1,4 +1,4 @@
-package io.quarkus.mybatis.runtime.graal;
+package io.quarkiverse.mybatis.runtime.graal;
 
 import java.lang.invoke.MethodHandles;
 
