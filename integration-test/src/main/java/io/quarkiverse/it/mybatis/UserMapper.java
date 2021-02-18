@@ -6,6 +6,7 @@ import org.apache.ibatis.annotations.Insert;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 import org.apache.ibatis.annotations.Select;
+import org.apache.ibatis.annotations.SelectProvider;
 
 @Mapper
 @CacheNamespace(readWrite = false)
@@ -19,4 +20,7 @@ public interface UserMapper {
 
     @Delete("delete from users where id = #{id}")
     Integer removeUser(Integer id);
+
+    @SelectProvider(type = SqlProviderAdapter.class, method = "select")
+    User selectOne(Integer id);
 }

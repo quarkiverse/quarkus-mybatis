@@ -24,6 +24,13 @@ public class MyBatisResource {
         return userMapper.getUser(id);
     }
 
+    @Path("/user/dynamic/{id}")
+    @GET
+    @Produces(MediaType.APPLICATION_JSON)
+    public User getDynamicUser(@PathParam("id") Integer id) {
+        return userMapper.selectOne(id);
+    }
+
     @Path("/user")
     @POST
     @Produces(MediaType.TEXT_PLAIN)
