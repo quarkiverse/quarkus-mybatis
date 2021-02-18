@@ -5,7 +5,7 @@
 
 MyBatis is a first class persistence framework with support for custom SQL, stored procedures and advanced mappings. This extension provides the developers ease of configuration and native support. Add the following dependency in your pom.xml to get started,
 
-```
+```xml
 <dependency>
     <groupId>io.quarkiverse.mybatis</groupId>
     <artifactId>quarkus-mybatis</artifactId>
@@ -14,7 +14,7 @@ MyBatis is a first class persistence framework with support for custom SQL, stor
 
 And then your can use the ```@Mapper``` in your application just like
 
-```
+```java
 @Mapper
 public interface UserMapper {
 
