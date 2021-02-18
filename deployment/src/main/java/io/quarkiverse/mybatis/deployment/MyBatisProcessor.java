@@ -6,7 +6,15 @@ import java.util.stream.Collectors;
 
 import javax.inject.Singleton;
 
+import org.apache.ibatis.annotations.DeleteProvider;
+import org.apache.ibatis.annotations.InsertProvider;
 import org.apache.ibatis.annotations.Mapper;
+import org.apache.ibatis.annotations.Result;
+import org.apache.ibatis.annotations.ResultMap;
+import org.apache.ibatis.annotations.ResultType;
+import org.apache.ibatis.annotations.Results;
+import org.apache.ibatis.annotations.SelectProvider;
+import org.apache.ibatis.annotations.UpdateProvider;
 import org.apache.ibatis.cache.decorators.LruCache;
 import org.apache.ibatis.cache.impl.PerpetualCache;
 import org.apache.ibatis.javassist.util.proxy.ProxyFactory;
@@ -58,7 +66,15 @@ class MyBatisProcessor {
         reflectiveClass.produce(new ReflectiveClassBuildItem(false, false,
                 ProxyFactory.class,
                 XMLLanguageDriver.class,
-                RawLanguageDriver.class));
+                RawLanguageDriver.class,
+                SelectProvider.class,
+                UpdateProvider.class,
+                InsertProvider.class,
+                DeleteProvider.class,
+                Result.class,
+                Results.class,
+                ResultType.class,
+                ResultMap.class));
 
         reflectiveClass.produce(new ReflectiveClassBuildItem(true, true,
                 PerpetualCache.class, LruCache.class));
