@@ -8,8 +8,8 @@
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
-    <artifactId>quarkus-mybatis-integration-test</artifactId>
-    <name>Quarkus - Integration Tests - MyBatis</name>
+    <artifactId>quarkus-mybatis-integration-tests</artifactId>
+    <name>Quarkus - MyBatis - Integration Tests</name>
     <description>The mybatis integration tests module</description>
 
     <properties>
