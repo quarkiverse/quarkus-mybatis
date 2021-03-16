@@ -1,4 +1,7 @@
 # Quarkus MyBatis Extension
+[![Build](https://github.com/quarkiverse/quarkus-mybatis/workflows/Build/badge.svg?branch=master)](https://github.com/quarkiverse/quarkus-mybatis/actions?query=workflow%3ABuild)
+[![License](https://img.shields.io/github/license/quarkiverse/quarkus-mybatis.svg)](http://www.apache.org/licenses/LICENSE-2.0)
+[![Central](https://img.shields.io/maven-central/v/io.quarkiverse.mybatis/quarkus-mybatis-parent?color=green)](https://search.maven.org/search?q=g:io.quarkiverse.mybatis%20AND%20a:quarkus-mybatis-parent)
 <!-- ALL-CONTRIBUTORS-BADGE:START - Do not remove or modify this section -->
 [![All Contributors](https://img.shields.io/badge/all_contributors-2-orange.svg?style=flat-square)](#contributors-)
 <!-- ALL-CONTRIBUTORS-BADGE:END -->
