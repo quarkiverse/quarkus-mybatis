@@ -10,9 +10,14 @@ import java.util.function.Supplier;
 
 import javax.sql.DataSource;
 
+import org.apache.ibatis.executor.loader.cglib.CglibProxyFactory;
+import org.apache.ibatis.executor.loader.javassist.JavassistProxyFactory;
 import org.apache.ibatis.io.Resources;
+import org.apache.ibatis.io.VFS;
 import org.apache.ibatis.jdbc.ScriptRunner;
+import org.apache.ibatis.logging.Log;
 import org.apache.ibatis.mapping.Environment;
+import org.apache.ibatis.scripting.LanguageDriver;
 import org.apache.ibatis.session.Configuration;
 import org.apache.ibatis.session.SqlSession;
 import org.apache.ibatis.session.SqlSessionFactory;
@@ -21,6 +26,7 @@ import org.apache.ibatis.session.SqlSessionManager;
 import org.apache.ibatis.transaction.TransactionFactory;
 import org.apache.ibatis.transaction.jdbc.JdbcTransactionFactory;
 import org.apache.ibatis.transaction.managed.ManagedTransactionFactory;
+import org.apache.ibatis.type.TypeHandler;
 import org.jboss.logging.Logger;
 
 import io.agroal.api.AgroalDataSource;
@@ -34,22 +40,102 @@ public class MyBatisRecorder {
     private static final Logger LOG = Logger.getLogger(MyBatisRecorder.class);
 
     public RuntimeValue<SqlSessionFactory> createSqlSessionFactory(
-            String environment, String transactionFactory, String dataSourceName, String mapUnderscoreToCamelCase,
+            MyBatisRuntimeConfig myBatisRuntimeConfig,
+            String dataSourceName,
+            List<String> mappers) {
+        Configuration configuration = createConfiguration(myBatisRuntimeConfig, dataSourceName, mappers);
+        logIfDebugEnabledConfigurationProperties(configuration);
+        SqlSessionFactory sqlSessionFactory = new SqlSessionFactoryBuilder().build(configuration);
+        return new RuntimeValue<>(sqlSessionFactory);
+    }
+
+    private Configuration createConfiguration(MyBatisRuntimeConfig myBatisRuntimeConfig, String dataSourceName,
             List<String> mappers) {
         Configuration configuration = new Configuration();
 
         TransactionFactory factory;
-        if (transactionFactory.equals("MANAGED")) {
+        if (myBatisRuntimeConfig.transactionFactory.equals("MANAGED")) {
             factory = new ManagedTransactionFactory();
         } else {
             factory = new JdbcTransactionFactory();
         }
 
-        if ("true".equals(mapUnderscoreToCamelCase)) {
-            configuration.setMapUnderscoreToCamelCase(true);
+        configuration.setCacheEnabled(myBatisRuntimeConfig.cacheEnabled);
+        configuration.setLazyLoadingEnabled(myBatisRuntimeConfig.lazyLoadingEnabled);
+        configuration.setAggressiveLazyLoading(myBatisRuntimeConfig.aggressiveLazyLoading);
+        configuration.setMultipleResultSetsEnabled(myBatisRuntimeConfig.multipleResultSetsEnabled);
+        configuration.setUseColumnLabel(myBatisRuntimeConfig.useColumnLabel);
+        configuration.setUseGeneratedKeys(myBatisRuntimeConfig.useGeneratedKeys);
+        configuration.setAutoMappingBehavior(myBatisRuntimeConfig.autoMappingBehavior);
+        configuration.setDefaultExecutorType(myBatisRuntimeConfig.defaultExecutorType);
+        myBatisRuntimeConfig.defaultStatementTimeout.ifPresent(configuration::setDefaultStatementTimeout);
+        myBatisRuntimeConfig.defaultFetchSize.ifPresent(configuration::setDefaultFetchSize);
+        myBatisRuntimeConfig.defaultResultSetType.ifPresent(configuration::setDefaultResultSetType);
+        configuration.setSafeRowBoundsEnabled(myBatisRuntimeConfig.safeRowBoundsEnabled);
+        configuration.setSafeResultHandlerEnabled(myBatisRuntimeConfig.safeResultHandlerEnabled);
+        configuration.setMapUnderscoreToCamelCase(myBatisRuntimeConfig.mapUnderscoreToCamelCase);
+        configuration.setLocalCacheScope(myBatisRuntimeConfig.localCacheScope);
+        configuration.setJdbcTypeForNull(myBatisRuntimeConfig.jdbcTypeForNull);
+        configuration.setLazyLoadTriggerMethods(myBatisRuntimeConfig.lazyLoadTriggerMethods);
+        try {
+            configuration.setDefaultScriptingLanguage(
+                    (Class<? extends LanguageDriver>) Class.forName(myBatisRuntimeConfig.defaultScriptingLanguage));
+        } catch (ClassNotFoundException e) {
+            throw new RuntimeException(e);
+        }
+        try {
+            configuration.setDefaultEnumTypeHandler(
+                    (Class<? extends TypeHandler>) Class.forName(myBatisRuntimeConfig.defaultEnumTypeHandler));
+        } catch (ClassNotFoundException e) {
+            throw new RuntimeException(e);
+        }
+        configuration.setCallSettersOnNulls(myBatisRuntimeConfig.callSettersOnNulls);
+        configuration.setReturnInstanceForEmptyRow(myBatisRuntimeConfig.returnInstanceForEmptyRow);
+        myBatisRuntimeConfig.logPrefix.ifPresent(configuration::setLogPrefix);
+
+        myBatisRuntimeConfig.logImpl.ifPresent(logImpl -> {
+            try {
+                configuration.setLogImpl((Class<? extends Log>) Class.forName(logImpl));
+            } catch (ClassNotFoundException e) {
+                throw new RuntimeException(e);
+            }
+        });
+
+        if ("JAVASSIST".equals(myBatisRuntimeConfig.proxyFactory)) {
+            configuration.setProxyFactory(new JavassistProxyFactory());
+        } else if ("CGLIB".equals(myBatisRuntimeConfig.proxyFactory)) {
+            configuration.setProxyFactory(new CglibProxyFactory());
         }
 
-        Environment.Builder environmentBuilder = new Environment.Builder(environment)
+        myBatisRuntimeConfig.vfsImpl.ifPresent(vfsImpl -> {
+            try {
+                configuration.setVfsImpl((Class<? extends VFS>) Class.forName(vfsImpl));
+            } catch (ClassNotFoundException e) {
+                throw new RuntimeException(e);
+            }
+        });
+
+        configuration.setUseActualParamName(myBatisRuntimeConfig.useActualParamName);
+
+        myBatisRuntimeConfig.configurationFactory.ifPresent(configurationFactory -> {
+            try {
+                configuration.setConfigurationFactory(Class.forName(configurationFactory));
+            } catch (ClassNotFoundException e) {
+                throw new RuntimeException(e);
+            }
+        });
+
+        configuration.setShrinkWhitespacesInSql(myBatisRuntimeConfig.shrinkWhitespacesInSql);
+
+        myBatisRuntimeConfig.defaultSqlProviderType.ifPresent(defaultSqlProviderType -> {
+            try {
+                configuration.setDefaultSqlProviderType(Class.forName(defaultSqlProviderType));
+            } catch (ClassNotFoundException e) {
+                throw new RuntimeException(e);
+            }
+        });
+
+        Environment.Builder environmentBuilder = new Environment.Builder(myBatisRuntimeConfig.environment)
                 .transactionFactory(factory)
                 .dataSource(new QuarkusDataSource(dataSourceName));
 
@@ -61,9 +147,43 @@ public class MyBatisRecorder {
                 LOG.debug("Can not find the mapper class " + mapper);
             }
         }
+        return configuration;
+    }
 
-        SqlSessionFactory sqlSessionFactory = new SqlSessionFactoryBuilder().build(configuration);
-        return new RuntimeValue<>(sqlSessionFactory);
+    private void logIfDebugEnabledConfigurationProperties(Configuration configuration) {
+        LOG.debug("--------------------------------------------------------");
+        LOG.debug("MyBatis Configuration properties:");
+        LOG.debug("cacheEnabled: " + configuration.isCacheEnabled());
+        LOG.debug("lazyLoadingEnabled: " + configuration.isLazyLoadingEnabled());
+        LOG.debug("aggressiveLazyLoading: " + configuration.isAggressiveLazyLoading());
+        LOG.debug("multipleResultSetsEnabled: " + configuration.isMultipleResultSetsEnabled());
+        LOG.debug("useColumnLabel: " + configuration.isUseColumnLabel());
+        LOG.debug("useGeneratedKeys: " + configuration.isUseGeneratedKeys());
+        LOG.debug("autoMappingBehavior: " + configuration.getAutoMappingBehavior());
+        LOG.debug("autoMappingUnknownColumnBehavior: " + configuration.getAutoMappingUnknownColumnBehavior());
+        LOG.debug("defaultExecutorType: " + configuration.getDefaultExecutorType());
+        LOG.debug("defaultStatementTimeout: " + configuration.getDefaultStatementTimeout());
+        LOG.debug("defaultFetchSize: " + configuration.getDefaultFetchSize());
+        LOG.debug("defaultResultSetType: " + configuration.getDefaultResultSetType());
+        LOG.debug("safeRowBoundsEnabled: " + configuration.isSafeRowBoundsEnabled());
+        LOG.debug("safeResultHandlerEnabled: " + configuration.isSafeResultHandlerEnabled());
+        LOG.debug("mapUnderscoreToCamelCase: " + configuration.isMapUnderscoreToCamelCase());
+        LOG.debug("localCacheScope: " + configuration.getLocalCacheScope());
+        LOG.debug("jdbcTypeForNull: " + configuration.getJdbcTypeForNull());
+        LOG.debug("lazyLoadTriggerMethods: " + configuration.getLazyLoadTriggerMethods());
+        LOG.debug("defaultScriptingLanguage: " + configuration.getDefaultScriptingLanguageInstance());
+        LOG.debug("callSettersOnNulls: " + configuration.isCallSettersOnNulls());
+        LOG.debug("returnInstanceForEmptyRow: " + configuration.isReturnInstanceForEmptyRow());
+        LOG.debug("logPrefix: " + configuration.getLogPrefix());
+        LOG.debug("logImpl: " + configuration.getLogImpl());
+        LOG.debug("proxyFactory: " + configuration.getProxyFactory());
+        LOG.debug("vfsImpl: " + configuration.getVfsImpl());
+        LOG.debug("useActualParamName: " + configuration.isUseActualParamName());
+        LOG.debug("configurationFactory: " + configuration.getConfigurationFactory());
+        LOG.debug("shrinkWhitespacesInSql: " + configuration.isShrinkWhitespacesInSql());
+        LOG.debug("defaultSqlProviderType: " + configuration.getDefaultSqlProviderType());
+        LOG.debug("--------------------------------------------------------");
+
     }
 
     public RuntimeValue<SqlSessionManager> createSqlSessionManager(RuntimeValue<SqlSessionFactory> sqlSessionFactory) {

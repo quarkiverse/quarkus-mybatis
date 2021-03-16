@@ -136,12 +136,11 @@ class MyBatisProcessor {
             }
         }
 
-        return new SqlSessionFactoryBuildItem(recorder.createSqlSessionFactory(
-                myBatisRuntimeConfig.environment,
-                myBatisRuntimeConfig.transactionFactory,
-                dataSourceName,
-                myBatisRuntimeConfig.mapUnderscoreToCamelCase,
-                mappers));
+        return new SqlSessionFactoryBuildItem(
+                recorder.createSqlSessionFactory(
+                        myBatisRuntimeConfig,
+                        dataSourceName,
+                        mappers));
     }
 
     @Record(ExecutionTime.STATIC_INIT)
