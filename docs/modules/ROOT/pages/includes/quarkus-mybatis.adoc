@@ -49,7 +49,268 @@ a|icon:lock[title=Fixed at build time] [[quarkus-mybatis_quarkus.mybatis.map-und
 [.description]
 --
 MyBatis mapUnderscoreToCamelCase
---|string 
+--|boolean 
 |`false`
+
+
+a|icon:lock[title=Fixed at build time] [[quarkus-mybatis_quarkus.mybatis.cache-enabled]]`link:#quarkus-mybatis_quarkus.mybatis.cache-enabled[quarkus.mybatis.cache-enabled]`
+
+[.description]
+--
+MyBatis cacheEnabled
+--|boolean 
+|`true`
+
+
+a|icon:lock[title=Fixed at build time] [[quarkus-mybatis_quarkus.mybatis.lazy-loading-enabled]]`link:#quarkus-mybatis_quarkus.mybatis.lazy-loading-enabled[quarkus.mybatis.lazy-loading-enabled]`
+
+[.description]
+--
+MyBatis lazyLoadingEnabled
+--|boolean 
+|`false`
+
+
+a|icon:lock[title=Fixed at build time] [[quarkus-mybatis_quarkus.mybatis.aggressive-lazy-loading]]`link:#quarkus-mybatis_quarkus.mybatis.aggressive-lazy-loading[quarkus.mybatis.aggressive-lazy-loading]`
+
+[.description]
+--
+MyBatis aggressiveLazyLoading
+--|boolean 
+|`false`
+
+
+a|icon:lock[title=Fixed at build time] [[quarkus-mybatis_quarkus.mybatis.use-column-label]]`link:#quarkus-mybatis_quarkus.mybatis.use-column-label[quarkus.mybatis.use-column-label]`
+
+[.description]
+--
+MyBatis useColumnLabel
+--|boolean 
+|`true`
+
+
+a|icon:lock[title=Fixed at build time] [[quarkus-mybatis_quarkus.mybatis.use-generated-keys]]`link:#quarkus-mybatis_quarkus.mybatis.use-generated-keys[quarkus.mybatis.use-generated-keys]`
+
+[.description]
+--
+MyBatis useGeneratedKeys
+--|boolean 
+|`false`
+
+
+a|icon:lock[title=Fixed at build time] [[quarkus-mybatis_quarkus.mybatis.auto-mapping-behavior]]`link:#quarkus-mybatis_quarkus.mybatis.auto-mapping-behavior[quarkus.mybatis.auto-mapping-behavior]`
+
+[.description]
+--
+MyBatis autoMappingBehavior
+--|`none`, `partial`, `full` 
+|`partial`
+
+
+a|icon:lock[title=Fixed at build time] [[quarkus-mybatis_quarkus.mybatis.auto-mapping-unknown-column-behavior]]`link:#quarkus-mybatis_quarkus.mybatis.auto-mapping-unknown-column-behavior[quarkus.mybatis.auto-mapping-unknown-column-behavior]`
+
+[.description]
+--
+MyBatis autoMappingUnknownColumnBehavior
+--|`none`, `warning`, `failing` 
+|`none`
+
+
+a|icon:lock[title=Fixed at build time] [[quarkus-mybatis_quarkus.mybatis.default-executor-type]]`link:#quarkus-mybatis_quarkus.mybatis.default-executor-type[quarkus.mybatis.default-executor-type]`
+
+[.description]
+--
+MyBatis defaultExecutorType
+--|`simple`, `reuse`, `batch` 
+|`simple`
+
+
+a|icon:lock[title=Fixed at build time] [[quarkus-mybatis_quarkus.mybatis.default-statement-timeout]]`link:#quarkus-mybatis_quarkus.mybatis.default-statement-timeout[quarkus.mybatis.default-statement-timeout]`
+
+[.description]
+--
+MyBatis defaultStatementTimeout
+--|int 
+|
+
+
+a|icon:lock[title=Fixed at build time] [[quarkus-mybatis_quarkus.mybatis.default-fetch-size]]`link:#quarkus-mybatis_quarkus.mybatis.default-fetch-size[quarkus.mybatis.default-fetch-size]`
+
+[.description]
+--
+MyBatis defaultFetchSize
+--|int 
+|
+
+
+a|icon:lock[title=Fixed at build time] [[quarkus-mybatis_quarkus.mybatis.default-result-set-type]]`link:#quarkus-mybatis_quarkus.mybatis.default-result-set-type[quarkus.mybatis.default-result-set-type]`
+
+[.description]
+--
+MyBatis defaultResultSetType
+--|`default`, `forward-only`, `scroll-insensitive`, `scroll-sensitive` 
+|
+
+
+a|icon:lock[title=Fixed at build time] [[quarkus-mybatis_quarkus.mybatis.safe-row-bounds-enabled]]`link:#quarkus-mybatis_quarkus.mybatis.safe-row-bounds-enabled[quarkus.mybatis.safe-row-bounds-enabled]`
+
+[.description]
+--
+MyBatis safeRowBoundsEnabled
+--|boolean 
+|`false`
+
+
+a|icon:lock[title=Fixed at build time] [[quarkus-mybatis_quarkus.mybatis.safe-result-handler-enabled]]`link:#quarkus-mybatis_quarkus.mybatis.safe-result-handler-enabled[quarkus.mybatis.safe-result-handler-enabled]`
+
+[.description]
+--
+MyBatis safeResultHandlerEnabled
+--|boolean 
+|`true`
+
+
+a|icon:lock[title=Fixed at build time] [[quarkus-mybatis_quarkus.mybatis.multiple-result-sets-enabled]]`link:#quarkus-mybatis_quarkus.mybatis.multiple-result-sets-enabled[quarkus.mybatis.multiple-result-sets-enabled]`
+
+[.description]
+--
+MyBatis multipleResultSetsEnabled
+--|boolean 
+|`true`
+
+
+a|icon:lock[title=Fixed at build time] [[quarkus-mybatis_quarkus.mybatis.local-cache-scope]]`link:#quarkus-mybatis_quarkus.mybatis.local-cache-scope[quarkus.mybatis.local-cache-scope]`
+
+[.description]
+--
+MyBatis localCacheScope
+--|`session`, `statement` 
+|`session`
+
+
+a|icon:lock[title=Fixed at build time] [[quarkus-mybatis_quarkus.mybatis.jdbc-type-for-null]]`link:#quarkus-mybatis_quarkus.mybatis.jdbc-type-for-null[quarkus.mybatis.jdbc-type-for-null]`
+
+[.description]
+--
+MyBatis jdbcTypeForNull
+--|`array`, `bit`, `tinyint`, `smallint`, `integer`, `bigint`, `float`, `real`, `double`, `numeric`, `decimal`, `char`, `varchar`, `longvarchar`, `date`, `time`, `timestamp`, `binary`, `varbinary`, `longvarbinary`, `null`, `other`, `blob`, `clob`, `boolean`, `cursor`, `undefined`, `nvarchar`, `nchar`, `nclob`, `struct`, `java-object`, `distinct`, `ref`, `datalink`, `rowid`, `longnvarchar`, `sqlxml`, `datetimeoffset`, `time-with-timezone`, `timestamp-with-timezone` 
+|`other`
+
+
+a|icon:lock[title=Fixed at build time] [[quarkus-mybatis_quarkus.mybatis.lazy-load-trigger-methods]]`link:#quarkus-mybatis_quarkus.mybatis.lazy-load-trigger-methods[quarkus.mybatis.lazy-load-trigger-methods]`
+
+[.description]
+--
+MyBatis lazyLoadTriggerMethods
+--|list of string 
+|`equals,clone,hashCode,toString`
+
+
+a|icon:lock[title=Fixed at build time] [[quarkus-mybatis_quarkus.mybatis.default-scripting-language]]`link:#quarkus-mybatis_quarkus.mybatis.default-scripting-language[quarkus.mybatis.default-scripting-language]`
+
+[.description]
+--
+MyBatis defaultScriptingLanguage
+--|string 
+|`org.apache.ibatis.scripting.xmltags.XMLLanguageDriver`
+
+
+a|icon:lock[title=Fixed at build time] [[quarkus-mybatis_quarkus.mybatis.default-enum-type-handler]]`link:#quarkus-mybatis_quarkus.mybatis.default-enum-type-handler[quarkus.mybatis.default-enum-type-handler]`
+
+[.description]
+--
+MyBatis defaultEnumTypeHandler
+--|string 
+|`org.apache.ibatis.type.EnumTypeHandler`
+
+
+a|icon:lock[title=Fixed at build time] [[quarkus-mybatis_quarkus.mybatis.call-setters-on-nulls]]`link:#quarkus-mybatis_quarkus.mybatis.call-setters-on-nulls[quarkus.mybatis.call-setters-on-nulls]`
+
+[.description]
+--
+MyBatis callSettersOnNulls
+--|boolean 
+|`false`
+
+
+a|icon:lock[title=Fixed at build time] [[quarkus-mybatis_quarkus.mybatis.return-instance-for-empty-row]]`link:#quarkus-mybatis_quarkus.mybatis.return-instance-for-empty-row[quarkus.mybatis.return-instance-for-empty-row]`
+
+[.description]
+--
+MyBatis returnInstanceForEmptyRow
+--|boolean 
+|`false`
+
+
+a|icon:lock[title=Fixed at build time] [[quarkus-mybatis_quarkus.mybatis.log-prefix]]`link:#quarkus-mybatis_quarkus.mybatis.log-prefix[quarkus.mybatis.log-prefix]`
+
+[.description]
+--
+MyBatis logPrefix
+--|string 
+|
+
+
+a|icon:lock[title=Fixed at build time] [[quarkus-mybatis_quarkus.mybatis.log-impl]]`link:#quarkus-mybatis_quarkus.mybatis.log-impl[quarkus.mybatis.log-impl]`
+
+[.description]
+--
+MyBatis logImpl
+--|string 
+|
+
+
+a|icon:lock[title=Fixed at build time] [[quarkus-mybatis_quarkus.mybatis.proxy-factory]]`link:#quarkus-mybatis_quarkus.mybatis.proxy-factory[quarkus.mybatis.proxy-factory]`
+
+[.description]
+--
+MyBatis proxyFactory
+--|string 
+|`JAVASSIST`
+
+
+a|icon:lock[title=Fixed at build time] [[quarkus-mybatis_quarkus.mybatis.vfs-impl]]`link:#quarkus-mybatis_quarkus.mybatis.vfs-impl[quarkus.mybatis.vfs-impl]`
+
+[.description]
+--
+MyBatis vfsImpl
+--|string 
+|
+
+
+a|icon:lock[title=Fixed at build time] [[quarkus-mybatis_quarkus.mybatis.use-actual-param-name]]`link:#quarkus-mybatis_quarkus.mybatis.use-actual-param-name[quarkus.mybatis.use-actual-param-name]`
+
+[.description]
+--
+MyBatis useActualParamName
+--|boolean 
+|`true`
+
+
+a|icon:lock[title=Fixed at build time] [[quarkus-mybatis_quarkus.mybatis.configuration-factory]]`link:#quarkus-mybatis_quarkus.mybatis.configuration-factory[quarkus.mybatis.configuration-factory]`
+
+[.description]
+--
+MyBatis configurationFactory
+--|string 
+|
+
+
+a|icon:lock[title=Fixed at build time] [[quarkus-mybatis_quarkus.mybatis.shrink-whitespaces-in-sql]]`link:#quarkus-mybatis_quarkus.mybatis.shrink-whitespaces-in-sql[quarkus.mybatis.shrink-whitespaces-in-sql]`
+
+[.description]
+--
+MyBatis shrinkWhitespacesInSql
+--|boolean 
+|`false`
+
+
+a|icon:lock[title=Fixed at build time] [[quarkus-mybatis_quarkus.mybatis.default-sql-provider-type]]`link:#quarkus-mybatis_quarkus.mybatis.default-sql-provider-type[quarkus.mybatis.default-sql-provider-type]`
+
+[.description]
+--
+MyBatis defaultSqlProviderType
+--|string 
+|
 
 |===
