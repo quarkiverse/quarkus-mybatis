@@ -44,7 +44,6 @@ public class MyBatisRecorder {
             String dataSourceName,
             List<String> mappers) {
         Configuration configuration = createConfiguration(myBatisRuntimeConfig, dataSourceName, mappers);
-        logIfDebugEnabledConfigurationProperties(configuration);
         SqlSessionFactory sqlSessionFactory = new SqlSessionFactoryBuilder().build(configuration);
         return new RuntimeValue<>(sqlSessionFactory);
     }
@@ -67,6 +66,7 @@ public class MyBatisRecorder {
         configuration.setUseColumnLabel(myBatisRuntimeConfig.useColumnLabel);
         configuration.setUseGeneratedKeys(myBatisRuntimeConfig.useGeneratedKeys);
         configuration.setAutoMappingBehavior(myBatisRuntimeConfig.autoMappingBehavior);
+        configuration.setAutoMappingUnknownColumnBehavior(myBatisRuntimeConfig.autoMappingUnknownColumnBehavior);
         configuration.setDefaultExecutorType(myBatisRuntimeConfig.defaultExecutorType);
         myBatisRuntimeConfig.defaultStatementTimeout.ifPresent(configuration::setDefaultStatementTimeout);
         myBatisRuntimeConfig.defaultFetchSize.ifPresent(configuration::setDefaultFetchSize);
@@ -148,42 +148,6 @@ public class MyBatisRecorder {
             }
         }
         return configuration;
-    }
-
-    private void logIfDebugEnabledConfigurationProperties(Configuration configuration) {
-        LOG.debug("--------------------------------------------------------");
-        LOG.debug("MyBatis Configuration properties:");
-        LOG.debug("cacheEnabled: " + configuration.isCacheEnabled());
-        LOG.debug("lazyLoadingEnabled: " + configuration.isLazyLoadingEnabled());
-        LOG.debug("aggressiveLazyLoading: " + configuration.isAggressiveLazyLoading());
-        LOG.debug("multipleResultSetsEnabled: " + configuration.isMultipleResultSetsEnabled());
-        LOG.debug("useColumnLabel: " + configuration.isUseColumnLabel());
-        LOG.debug("useGeneratedKeys: " + configuration.isUseGeneratedKeys());
-        LOG.debug("autoMappingBehavior: " + configuration.getAutoMappingBehavior());
-        LOG.debug("autoMappingUnknownColumnBehavior: " + configuration.getAutoMappingUnknownColumnBehavior());
-        LOG.debug("defaultExecutorType: " + configuration.getDefaultExecutorType());
-        LOG.debug("defaultStatementTimeout: " + configuration.getDefaultStatementTimeout());
-        LOG.debug("defaultFetchSize: " + configuration.getDefaultFetchSize());
-        LOG.debug("defaultResultSetType: " + configuration.getDefaultResultSetType());
-        LOG.debug("safeRowBoundsEnabled: " + configuration.isSafeRowBoundsEnabled());
-        LOG.debug("safeResultHandlerEnabled: " + configuration.isSafeResultHandlerEnabled());
-        LOG.debug("mapUnderscoreToCamelCase: " + configuration.isMapUnderscoreToCamelCase());
-        LOG.debug("localCacheScope: " + configuration.getLocalCacheScope());
-        LOG.debug("jdbcTypeForNull: " + configuration.getJdbcTypeForNull());
-        LOG.debug("lazyLoadTriggerMethods: " + configuration.getLazyLoadTriggerMethods());
-        LOG.debug("defaultScriptingLanguage: " + configuration.getDefaultScriptingLanguageInstance());
-        LOG.debug("callSettersOnNulls: " + configuration.isCallSettersOnNulls());
-        LOG.debug("returnInstanceForEmptyRow: " + configuration.isReturnInstanceForEmptyRow());
-        LOG.debug("logPrefix: " + configuration.getLogPrefix());
-        LOG.debug("logImpl: " + configuration.getLogImpl());
-        LOG.debug("proxyFactory: " + configuration.getProxyFactory());
-        LOG.debug("vfsImpl: " + configuration.getVfsImpl());
-        LOG.debug("useActualParamName: " + configuration.isUseActualParamName());
-        LOG.debug("configurationFactory: " + configuration.getConfigurationFactory());
-        LOG.debug("shrinkWhitespacesInSql: " + configuration.isShrinkWhitespacesInSql());
-        LOG.debug("defaultSqlProviderType: " + configuration.getDefaultSqlProviderType());
-        LOG.debug("--------------------------------------------------------");
-
     }
 
     public RuntimeValue<SqlSessionManager> createSqlSessionManager(RuntimeValue<SqlSessionFactory> sqlSessionFactory) {
