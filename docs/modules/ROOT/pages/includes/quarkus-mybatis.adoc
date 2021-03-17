@@ -44,15 +44,6 @@ MyBatis initial sql
 |
 
 
-a|icon:lock[title=Fixed at build time] [[quarkus-mybatis_quarkus.mybatis.map-underscore-to-camel-case]]`link:#quarkus-mybatis_quarkus.mybatis.map-underscore-to-camel-case[quarkus.mybatis.map-underscore-to-camel-case]`
-
-[.description]
---
-MyBatis mapUnderscoreToCamelCase
---|boolean 
-|`false`
-
-
 a|icon:lock[title=Fixed at build time] [[quarkus-mybatis_quarkus.mybatis.cache-enabled]]`link:#quarkus-mybatis_quarkus.mybatis.cache-enabled[quarkus.mybatis.cache-enabled]`
 
 [.description]
@@ -168,6 +159,15 @@ a|icon:lock[title=Fixed at build time] [[quarkus-mybatis_quarkus.mybatis.safe-re
 MyBatis safeResultHandlerEnabled
 --|boolean 
 |`true`
+
+
+a|icon:lock[title=Fixed at build time] [[quarkus-mybatis_quarkus.mybatis.map-underscore-to-camel-case]]`link:#quarkus-mybatis_quarkus.mybatis.map-underscore-to-camel-case[quarkus.mybatis.map-underscore-to-camel-case]`
+
+[.description]
+--
+MyBatis mapUnderscoreToCamelCase
+--|boolean 
+|`false`
 
 
 a|icon:lock[title=Fixed at build time] [[quarkus-mybatis_quarkus.mybatis.multiple-result-sets-enabled]]`link:#quarkus-mybatis_quarkus.mybatis.multiple-result-sets-enabled[quarkus.mybatis.multiple-result-sets-enabled]`
