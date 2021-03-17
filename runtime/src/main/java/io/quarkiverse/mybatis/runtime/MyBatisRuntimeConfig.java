@@ -41,12 +41,6 @@ public class MyBatisRuntimeConfig {
     public Optional<String> initialSql;
 
     /**
-     * MyBatis mapUnderscoreToCamelCase
-     */
-    @ConfigItem(defaultValue = "false")
-    public boolean mapUnderscoreToCamelCase;
-
-    /**
      * MyBatis cacheEnabled
      */
     @ConfigItem(defaultValue = "true")
@@ -123,6 +117,12 @@ public class MyBatisRuntimeConfig {
      */
     @ConfigItem(defaultValue = "true")
     public boolean safeResultHandlerEnabled;
+
+    /**
+     * MyBatis mapUnderscoreToCamelCase
+     */
+    @ConfigItem(defaultValue = "false")
+    public boolean mapUnderscoreToCamelCase;
 
     /**
      * MyBatis multipleResultSetsEnabled
