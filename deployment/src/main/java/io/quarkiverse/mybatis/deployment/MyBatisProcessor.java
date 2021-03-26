@@ -21,6 +21,7 @@ import org.apache.ibatis.javassist.util.proxy.ProxyFactory;
 import org.apache.ibatis.logging.log4j.Log4jImpl;
 import org.apache.ibatis.scripting.defaults.RawLanguageDriver;
 import org.apache.ibatis.scripting.xmltags.XMLLanguageDriver;
+import org.apache.ibatis.type.EnumTypeHandler;
 import org.jboss.jandex.AnnotationInstance;
 import org.jboss.jandex.AnnotationTarget;
 import org.jboss.jandex.DotName;
@@ -74,7 +75,8 @@ class MyBatisProcessor {
                 Result.class,
                 Results.class,
                 ResultType.class,
-                ResultMap.class));
+                ResultMap.class,
+                EnumTypeHandler.class));
 
         reflectiveClass.produce(new ReflectiveClassBuildItem(true, true,
                 PerpetualCache.class, LruCache.class));
