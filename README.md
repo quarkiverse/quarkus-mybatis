@@ -3,7 +3,7 @@
 [![License](https://img.shields.io/github/license/quarkiverse/quarkus-mybatis)](http://www.apache.org/licenses/LICENSE-2.0)
 [![Central](https://img.shields.io/maven-central/v/io.quarkiverse.mybatis/quarkus-mybatis-parent?color=green)](https://search.maven.org/search?q=g:io.quarkiverse.mybatis%20AND%20a:quarkus-mybatis-parent)
 <!-- ALL-CONTRIBUTORS-BADGE:START - Do not remove or modify this section -->
-[![All Contributors](https://img.shields.io/badge/all_contributors-3-orange.svg?style=flat-square)](#contributors-)
+[![All Contributors](https://img.shields.io/badge/all_contributors-4-orange.svg?style=flat-square)](#contributors-)
 <!-- ALL-CONTRIBUTORS-BADGE:END -->
 
 MyBatis is a first class persistence framework with support for custom SQL, stored procedures and advanced mappings. This extension provides the developers ease of configuration and native support. Add the following dependency in your pom.xml to get started,
@@ -46,6 +46,7 @@ Thanks goes to these wonderful people ([emoji key](https://allcontributors.org/d
     <td align="center"><a href="https://github.com/zhfeng"><img src="https://avatars2.githubusercontent.com/u/1246139?v=4?s=100" width="100px;" alt=""/><br /><sub><b>Amos Feng</b></sub></a><br /><a href="https://github.com/quarkiverse/quarkus-mybatis/commits?author=zhfeng" title="Code">💻</a> <a href="#maintenance-zhfeng" title="Maintenance">🚧</a></td>
     <td align="center"><a href="https://github.com/362228416"><img src="https://avatars.githubusercontent.com/u/5248797?v=4?s=100" width="100px;" alt=""/><br /><sub><b>Chao</b></sub></a><br /><a href="https://github.com/quarkiverse/quarkus-mybatis/commits?author=362228416" title="Code">💻</a></td>
     <td align="center"><a href="https://github.com/AndLvovSky"><img src="https://avatars.githubusercontent.com/u/46902956?v=4?s=100" width="100px;" alt=""/><br /><sub><b>Viktor Ilvovskyi</b></sub></a><br /><a href="https://github.com/quarkiverse/quarkus-mybatis/commits?author=AndLvovSky" title="Code">💻</a></td>
+    <td align="center"><a href="https://github.com/igor-dmitriev"><img src="https://avatars.githubusercontent.com/u/4592740?v=4?s=100" width="100px;" alt=""/><br /><sub><b>Igor Dmitriev</b></sub></a><br /><a href="https://github.com/quarkiverse/quarkus-mybatis/commits?author=igor-dmitriev" title="Code">💻</a></td>
   </tr>
 </table>
 
