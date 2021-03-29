@@ -42,14 +42,17 @@ public class MyBatisRecorder {
     public RuntimeValue<SqlSessionFactory> createSqlSessionFactory(
             MyBatisRuntimeConfig myBatisRuntimeConfig,
             String dataSourceName,
-            List<String> mappers) {
-        Configuration configuration = createConfiguration(myBatisRuntimeConfig, dataSourceName, mappers);
+            List<String> mappers,
+            List<String> mappedTypes,
+            List<String> mappedJdbcTypes) {
+        Configuration configuration = createConfiguration(myBatisRuntimeConfig, dataSourceName, mappers, mappedTypes,
+                mappedJdbcTypes);
         SqlSessionFactory sqlSessionFactory = new SqlSessionFactoryBuilder().build(configuration);
         return new RuntimeValue<>(sqlSessionFactory);
     }
 
     private Configuration createConfiguration(MyBatisRuntimeConfig myBatisRuntimeConfig, String dataSourceName,
-            List<String> mappers) {
+            List<String> mappers, List<String> mappedTypes, List<String> mappedJdbcTypes) {
         Configuration configuration = new Configuration();
 
         TransactionFactory factory;
@@ -139,6 +142,22 @@ public class MyBatisRecorder {
                 .transactionFactory(factory)
                 .dataSource(new QuarkusDataSource(dataSourceName));
 
+        for (String mappedType : mappedTypes) {
+            try {
+                configuration.getTypeHandlerRegistry().register(Resources.classForName(mappedType));
+            } catch (ClassNotFoundException e) {
+                LOG.debug("Can not find the mapped type class " + mappedType);
+            }
+        }
+
+        for (String mappedJdbcType : mappedJdbcTypes) {
+            try {
+                configuration.getTypeHandlerRegistry().register(Resources.classForName(mappedJdbcType));
+            } catch (ClassNotFoundException e) {
+                LOG.debug("Can not find the mapped jdbc type class " + mappedJdbcType);
+            }
+        }
+
         configuration.setEnvironment(environmentBuilder.build());
         for (String mapper : mappers) {
             try {
@@ -159,6 +178,28 @@ public class MyBatisRecorder {
         return () -> {
             try {
                 return sqlSessionManager.getValue().getMapper(Resources.classForName(name));
+            } catch (ClassNotFoundException e) {
+                return null;
+            }
+        };
+    }
+
+    public Supplier<Object> MyBatisMappedTypeSupplier(String name, RuntimeValue<SqlSessionManager> sqlSessionManager) {
+        return () -> {
+            try {
+                return sqlSessionManager.getValue().getConfiguration().getTypeHandlerRegistry()
+                        .getTypeHandler(Resources.classForName(name));
+            } catch (ClassNotFoundException e) {
+                return null;
+            }
+        };
+    }
+
+    public Supplier<Object> MyBatisMappedJdbcTypeSupplier(String name, RuntimeValue<SqlSessionManager> sqlSessionManager) {
+        return () -> {
+            try {
+                return sqlSessionManager.getValue().getConfiguration().getTypeHandlerRegistry()
+                        .getTypeHandler(Resources.classForName(name));
             } catch (ClassNotFoundException e) {
                 return null;
             }
