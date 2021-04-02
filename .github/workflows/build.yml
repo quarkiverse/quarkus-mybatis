@@ -35,3 +35,7 @@ jobs:
     - name: Build with Maven
       run: mvn -B formatter:validate verify --file pom.xml
 
+    - name: Run Native Check (if maven build success)
+      if: success()
+      run: mvn -Dnative -Dquarkus.native.container-build=true -B verify --file pom.xml
+
