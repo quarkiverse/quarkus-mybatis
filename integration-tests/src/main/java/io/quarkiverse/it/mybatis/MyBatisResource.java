@@ -1,5 +1,7 @@
 package io.quarkiverse.it.mybatis;
 
+import java.util.UUID;
+
 import javax.inject.Inject;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.DELETE;
@@ -35,8 +37,9 @@ public class MyBatisResource {
     @POST
     @Produces(MediaType.TEXT_PLAIN)
     @Consumes(MediaType.APPLICATION_FORM_URLENCODED)
-    public Integer createUser(@FormParam("id") Integer id, @FormParam("name") String name) {
-        return userMapper.createUser(id, name);
+    public Integer createUser(@FormParam("id") Integer id, @FormParam("name") String name,
+            @FormParam("externalId") UUID externalId) {
+        return userMapper.createUser(id, name, externalId);
     }
 
     @Path("/user/{id}")

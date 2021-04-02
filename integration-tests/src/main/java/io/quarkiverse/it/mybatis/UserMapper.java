@@ -1,5 +1,7 @@
 package io.quarkiverse.it.mybatis;
 
+import java.util.UUID;
+
 import org.apache.ibatis.annotations.CacheNamespace;
 import org.apache.ibatis.annotations.Delete;
 import org.apache.ibatis.annotations.Insert;
@@ -15,8 +17,8 @@ public interface UserMapper {
     @Select("select * from users where id = #{id}")
     User getUser(Integer id);
 
-    @Insert("insert into users (id, name) values (#{id}, #{name})")
-    Integer createUser(@Param("id") Integer id, @Param("name") String name);
+    @Insert("insert into users (id, name, externalId) values (#{id}, #{name}, #{externalId,jdbcType=OTHER})")
+    Integer createUser(@Param("id") Integer id, @Param("name") String name, @Param("externalId") UUID externalId);
 
     @Delete("delete from users where id = #{id}")
     Integer removeUser(Integer id);
