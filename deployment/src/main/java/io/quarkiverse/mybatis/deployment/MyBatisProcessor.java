@@ -1,5 +1,6 @@
 package io.quarkiverse.mybatis.deployment;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -103,30 +104,22 @@ class MyBatisProcessor {
 
     @BuildStep
     void addMyBatisMappedTypes(BuildProducer<MyBatisMappedTypeBuildItem> mappedTypes,
-            BuildProducer<ReflectiveClassBuildItem> reflective,
-            BuildProducer<NativeImageProxyDefinitionBuildItem> proxy,
+            BuildProducer<MyBatisMappedJdbcTypeBuildItem> mappedJdbcTypes,
             CombinedIndexBuildItem indexBuildItem) {
+        List<DotName> names = new ArrayList<>();
         for (AnnotationInstance i : indexBuildItem.getIndex().getAnnotations(MYBATIS_TYPE_HANDLER)) {
             if (i.target().kind() == AnnotationTarget.Kind.CLASS) {
                 DotName dotName = i.target().asClass().name();
                 mappedTypes.produce(new MyBatisMappedTypeBuildItem(dotName));
-                reflective.produce(new ReflectiveClassBuildItem(true, false, dotName.toString()));
-                proxy.produce(new NativeImageProxyDefinitionBuildItem(dotName.toString()));
+                names.add(dotName);
             }
         }
-    }
-
-    @BuildStep
-    void addMyBatisMappedJdbcTypes(BuildProducer<MyBatisMappedJdbcTypeBuildItem> mappedJdbcTypes,
-            BuildProducer<ReflectiveClassBuildItem> reflective,
-            BuildProducer<NativeImageProxyDefinitionBuildItem> proxy,
-            CombinedIndexBuildItem indexBuildItem) {
         for (AnnotationInstance i : indexBuildItem.getIndex().getAnnotations(MYBATIS_JDBC_TYPE_HANDLER)) {
             if (i.target().kind() == AnnotationTarget.Kind.CLASS) {
                 DotName dotName = i.target().asClass().name();
-                mappedJdbcTypes.produce(new MyBatisMappedJdbcTypeBuildItem(dotName));
-                reflective.produce(new ReflectiveClassBuildItem(true, false, dotName.toString()));
-                proxy.produce(new NativeImageProxyDefinitionBuildItem(dotName.toString()));
+                if (!names.contains(dotName)) {
+                    mappedJdbcTypes.produce(new MyBatisMappedJdbcTypeBuildItem(dotName));
+                }
             }
         }
     }
