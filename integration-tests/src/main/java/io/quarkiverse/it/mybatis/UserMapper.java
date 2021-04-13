@@ -25,4 +25,7 @@ public interface UserMapper {
 
     @SelectProvider(type = SqlProviderAdapter.class, method = "select")
     User selectOne(Integer id);
+
+    @Select("select count(*) from users")
+    int getUserCount();
 }

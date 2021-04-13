@@ -10,7 +10,7 @@
 
     <artifactId>quarkus-mybatis-docs</artifactId>
     <name>Quarkus - MyBatis - Documentation</name>
-    
+
     <properties>
         <asciidoctorj.version>2.4.3</asciidoctorj.version>
         <asciidoctor-maven-plugin.version>2.1.0</asciidoctor-maven-plugin.version>

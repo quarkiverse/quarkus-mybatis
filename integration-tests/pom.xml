@@ -37,6 +37,10 @@
             <groupId>io.quarkus</groupId>
             <artifactId>quarkus-jdbc-h2</artifactId>
         </dependency>
+        <dependency>
+            <groupId>io.quarkus</groupId>
+            <artifactId>quarkus-jdbc-derby</artifactId>
+        </dependency>
 
         <!-- test dependencies -->
         <dependency>
@@ -52,6 +56,10 @@
         <dependency>
             <groupId>io.quarkus</groupId>
             <artifactId>quarkus-test-h2</artifactId>
+            <scope>test</scope>
+        </dependency><dependency>
+            <groupId>io.quarkus</groupId>
+            <artifactId>quarkus-test-derby</artifactId>
             <scope>test</scope>
         </dependency>
     </dependencies>
