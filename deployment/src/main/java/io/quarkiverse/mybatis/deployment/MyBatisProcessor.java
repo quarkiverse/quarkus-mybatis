@@ -1,14 +1,5 @@
 package io.quarkiverse.mybatis.deployment;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-import java.util.function.Function;
-import java.util.stream.Collectors;
-
-import javax.inject.Singleton;
-
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.ibatis.annotations.DeleteProvider;
 import org.apache.ibatis.annotations.InsertProvider;
@@ -33,9 +24,19 @@ import org.jboss.jandex.AnnotationTarget;
 import org.jboss.jandex.DotName;
 import org.jboss.logging.Logger;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.function.Function;
+import java.util.stream.Collectors;
+
+import javax.inject.Singleton;
+
 import io.quarkiverse.mybatis.runtime.MyBatisProducers;
 import io.quarkiverse.mybatis.runtime.MyBatisRecorder;
-import io.quarkiverse.mybatis.runtime.MyBatisRuntimeConfig;
+import io.quarkiverse.mybatis.runtime.config.MyBatisDataSourceRuntimeConfig;
+import io.quarkiverse.mybatis.runtime.config.MyBatisRuntimeConfig;
 import io.quarkiverse.mybatis.runtime.meta.MapperDataSource;
 import io.quarkus.agroal.spi.JdbcDataSourceBuildItem;
 import io.quarkus.arc.deployment.AdditionalBeanBuildItem;
@@ -146,10 +147,10 @@ class MyBatisProcessor {
     }
 
     @BuildStep
-    void initalSql(BuildProducer<NativeImageResourceBuildItem> resource, MyBatisRuntimeConfig config) {
-        if (config.initialSql.isPresent()) {
-            resource.produce(new NativeImageResourceBuildItem(config.initialSql.get()));
-        }
+    void initialSql(BuildProducer<NativeImageResourceBuildItem> resource, MyBatisRuntimeConfig config) {
+        config.initialSql.ifPresent(initialSql -> resource.produce(new NativeImageResourceBuildItem(initialSql)));
+        config.dataSources.values().forEach(dataSource -> dataSource.initialSql
+                .ifPresent(initialSql -> resource.produce(new NativeImageResourceBuildItem(initialSql))));
     }
 
     @Record(ExecutionTime.STATIC_INIT)
@@ -187,15 +188,19 @@ class MyBatisProcessor {
             }
         }
 
-        dataSources.forEach(dataSource -> sqlSessionFactory.produce(
-                new SqlSessionFactoryBuildItem(
-                        recorder.createSqlSessionFactory(
-                                myBatisRuntimeConfig,
-                                dataSource.getKey(),
-                                mappers,
-                                mappedTypes,
-                                mappedJdbcTypes),
-                        dataSource.getKey(), dataSource.getValue())));
+        dataSources.forEach(dataSource -> {
+            MyBatisDataSourceRuntimeConfig dataSourceConfig = myBatisRuntimeConfig.dataSources.get(dataSource.getKey());
+            sqlSessionFactory.produce(
+                    new SqlSessionFactoryBuildItem(
+                            recorder.createSqlSessionFactory(
+                                    myBatisRuntimeConfig,
+                                    dataSourceConfig,
+                                    dataSource.getKey(),
+                                    mappers,
+                                    mappedTypes,
+                                    mappedJdbcTypes),
+                            dataSource.getKey(), dataSource.getValue()));
+        });
     }
 
     @Record(ExecutionTime.STATIC_INIT)
@@ -281,10 +286,20 @@ class MyBatisProcessor {
     void runInitialSql(List<SqlSessionFactoryBuildItem> sqlSessionFactoryBuildItems,
             MyBatisRuntimeConfig myBatisRuntimeConfig,
             MyBatisRecorder recorder) {
-        if (myBatisRuntimeConfig.initialSql.isPresent()) {
-            recorder.runInitialSql(getDefaultSessionFactory(sqlSessionFactoryBuildItems).getSqlSessionFactory(),
-                    myBatisRuntimeConfig.initialSql.get());
-        }
+        sqlSessionFactoryBuildItems.forEach(sqlSessionFactoryBuildItem -> {
+            MyBatisDataSourceRuntimeConfig dataSourceConfig = myBatisRuntimeConfig.dataSources
+                    .get(sqlSessionFactoryBuildItem.getDataSourceName());
+            Optional<String> optionalInitialSql;
+            if (sqlSessionFactoryBuildItem.isDefaultDataSource() || sqlSessionFactoryBuildItems.size() == 1) {
+                optionalInitialSql = dataSourceConfig != null && dataSourceConfig.initialSql.isPresent()
+                        ? dataSourceConfig.initialSql
+                        : myBatisRuntimeConfig.initialSql;
+            } else {
+                optionalInitialSql = dataSourceConfig != null ? dataSourceConfig.initialSql : Optional.empty();
+            }
+            optionalInitialSql.ifPresent(initialSql -> recorder.runInitialSql(
+                    sqlSessionFactoryBuildItem.getSqlSessionFactory(), initialSql));
+        });
     }
 
     private SqlSessionManagerBuildItem getDefaultSessionManager(List<SqlSessionManagerBuildItem> sqlSessionManagerBuildItems) {
