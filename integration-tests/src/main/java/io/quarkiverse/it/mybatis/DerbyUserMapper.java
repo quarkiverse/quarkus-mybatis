@@ -8,6 +8,6 @@ import io.quarkiverse.mybatis.runtime.meta.MapperDataSource;
 @Mapper
 @MapperDataSource("derby")
 public interface DerbyUserMapper {
-  @Select("select count(*) from users")
-  int getUserCount();
+    @Select("select count(*) from users")
+    int getUserCount();
 }
