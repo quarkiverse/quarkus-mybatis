@@ -265,5 +265,20 @@ and then run with:
 == Using @CacheNamespace
 You have to set `readWrite=false` when building the native image since the `ObjectOutputStream.writeObject` has not been supported by Graal VM.
 
+== Support for multiple data sources
+You can choose a specific data source for MyBatis mapper using the annotation `@MapperDataSource`.
+Query in the next example will be running against data source with name `user`.
+If there is no such annotation on the mapper, the default data source will be used.
+
+[source, java]
+----
+@Mapper
+@MapperDataSource("user")
+public interface UserMapper {
+  @Select("SELECT * FROM USERS WHERE id = #{id}")
+  User getUser(Integer id);
+}
+----
+
 == Configuration References
 include::includes/quarkus-mybatis.adoc[opts=optional, leveloffset=+1]
