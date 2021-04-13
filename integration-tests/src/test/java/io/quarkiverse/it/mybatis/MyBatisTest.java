@@ -1,13 +1,13 @@
 package io.quarkiverse.it.mybatis;
 
-import org.junit.jupiter.api.Test;
+import static org.hamcrest.core.Is.is;
 
 import java.util.UUID;
 
+import org.junit.jupiter.api.Test;
+
 import io.quarkus.test.junit.QuarkusTest;
 import io.restassured.RestAssured;
-
-import static org.hamcrest.core.Is.is;
 
 @QuarkusTest
 class MyBatisTest {

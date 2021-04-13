@@ -56,13 +56,13 @@ public class MyBatisResource {
     @GET
     @Produces(MediaType.APPLICATION_JSON)
     public int getUserCount() {
-      return userMapper.getUserCount();
+        return userMapper.getUserCount();
     }
 
     @Path("/user/count/derby")
     @GET
     @Produces(MediaType.APPLICATION_JSON)
     public int getDerbyUserCount() {
-      return derbyUserMapper.getUserCount();
+        return derbyUserMapper.getUserCount();
     }
 }

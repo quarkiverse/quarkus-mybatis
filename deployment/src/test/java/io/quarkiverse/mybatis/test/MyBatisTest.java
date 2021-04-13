@@ -1,20 +1,20 @@
 package io.quarkiverse.mybatis.test;
 
-import org.apache.ibatis.session.SqlSessionFactory;
-import org.jboss.shrinkwrap.api.ShrinkWrap;
-import org.jboss.shrinkwrap.api.spec.JavaArchive;
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.RegisterExtension;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.util.UUID;
 
 import javax.inject.Inject;
 import javax.inject.Named;
 
-import io.quarkus.test.QuarkusUnitTest;
+import org.apache.ibatis.session.SqlSessionFactory;
+import org.jboss.shrinkwrap.api.ShrinkWrap;
+import org.jboss.shrinkwrap.api.spec.JavaArchive;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.RegisterExtension;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import io.quarkus.test.QuarkusUnitTest;
 
 public class MyBatisTest {
     @RegisterExtension
