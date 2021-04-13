@@ -34,7 +34,6 @@ import io.agroal.api.AgroalDataSource;
 import io.quarkiverse.mybatis.runtime.config.MyBatisDataSourceRuntimeConfig;
 import io.quarkiverse.mybatis.runtime.config.MyBatisRuntimeConfig;
 import io.quarkus.agroal.runtime.DataSources;
-import io.quarkus.arc.runtime.BeanContainer;
 import io.quarkus.runtime.RuntimeValue;
 import io.quarkus.runtime.annotations.Recorder;
 
@@ -302,6 +301,10 @@ public class MyBatisRecorder {
         };
     }
 
+    public Supplier<Object> MyBatisSqlSessionFactorySupplier(RuntimeValue<SqlSessionFactory> sqlSessionFactory) {
+        return sqlSessionFactory::getValue;
+    }
+
     public void runInitialSql(RuntimeValue<SqlSessionFactory> sqlSessionFactory, String sql) {
         try (SqlSession session = sqlSessionFactory.getValue().openSession()) {
             Connection conn = session.getConnection();
@@ -313,10 +316,6 @@ public class MyBatisRecorder {
         } catch (Exception e) {
             LOG.warn("Error executing SQL Script " + sql, e);
         }
-    }
-
-    public void register(RuntimeValue<SqlSessionFactory> sqlSessionFactory, BeanContainer beanContainer) {
-        beanContainer.instance(MyBatisProducers.class).setSqlSessionFactory(sqlSessionFactory.getValue());
     }
 }
 

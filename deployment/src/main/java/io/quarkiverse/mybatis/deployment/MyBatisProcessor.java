@@ -1,5 +1,15 @@
 package io.quarkiverse.mybatis.deployment;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.function.Function;
+import java.util.stream.Collectors;
+
+import javax.inject.Named;
+import javax.inject.Singleton;
+
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.ibatis.annotations.DeleteProvider;
 import org.apache.ibatis.annotations.InsertProvider;
@@ -16,6 +26,7 @@ import org.apache.ibatis.javassist.util.proxy.ProxyFactory;
 import org.apache.ibatis.logging.log4j.Log4jImpl;
 import org.apache.ibatis.scripting.defaults.RawLanguageDriver;
 import org.apache.ibatis.scripting.xmltags.XMLLanguageDriver;
+import org.apache.ibatis.session.SqlSessionFactory;
 import org.apache.ibatis.type.EnumTypeHandler;
 import org.apache.ibatis.type.MappedJdbcTypes;
 import org.apache.ibatis.type.MappedTypes;
@@ -24,23 +35,11 @@ import org.jboss.jandex.AnnotationTarget;
 import org.jboss.jandex.DotName;
 import org.jboss.logging.Logger;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-import java.util.function.Function;
-import java.util.stream.Collectors;
-
-import javax.inject.Singleton;
-
-import io.quarkiverse.mybatis.runtime.MyBatisProducers;
 import io.quarkiverse.mybatis.runtime.MyBatisRecorder;
 import io.quarkiverse.mybatis.runtime.config.MyBatisDataSourceRuntimeConfig;
 import io.quarkiverse.mybatis.runtime.config.MyBatisRuntimeConfig;
 import io.quarkiverse.mybatis.runtime.meta.MapperDataSource;
 import io.quarkus.agroal.spi.JdbcDataSourceBuildItem;
-import io.quarkus.arc.deployment.AdditionalBeanBuildItem;
-import io.quarkus.arc.deployment.BeanContainerBuildItem;
 import io.quarkus.arc.deployment.SyntheticBeanBuildItem;
 import io.quarkus.deployment.annotations.BuildProducer;
 import io.quarkus.deployment.annotations.BuildStep;
@@ -139,11 +138,6 @@ class MyBatisProcessor {
                 }
             }
         }
-    }
-
-    @BuildStep
-    void unremovableBeans(BuildProducer<AdditionalBeanBuildItem> beanProducer) {
-        beanProducer.produce(AdditionalBeanBuildItem.unremovableOf(MyBatisProducers.class));
     }
 
     @BuildStep
@@ -272,13 +266,24 @@ class MyBatisProcessor {
         }
     }
 
-    @Record(ExecutionTime.RUNTIME_INIT)
+    @Record(ExecutionTime.STATIC_INIT)
     @BuildStep
     void register(List<SqlSessionFactoryBuildItem> sqlSessionFactoryBuildItems,
-            BeanContainerBuildItem beanContainerBuildItem,
+            BuildProducer<SyntheticBeanBuildItem> syntheticBeanBuildItemBuildProducer,
             MyBatisRecorder recorder) {
-        recorder.register(getDefaultSessionFactory(sqlSessionFactoryBuildItems).getSqlSessionFactory(),
-                beanContainerBuildItem.getValue());
+        sqlSessionFactoryBuildItems.forEach(sqlSessionFactoryBuildItem -> {
+            SyntheticBeanBuildItem.ExtendedBeanConfigurator configurator = SyntheticBeanBuildItem
+                    .configure(SqlSessionFactory.class)
+                    .scope(Singleton.class)
+                    .unremovable()
+                    .supplier(recorder.MyBatisSqlSessionFactorySupplier(sqlSessionFactoryBuildItem.getSqlSessionFactory()));
+            String dataSourceName = sqlSessionFactoryBuildItem.getDataSourceName();
+            if (!sqlSessionFactoryBuildItem.isDefaultDataSource()) {
+                configurator.defaultBean();
+                configurator.addQualifier().annotation(Named.class).addValue("value", dataSourceName).done();
+            }
+            syntheticBeanBuildItemBuildProducer.produce(configurator.done());
+        });
     }
 
     @Record(ExecutionTime.RUNTIME_INIT)
@@ -307,12 +312,5 @@ class MyBatisProcessor {
                 .filter(SqlSessionManagerBuildItem::isDefaultDataSource)
                 .findFirst()
                 .orElse(sqlSessionManagerBuildItems.get(0));
-    }
-
-    private SqlSessionFactoryBuildItem getDefaultSessionFactory(List<SqlSessionFactoryBuildItem> sqlSessionFactoryBuildItems) {
-        return sqlSessionFactoryBuildItems.stream()
-                .filter(SqlSessionFactoryBuildItem::isDefaultDataSource)
-                .findFirst()
-                .orElse(sqlSessionFactoryBuildItems.get(0));
     }
 }

@@ -280,5 +280,22 @@ public interface UserMapper {
 }
 ----
 
+== CDI integration
+Injects default session factory:
+
+[source, java]
+----
+@Inject
+SqlSessionFactory sqlSessionFactory;
+----
+
+Injects session factory for data source `user`:
+
+[source, java]
+----
+@Named("user")
+SqlSessionFactory sqlSessionFactory;
+----
+
 == Configuration References
 include::includes/quarkus-mybatis.adoc[opts=optional, leveloffset=+1]
