@@ -6,6 +6,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import java.util.UUID;
 
 import javax.inject.Inject;
+import javax.inject.Named;
 
 import org.apache.ibatis.session.SqlSessionFactory;
 import org.jboss.shrinkwrap.api.ShrinkWrap;
@@ -26,14 +27,21 @@ public class MyBatisTest {
     UserMapper userMapper;
 
     @Inject
-    SqlSessionFactory sqlSessionFactory;
+    SqlSessionFactory h2SqlSessionFactory;
+
+    @Named("derby")
+    SqlSessionFactory derbySqlSessionFactory;
 
     @Test
     public void test() throws Exception {
-        assertTrue(sqlSessionFactory.getConfiguration().getMapperRegistry().hasMapper(UserMapper.class));
+        assertTrue(h2SqlSessionFactory.getConfiguration().getMapperRegistry().hasMapper(UserMapper.class));
+        assertEquals("H2", h2SqlSessionFactory.openSession().getConnection().getMetaData().getDatabaseProductName());
         User user = userMapper.getUser(1);
         assertEquals(user.getId(), 1);
         assertEquals(user.getName(), "Test User1");
         assertEquals(user.getExternalId(), UUID.fromString("8c5034fe-1a00-43b7-9c75-f83ef14e3507"));
+
+        assertEquals("Apache Derby",
+                derbySqlSessionFactory.openSession().getConnection().getMetaData().getDatabaseProductName());
     }
 }

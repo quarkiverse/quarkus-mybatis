@@ -1,5 +1,6 @@
-package io.quarkiverse.mybatis.runtime;
+package io.quarkiverse.mybatis.runtime.config;
 
+import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 
@@ -10,11 +11,20 @@ import org.apache.ibatis.session.ExecutorType;
 import org.apache.ibatis.session.LocalCacheScope;
 import org.apache.ibatis.type.JdbcType;
 
+import io.quarkus.runtime.annotations.ConfigDocMapKey;
+import io.quarkus.runtime.annotations.ConfigDocSection;
 import io.quarkus.runtime.annotations.ConfigItem;
 import io.quarkus.runtime.annotations.ConfigRoot;
 
 @ConfigRoot(name = "mybatis")
 public class MyBatisRuntimeConfig {
+    /**
+     * Data sources config
+     */
+    @ConfigDocSection
+    @ConfigDocMapKey("data-source-name")
+    @ConfigItem(name = ConfigItem.PARENT)
+    public Map<String, MyBatisDataSourceRuntimeConfig> dataSources;
 
     /**
      * MyBatis environment id

@@ -19,6 +19,9 @@ public class MyBatisResource {
     @Inject
     UserMapper userMapper;
 
+    @Inject
+    DerbyUserMapper derbyUserMapper;
+
     @Path("/user/{id}")
     @GET
     @Produces(MediaType.APPLICATION_JSON)
@@ -49,4 +52,17 @@ public class MyBatisResource {
         return userMapper.removeUser(id);
     }
 
+    @Path("/user/count/h2")
+    @GET
+    @Produces(MediaType.APPLICATION_JSON)
+    public int getUserCount() {
+        return userMapper.getUserCount();
+    }
+
+    @Path("/user/count/derby")
+    @GET
+    @Produces(MediaType.APPLICATION_JSON)
+    public int getDerbyUserCount() {
+        return derbyUserMapper.getUserCount();
+    }
 }
