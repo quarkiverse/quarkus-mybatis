@@ -1,3 +1,5 @@
+DROP TABLE USERS IF EXISTS;
+
 CREATE TABLE USERS (
     id integer not null primary key,
     name varchar(80) not null,

@@ -297,5 +297,57 @@ Injects session factory for data source `user`:
 SqlSessionFactory sqlSessionFactory;
 ----
 
+== XML Configuration Support
+
+You need to set ```quarkus.mybatis.xmlconfig.enable``` to ```true``` and set ```quarkus.mybatis.xmlconfig.path``` to the
+mybatis xml configuration which the default value is ```mybatis-config.xml```.
+Aslo ```quarkus.mybatis.environment``` is relevant to the element of ```environment``` in the xml configuration file.
+
+[source, text]
+----
+# H2
+quarkus.datasource.h2.db-kind=h2
+quarkus.datasource.h2.username=sa
+quarkus.datasource.h2.password=sa
+quarkus.datasource.h2.jdbc.url=jdbc:h2:tcp://localhost/mem:default
+
+# MyBatis
+quarkus.mybatis.xmlconfig.enable=true
+quarkus.mybatis.xmlconfig.path=mybatis-config.xml
+quarkus.mybatis.environment=development
+quarkus.mybatis.h2.initial-sql=insert-h2.sql
+----
+
+[source, xml]
+----
+<!DOCTYPE configuration
+        PUBLIC "-//mybatis.org//DTD Config 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-config.dtd">
+
+<configuration>
+    <typeHandlers>
+        <package name="io.quarkiverse.it.mybatis"/>
+    </typeHandlers>
+
+    <!-- setup environment with Quarkus data source -->
+    <environments default="development">
+        <environment id="development">
+            <transactionManager type="JDBC"/>
+            <dataSource type="QUARKUS">
+                <property name="db" value="h2"/>
+            </dataSource>
+        </environment>
+    </environments>
+
+    <mappers>
+        <package name="io.quarkiverse.it.mybatis"/>
+    </mappers>
+</configuration>
+----
+
+The dataSource type must be ```QARKUS``` and the property ```db``` could be specified to the datasource name in the
+quarkus configuration.
+
+
 == Configuration References
 include::includes/quarkus-mybatis.adoc[opts=optional, leveloffset=+1]
