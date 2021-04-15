@@ -1,5 +1,6 @@
 package io.quarkiverse.mybatis.runtime;
 
+import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.Reader;
 import java.sql.Connection;
@@ -11,6 +12,7 @@ import java.util.function.Supplier;
 
 import javax.sql.DataSource;
 
+import org.apache.ibatis.builder.xml.XMLConfigBuilder;
 import org.apache.ibatis.executor.loader.cglib.CglibProxyFactory;
 import org.apache.ibatis.executor.loader.javassist.JavassistProxyFactory;
 import org.apache.ibatis.io.Resources;
@@ -48,16 +50,56 @@ public class MyBatisRecorder {
             List<String> mappers,
             List<String> mappedTypes,
             List<String> mappedJdbcTypes) {
-        Configuration configuration = createConfiguration(myBatisRuntimeConfig, myBatisDataSourceRuntimeConfig, dataSourceName,
-                mappers, mappedTypes, mappedJdbcTypes);
+        Configuration configuration;
+
+        if (myBatisRuntimeConfig.xmlconfig.enable) {
+            try {
+                Reader reader = Resources.getResourceAsReader(myBatisRuntimeConfig.xmlconfig.path);
+                XMLConfigBuilder builder = new XMLConfigBuilder(reader, myBatisRuntimeConfig.environment);
+                builder.getConfiguration().getTypeAliasRegistry().registerAlias("QUARKUS", QuarkusDataSourceFactory.class);
+                configuration = builder.parse();
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
+        } else {
+            configuration = createConfiguration(myBatisRuntimeConfig, myBatisDataSourceRuntimeConfig, dataSourceName);
+            addMappers(configuration, mappedTypes, mappedJdbcTypes, mappers);
+        }
+
         SqlSessionFactory sqlSessionFactory = new SqlSessionFactoryBuilder().build(configuration);
         return new RuntimeValue<>(sqlSessionFactory);
     }
 
+    private void addMappers(Configuration configuration,
+            List<String> mappedTypes, List<String> mappedJdbcTypes, List<String> mappers) {
+        for (String mappedType : mappedTypes) {
+            try {
+                configuration.getTypeHandlerRegistry().register(Resources.classForName(mappedType));
+            } catch (ClassNotFoundException e) {
+                LOG.debug("Can not find the mapped type class " + mappedType);
+            }
+        }
+
+        for (String mappedJdbcType : mappedJdbcTypes) {
+            try {
+                configuration.getTypeHandlerRegistry().register(Resources.classForName(mappedJdbcType));
+            } catch (ClassNotFoundException e) {
+                LOG.debug("Can not find the mapped jdbc type class " + mappedJdbcType);
+            }
+        }
+
+        for (String mapper : mappers) {
+            try {
+                configuration.addMapper(Resources.classForName(mapper));
+            } catch (ClassNotFoundException e) {
+                LOG.debug("Can not find the mapper class " + mapper);
+            }
+        }
+    }
+
     private Configuration createConfiguration(MyBatisRuntimeConfig runtimeConfig,
             MyBatisDataSourceRuntimeConfig dataSourceRuntimeConfig,
-            String dataSourceName,
-            List<String> mappers, List<String> mappedTypes, List<String> mappedJdbcTypes) {
+            String dataSourceName) {
         Configuration configuration = new Configuration();
 
         TransactionFactory factory;
@@ -236,31 +278,8 @@ public class MyBatisRecorder {
         Environment.Builder environmentBuilder = new Environment.Builder(environment)
                 .transactionFactory(factory)
                 .dataSource(new QuarkusDataSource(dataSourceName));
-
-        for (String mappedType : mappedTypes) {
-            try {
-                configuration.getTypeHandlerRegistry().register(Resources.classForName(mappedType));
-            } catch (ClassNotFoundException e) {
-                LOG.debug("Can not find the mapped type class " + mappedType);
-            }
-        }
-
-        for (String mappedJdbcType : mappedJdbcTypes) {
-            try {
-                configuration.getTypeHandlerRegistry().register(Resources.classForName(mappedJdbcType));
-            } catch (ClassNotFoundException e) {
-                LOG.debug("Can not find the mapped jdbc type class " + mappedJdbcType);
-            }
-        }
-
         configuration.setEnvironment(environmentBuilder.build());
-        for (String mapper : mappers) {
-            try {
-                configuration.addMapper(Resources.classForName(mapper));
-            } catch (ClassNotFoundException e) {
-                LOG.debug("Can not find the mapper class " + mapper);
-            }
-        }
+
         return configuration;
     }
 

@@ -8,6 +8,24 @@ h|[[quarkus-mybatis_configuration]]link:#quarkus-mybatis_configuration[Configura
 h|Type
 h|Default
 
+a|icon:lock[title=Fixed at build time] [[quarkus-mybatis_quarkus.mybatis.xmlconfig.enable]]`link:#quarkus-mybatis_quarkus.mybatis.xmlconfig.enable[quarkus.mybatis.xmlconfig.enable]`
+
+[.description]
+--
+enable mybatis xml configuration
+--|boolean 
+|`false`
+
+
+a|icon:lock[title=Fixed at build time] [[quarkus-mybatis_quarkus.mybatis.xmlconfig.path]]`link:#quarkus-mybatis_quarkus.mybatis.xmlconfig.path[quarkus.mybatis.xmlconfig.path]`
+
+[.description]
+--
+xml configuration file
+--|string 
+|`mybatis-config.xml`
+
+
 a|icon:lock[title=Fixed at build time] [[quarkus-mybatis_quarkus.mybatis.environment]]`link:#quarkus-mybatis_quarkus.mybatis.environment[quarkus.mybatis.environment]`
 
 [.description]

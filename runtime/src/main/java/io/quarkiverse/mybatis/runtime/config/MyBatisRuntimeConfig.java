@@ -13,10 +13,12 @@ import org.apache.ibatis.type.JdbcType;
 
 import io.quarkus.runtime.annotations.ConfigDocMapKey;
 import io.quarkus.runtime.annotations.ConfigDocSection;
+import io.quarkus.runtime.annotations.ConfigGroup;
 import io.quarkus.runtime.annotations.ConfigItem;
+import io.quarkus.runtime.annotations.ConfigPhase;
 import io.quarkus.runtime.annotations.ConfigRoot;
 
-@ConfigRoot(name = "mybatis")
+@ConfigRoot(name = "mybatis", phase = ConfigPhase.BUILD_AND_RUN_TIME_FIXED)
 public class MyBatisRuntimeConfig {
     /**
      * Data sources config
@@ -25,6 +27,27 @@ public class MyBatisRuntimeConfig {
     @ConfigDocMapKey("data-source-name")
     @ConfigItem(name = ConfigItem.PARENT)
     public Map<String, MyBatisDataSourceRuntimeConfig> dataSources;
+
+    /**
+     * Support XML Configuration
+     */
+    @ConfigItem
+    public XmlConfig xmlconfig;
+
+    @ConfigGroup
+    public static class XmlConfig {
+        /**
+         * enable mybatis xml configuration
+         */
+        @ConfigItem(defaultValue = "false")
+        public boolean enable;
+
+        /**
+         * xml configuration file
+         */
+        @ConfigItem(defaultValue = "mybatis-config.xml")
+        public String path;
+    }
 
     /**
      * MyBatis environment id
