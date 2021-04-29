@@ -43,6 +43,22 @@ import io.quarkus.runtime.annotations.Recorder;
 public class MyBatisRecorder {
     private static final Logger LOG = Logger.getLogger(MyBatisRecorder.class);
 
+    public RuntimeValue<SqlSessionFactory> createSqlSessionFactory(MyBatisRuntimeConfig myBatisRuntimeConfig) {
+        Configuration configuration;
+
+        try {
+            Reader reader = Resources.getResourceAsReader(myBatisRuntimeConfig.xmlconfig.path);
+            XMLConfigBuilder builder = new XMLConfigBuilder(reader, myBatisRuntimeConfig.environment);
+            builder.getConfiguration().getTypeAliasRegistry().registerAlias("QUARKUS", QuarkusDataSourceFactory.class);
+            configuration = builder.parse();
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+
+        SqlSessionFactory sqlSessionFactory = new SqlSessionFactoryBuilder().build(configuration);
+        return new RuntimeValue<>(sqlSessionFactory);
+    }
+
     public RuntimeValue<SqlSessionFactory> createSqlSessionFactory(
             MyBatisRuntimeConfig myBatisRuntimeConfig,
             MyBatisDataSourceRuntimeConfig myBatisDataSourceRuntimeConfig,
@@ -50,21 +66,8 @@ public class MyBatisRecorder {
             List<String> mappers,
             List<String> mappedTypes,
             List<String> mappedJdbcTypes) {
-        Configuration configuration;
-
-        if (myBatisRuntimeConfig.xmlconfig.enable) {
-            try {
-                Reader reader = Resources.getResourceAsReader(myBatisRuntimeConfig.xmlconfig.path);
-                XMLConfigBuilder builder = new XMLConfigBuilder(reader, myBatisRuntimeConfig.environment);
-                builder.getConfiguration().getTypeAliasRegistry().registerAlias("QUARKUS", QuarkusDataSourceFactory.class);
-                configuration = builder.parse();
-            } catch (IOException e) {
-                throw new RuntimeException(e);
-            }
-        } else {
-            configuration = createConfiguration(myBatisRuntimeConfig, myBatisDataSourceRuntimeConfig, dataSourceName);
-            addMappers(configuration, mappedTypes, mappedJdbcTypes, mappers);
-        }
+        Configuration configuration = createConfiguration(myBatisRuntimeConfig, myBatisDataSourceRuntimeConfig, dataSourceName);
+        addMappers(configuration, mappedTypes, mappedJdbcTypes, mappers);
 
         SqlSessionFactory sqlSessionFactory = new SqlSessionFactoryBuilder().build(configuration);
         return new RuntimeValue<>(sqlSessionFactory);
