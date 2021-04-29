@@ -193,8 +193,14 @@ class MyBatisProcessor {
                                     mappers,
                                     mappedTypes,
                                     mappedJdbcTypes),
-                            dataSource.getKey(), dataSource.getValue()));
+                            dataSource.getKey(), dataSource.getValue(), false));
         });
+
+        if (myBatisRuntimeConfig.xmlconfig.enable) {
+            sqlSessionFactory.produce(
+                    new SqlSessionFactoryBuildItem(
+                            recorder.createSqlSessionFactory(myBatisRuntimeConfig), "xmlconfig", false, true));
+        }
     }
 
     @Record(ExecutionTime.STATIC_INIT)
