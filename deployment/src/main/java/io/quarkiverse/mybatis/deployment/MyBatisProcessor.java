@@ -195,11 +195,25 @@ class MyBatisProcessor {
                                     mappedJdbcTypes),
                             dataSource.getKey(), dataSource.getValue(), false));
         });
+    }
 
-        if (myBatisRuntimeConfig.xmlconfig.enable) {
+    @BuildStep
+    void xmlConfig(MyBatisRuntimeConfig config, BuildProducer<MyBatisXmlConfigBuildItem> xmlConfig) {
+        if (config.xmlconfig.enable == true) {
+            xmlConfig.produce(new MyBatisXmlConfigBuildItem("xmlconfig", true));
+        }
+    }
+
+    @Record(ExecutionTime.STATIC_INIT)
+    @BuildStep
+    void generateSqlSessionFactoryFromXmlConfig(MyBatisRuntimeConfig config,
+            MyBatisXmlConfigBuildItem xmlConfigBuildItem,
+            BuildProducer<SqlSessionFactoryBuildItem> sqlSessionFactory,
+            MyBatisRecorder recorder) {
+        if (xmlConfigBuildItem != null && xmlConfigBuildItem.isEnabled()) {
             sqlSessionFactory.produce(
                     new SqlSessionFactoryBuildItem(
-                            recorder.createSqlSessionFactory(myBatisRuntimeConfig), "xmlconfig", false, true));
+                            recorder.createSqlSessionFactory(config), xmlConfigBuildItem.getName(), false, true));
         }
     }
 
