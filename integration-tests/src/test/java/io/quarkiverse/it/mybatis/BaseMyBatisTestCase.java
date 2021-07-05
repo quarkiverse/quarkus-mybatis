@@ -21,7 +21,11 @@ public class BaseMyBatisTestCase {
                 .post("/mybatis/user")
                 .then().body(is("1"));
 
-        RestAssured.when().delete("/mybatis/user/1").then()
+        RestAssured.when().delete("/mybatis/user/3").then()
                 .body(is("1"));
+
+        RestAssured.when().get("/mybatis/book/1").then()
+                .body(is(
+                        "{\"id\":1,\"author\":{\"id\":1,\"name\":\"Test User1\",\"externalId\":\"ccb16b65-8924-4c3f-8c55-681d85a16e79\"},\"title\":\"Test Title\"}"));
     }
 }
