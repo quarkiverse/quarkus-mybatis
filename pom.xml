@@ -9,8 +9,8 @@
     </parent>
 
     <groupId>io.quarkiverse.mybatis</groupId>
-    <artifactId>quarkus-mybatis-parent</artifactId>
-    <name>Quarkus - Mybatis - Parent</name>
+    <artifactId>quarkus-parent</artifactId>
+    <name>Quarkus - Parent</name>
     <version>0.0.10-SNAPSHOT</version>
     <packaging>pom</packaging>
 
@@ -24,12 +24,11 @@
 
         <quarkus.version>2.0.1.Final</quarkus.version>
         <mybatis.version>3.5.7</mybatis.version>
+	<mybatis-plus.version>3.4.3</mybatis-plus.version>
     </properties>
 
     <modules>
-        <module>deployment</module>
-        <module>runtime</module>
-        <module>docs</module>
+        <module>mybatis</module>
     </modules>
 
     <dependencyManagement>
@@ -45,6 +44,11 @@
                 <groupId>org.mybatis</groupId>
                 <artifactId>mybatis</artifactId>
                 <version>${mybatis.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.baomidou</groupId>
+                <artifactId>mybatis-plus</artifactId>
+		<version>${mybatis-plus.verson}</version>
             </dependency>
         </dependencies>
     </dependencyManagement>
@@ -76,18 +80,4 @@
         </pluginManagement>
     </build>
 
-    <profiles>
-        <profile>
-            <id>it</id>
-            <activation>
-                <property>
-                    <name>performRelease</name>
-                    <value>!true</value>
-                </property>
-            </activation>
-            <modules>
-                <module>integration-tests</module>
-            </modules>
-        </profile>
-    </profiles>
 </project>
