@@ -1,0 +1,6 @@
+include::./includes/attributes.adoc[]
+= Quarkus - Using MyBatis Plus
+
+:extension-status: preview
+
+This guide demonstrates how your Quarkus application can use link:{mybatis-plus-root-url}[MyBatis Plus] to provide some efficient, useful, out-of-the-box features for link:{mybatis-root-url}[MyBatis], use it can effectively save your development time.

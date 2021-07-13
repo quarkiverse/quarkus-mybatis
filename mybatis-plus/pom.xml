@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <parent>
+        <groupId>io.quarkiverse.mybatis</groupId>
+        <artifactId>quarkus-parent</artifactId>
+        <version>0.0.10-SNAPSHOT</version>
+    </parent>
+
+    <artifactId>quarkus-mybatis-plus-parent</artifactId>
+    <name>Quarkus - Mybatis Plus - Parent</name>
+    <packaging>pom</packaging>
+
+    <modules>
+        <module>deployment</module>
+        <module>runtime</module>
+        <module>docs</module>
+    </modules>
+
+    <profiles>
+        <profile>
+            <id>it</id>
+            <activation>
+                <property>
+                    <name>performRelease</name>
+                    <value>!true</value>
+                </property>
+            </activation>
+            <modules>
+                <module>integration-tests</module>
+            </modules>
+        </profile>
+    </profiles>
+</project>
