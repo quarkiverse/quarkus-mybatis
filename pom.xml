@@ -29,6 +29,7 @@
 
     <modules>
         <module>mybatis</module>
+        <module>mybatis-plus</module>
     </modules>
 
     <dependencyManagement>
@@ -48,7 +49,7 @@
             <dependency>
                 <groupId>com.baomidou</groupId>
                 <artifactId>mybatis-plus</artifactId>
-		<version>${mybatis-plus.verson}</version>
+		<version>${mybatis-plus.version}</version>
             </dependency>
         </dependencies>
     </dependencyManagement>

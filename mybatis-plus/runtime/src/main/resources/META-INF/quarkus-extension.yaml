@@ -1,0 +1,9 @@
+---
+name: "An powerful enhanced toolkit of MyBatis for simplify development"
+metadata:
+  keywords:
+  - "mybatis-plus"
+  guide: "https://quarkus.io/guides/mybatis-plus"
+  categories:
+  - "data"
+  status: "preview"
