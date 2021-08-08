@@ -24,7 +24,6 @@ import org.apache.ibatis.scripting.LanguageDriver;
 import org.apache.ibatis.session.Configuration;
 import org.apache.ibatis.session.SqlSession;
 import org.apache.ibatis.session.SqlSessionFactory;
-import org.apache.ibatis.session.SqlSessionFactoryBuilder;
 import org.apache.ibatis.session.SqlSessionManager;
 import org.apache.ibatis.transaction.TransactionFactory;
 import org.apache.ibatis.transaction.jdbc.JdbcTransactionFactory;
@@ -33,6 +32,7 @@ import org.apache.ibatis.type.TypeHandler;
 import org.jboss.logging.Logger;
 
 import com.baomidou.mybatisplus.core.MybatisConfiguration;
+import com.baomidou.mybatisplus.core.MybatisSqlSessionFactoryBuilder;
 
 import io.agroal.api.AgroalDataSource;
 import io.quarkiverse.mybatis.runtime.config.MyBatisDataSourceRuntimeConfig;
@@ -56,18 +56,9 @@ public class MyBatisRecorder {
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
-
         //        SqlSessionFactory sqlSessionFactory = new SqlSessionFactoryBuilder().build(configuration);
-
-        SqlSessionFactoryBuilder sqlSessionFactoryBuilder = null;
-        try {
-            sqlSessionFactoryBuilder = (SqlSessionFactoryBuilder) Class
-                    .forName("com.baomidou.mybatisplus.core.MybatisSqlSessionFactoryBuilder").getConstructor().newInstance();
-        } catch (Exception e) {
-            LOG.info("MybatisSqlSessionFactoryBuilder error");
-            throw new RuntimeException(e);
-        }
-        return new RuntimeValue<>(sqlSessionFactoryBuilder.build(configuration));
+        SqlSessionFactory sqlSessionFactory = new MybatisSqlSessionFactoryBuilder().build(configuration);
+        return new RuntimeValue<>(sqlSessionFactory);
     }
 
     public RuntimeValue<SqlSessionFactory> createSqlSessionFactory(
@@ -82,15 +73,8 @@ public class MyBatisRecorder {
         addMappers(configuration, mappedTypes, mappedJdbcTypes, mappers);
 
         //        SqlSessionFactory sqlSessionFactory = new SqlSessionFactoryBuilder().build(configuration);
-        SqlSessionFactoryBuilder sqlSessionFactoryBuilder = null;
-        try {
-            sqlSessionFactoryBuilder = (SqlSessionFactoryBuilder) Class
-                    .forName("com.baomidou.mybatisplus.core.MybatisSqlSessionFactoryBuilder").getConstructor().newInstance();
-        } catch (Exception e) {
-            LOG.info("MybatisSqlSessionFactoryBuilder error");
-            throw new RuntimeException(e);
-        }
-        return new RuntimeValue<>(sqlSessionFactoryBuilder.build(configuration));
+        SqlSessionFactory sqlSessionFactory = new MybatisSqlSessionFactoryBuilder().build(configuration);
+        return new RuntimeValue<>(sqlSessionFactory);
     }
 
     private void addMappers(Configuration configuration,
@@ -123,6 +107,7 @@ public class MyBatisRecorder {
     private Configuration createConfiguration(MyBatisRuntimeConfig runtimeConfig,
             MyBatisDataSourceRuntimeConfig dataSourceRuntimeConfig,
             String dataSourceName) {
+        //      Configuration configuration = new Configuration();
         MybatisConfiguration configuration = new MybatisConfiguration();
 
         TransactionFactory factory;
