@@ -51,6 +51,16 @@
             <artifactId>quarkus-jdbc-derby</artifactId>
             <scope>test</scope>
         </dependency>
+        <dependency>
+            <groupId>io.quarkiverse.mybatis</groupId>
+            <artifactId>quarkus-mybatis-deployment</artifactId>
+            <version>0.0.10-SNAPSHOT</version>
+        </dependency>
+        <dependency>
+            <groupId>com.baomidou</groupId>
+            <artifactId>mybatis-plus</artifactId>
+            <version>3.4.3</version>
+        </dependency>
     </dependencies>
 
     <build>
