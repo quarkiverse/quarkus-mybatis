@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
     <parent>
@@ -24,7 +25,7 @@
 
         <quarkus.version>2.1.0.Final</quarkus.version>
         <mybatis.version>3.5.7</mybatis.version>
-	<mybatis-plus.version>3.4.3.1</mybatis-plus.version>
+        <mybatis-plus.version>3.4.3</mybatis-plus.version>
     </properties>
 
     <modules>
@@ -49,7 +50,7 @@
             <dependency>
                 <groupId>com.baomidou</groupId>
                 <artifactId>mybatis-plus</artifactId>
-		<version>${mybatis-plus.version}</version>
+                <version>${mybatis-plus.version}</version>
             </dependency>
         </dependencies>
     </dependencyManagement>
@@ -72,9 +73,9 @@
                     <artifactId>maven-surefire-plugin</artifactId>
                     <version>${surefire.plugin.version}</version>
                     <configuration>
-                       <systemProperties>
-                          <java.util.logging.manager>org.jboss.logmanager.LogManager</java.util.logging.manager>
-                       </systemProperties>
+                        <systemProperties>
+                            <java.util.logging.manager>org.jboss.logmanager.LogManager</java.util.logging.manager>
+                        </systemProperties>
                     </configuration>
                 </plugin>
             </plugins>
