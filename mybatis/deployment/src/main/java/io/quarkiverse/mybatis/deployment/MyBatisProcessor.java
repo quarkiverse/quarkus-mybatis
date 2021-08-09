@@ -33,7 +33,10 @@ import org.apache.ibatis.type.MappedTypes;
 import org.jboss.jandex.AnnotationInstance;
 import org.jboss.jandex.AnnotationTarget;
 import org.jboss.jandex.DotName;
+import org.jboss.jandex.MethodInfo;
 import org.jboss.logging.Logger;
+
+import com.google.common.collect.Lists;
 
 import io.quarkiverse.mybatis.runtime.MyBatisRecorder;
 import io.quarkiverse.mybatis.runtime.config.MyBatisDataSourceRuntimeConfig;
@@ -41,10 +44,7 @@ import io.quarkiverse.mybatis.runtime.config.MyBatisRuntimeConfig;
 import io.quarkiverse.mybatis.runtime.meta.MapperDataSource;
 import io.quarkus.agroal.spi.JdbcDataSourceBuildItem;
 import io.quarkus.arc.deployment.SyntheticBeanBuildItem;
-import io.quarkus.deployment.annotations.BuildProducer;
-import io.quarkus.deployment.annotations.BuildStep;
-import io.quarkus.deployment.annotations.ExecutionTime;
-import io.quarkus.deployment.annotations.Record;
+import io.quarkus.deployment.annotations.*;
 import io.quarkus.deployment.builditem.CombinedIndexBuildItem;
 import io.quarkus.deployment.builditem.FeatureBuildItem;
 import io.quarkus.deployment.builditem.nativeimage.NativeImageProxyDefinitionBuildItem;
@@ -58,6 +58,11 @@ class MyBatisProcessor {
     private static final Logger LOG = Logger.getLogger(MyBatisProcessor.class);
     private static final String FEATURE = "mybatis";
     private static final DotName MYBATIS_MAPPER = DotName.createSimple(Mapper.class.getName());
+    private static final ArrayList<DotName> MYBATIS_PROVIDERS = Lists.newArrayList(
+            DotName.createSimple(SelectProvider.class.getName()),
+            DotName.createSimple(UpdateProvider.class.getName()),
+            DotName.createSimple(InsertProvider.class.getName()),
+            DotName.createSimple(DeleteProvider.class.getName()));
     private static final DotName MYBATIS_TYPE_HANDLER = DotName.createSimple(MappedTypes.class.getName());
     private static final DotName MYBATIS_JDBC_TYPE_HANDLER = DotName.createSimple(MappedJdbcTypes.class.getName());
     private static final DotName MYBATIS_MAPPER_DATA_SOURCE = DotName.createSimple(MapperDataSource.class.getName());
@@ -74,7 +79,7 @@ class MyBatisProcessor {
 
     @BuildStep
     void reflectiveClasses(BuildProducer<ReflectiveClassBuildItem> reflectiveClass) {
-        reflectiveClass.produce(new ReflectiveClassBuildItem(false, false,
+        reflectiveClass.produce(new ReflectiveClassBuildItem(true, false,
                 ProxyFactory.class,
                 XMLLanguageDriver.class,
                 RawLanguageDriver.class,
@@ -100,6 +105,14 @@ class MyBatisProcessor {
         for (AnnotationInstance i : indexBuildItem.getIndex().getAnnotations(MYBATIS_MAPPER)) {
             if (i.target().kind() == AnnotationTarget.Kind.CLASS) {
                 DotName dotName = i.target().asClass().name();
+                for (MethodInfo method : i.target().asClass().methods()) {
+                    Optional<AnnotationInstance> annotation = method.annotations().stream()
+                            .filter(t -> MYBATIS_PROVIDERS.contains(t.name())).findFirst();
+                    if (annotation.isPresent()) {
+                        DotName sqlProviderClass = annotation.get().value("type").asClass().name();
+                        reflective.produce(new ReflectiveClassBuildItem(true, false, sqlProviderClass.toString()));
+                    }
+                }
                 reflective.produce(new ReflectiveClassBuildItem(true, false, dotName.toString()));
                 proxy.produce(new NativeImageProxyDefinitionBuildItem(dotName.toString()));
 
@@ -120,6 +133,7 @@ class MyBatisProcessor {
 
     @BuildStep
     void addMyBatisMappedTypes(BuildProducer<MyBatisMappedTypeBuildItem> mappedTypes,
+            BuildProducer<ReflectiveClassBuildItem> reflective,
             BuildProducer<MyBatisMappedJdbcTypeBuildItem> mappedJdbcTypes,
             CombinedIndexBuildItem indexBuildItem) {
         List<DotName> names = new ArrayList<>();
@@ -127,6 +141,7 @@ class MyBatisProcessor {
             if (i.target().kind() == AnnotationTarget.Kind.CLASS) {
                 DotName dotName = i.target().asClass().name();
                 mappedTypes.produce(new MyBatisMappedTypeBuildItem(dotName));
+                reflective.produce(new ReflectiveClassBuildItem(true, false, dotName.toString()));
                 names.add(dotName);
             }
         }
@@ -135,6 +150,7 @@ class MyBatisProcessor {
                 DotName dotName = i.target().asClass().name();
                 if (!names.contains(dotName)) {
                     mappedJdbcTypes.produce(new MyBatisMappedJdbcTypeBuildItem(dotName));
+                    reflective.produce(new ReflectiveClassBuildItem(true, false, dotName.toString()));
                 }
             }
         }
@@ -147,7 +163,7 @@ class MyBatisProcessor {
                 .ifPresent(initialSql -> resource.produce(new NativeImageResourceBuildItem(initialSql))));
     }
 
-    @Record(ExecutionTime.STATIC_INIT)
+    @Record(ExecutionTime.RUNTIME_INIT)
     @BuildStep
     void generateSqlSessionFactory(MyBatisRuntimeConfig myBatisRuntimeConfig,
             List<MyBatisMapperBuildItem> myBatisMapperBuildItems,
@@ -204,20 +220,22 @@ class MyBatisProcessor {
         }
     }
 
-    @Record(ExecutionTime.STATIC_INIT)
+    @Record(ExecutionTime.RUNTIME_INIT)
     @BuildStep
-    void generateSqlSessionFactoryFromXmlConfig(MyBatisRuntimeConfig config,
+    void generateSqlSessionFactoryFromXmlConfig(
+            MyBatisRuntimeConfig config,
             MyBatisXmlConfigBuildItem xmlConfigBuildItem,
             BuildProducer<SqlSessionFactoryBuildItem> sqlSessionFactory,
             MyBatisRecorder recorder) {
         if (xmlConfigBuildItem != null && xmlConfigBuildItem.isEnabled()) {
             sqlSessionFactory.produce(
                     new SqlSessionFactoryBuildItem(
-                            recorder.createSqlSessionFactory(config), xmlConfigBuildItem.getName(), false, true));
+                            recorder.createSqlSessionFactory(config),
+                            xmlConfigBuildItem.getName(), false, true));
         }
     }
 
-    @Record(ExecutionTime.STATIC_INIT)
+    @Record(ExecutionTime.RUNTIME_INIT)
     @BuildStep
     void generateSqlSessionManager(List<SqlSessionFactoryBuildItem> sqlSessionFactoryBuildItems,
             BuildProducer<SqlSessionManagerBuildItem> sqlSessionManager,
@@ -286,7 +304,7 @@ class MyBatisProcessor {
         }
     }
 
-    @Record(ExecutionTime.STATIC_INIT)
+    @Record(ExecutionTime.RUNTIME_INIT)
     @BuildStep
     void register(List<SqlSessionFactoryBuildItem> sqlSessionFactoryBuildItems,
             BuildProducer<SyntheticBeanBuildItem> syntheticBeanBuildItemBuildProducer,
@@ -295,6 +313,7 @@ class MyBatisProcessor {
             SyntheticBeanBuildItem.ExtendedBeanConfigurator configurator = SyntheticBeanBuildItem
                     .configure(SqlSessionFactory.class)
                     .scope(Singleton.class)
+                    .setRuntimeInit()
                     .unremovable()
                     .supplier(recorder.MyBatisSqlSessionFactorySupplier(sqlSessionFactoryBuildItem.getSqlSessionFactory()));
             String dataSourceName = sqlSessionFactoryBuildItem.getDataSourceName();

@@ -2,13 +2,7 @@ package io.quarkiverse.it.mybatis;
 
 import java.util.UUID;
 
-import org.apache.ibatis.annotations.CacheNamespace;
-import org.apache.ibatis.annotations.Delete;
-import org.apache.ibatis.annotations.Insert;
-import org.apache.ibatis.annotations.Mapper;
-import org.apache.ibatis.annotations.Param;
-import org.apache.ibatis.annotations.Select;
-import org.apache.ibatis.annotations.SelectProvider;
+import org.apache.ibatis.annotations.*;
 
 @Mapper
 @CacheNamespace(readWrite = false)

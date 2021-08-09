@@ -95,7 +95,7 @@
             </activation>
             <properties>
                 <quarkus.package.type>native</quarkus.package.type>
-                <quarkus.native.additional-build-args>--report-unsupported-elements-at-runtime</quarkus.native.additional-build-args>
+                <quarkus.native.additional-build-args>--allow-incomplete-classpath,--report-unsupported-elements-at-runtime</quarkus.native.additional-build-args>
             </properties>
             <build>
                 <plugins>
