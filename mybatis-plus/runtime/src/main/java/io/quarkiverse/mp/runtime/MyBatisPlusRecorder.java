@@ -3,7 +3,6 @@ package io.quarkiverse.mp.runtime;
 import org.apache.ibatis.session.SqlSessionFactoryBuilder;
 import org.jboss.logging.Logger;
 
-import io.quarkiverse.mybatis.runtime.ConfigurationBuilder;
 import io.quarkus.runtime.RuntimeValue;
 import io.quarkus.runtime.annotations.Recorder;
 
@@ -16,9 +15,9 @@ public class MyBatisPlusRecorder {
         return new RuntimeValue<>(new SqlSessionFactoryBuilder());
     }
 
-    public RuntimeValue<ConfigurationBuilder> getMybatisConfiguration() {
+    public RuntimeValue<ConfigurationPlusBuilder> getMybatisConfiguration() {
         LOG.info("getMybatisConfiguration");
-        return new RuntimeValue<>(new ConfigurationBuilder());
+        return new RuntimeValue<>(new ConfigurationPlusBuilder());
     }
 
 }
