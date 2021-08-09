@@ -9,7 +9,6 @@ import org.apache.ibatis.executor.loader.cglib.CglibProxyFactory;
 import org.apache.ibatis.javassist.util.proxy.ProxyFactory;
 import org.apache.ibatis.logging.log4j.Log4jImpl;
 import org.apache.ibatis.scripting.defaults.RawLanguageDriver;
-import org.apache.ibatis.scripting.xmltags.XMLLanguageDriver;
 import org.apache.ibatis.session.SqlSessionFactoryBuilder;
 import org.apache.ibatis.type.EnumTypeHandler;
 import org.jboss.jandex.AnnotationInstance;
@@ -18,6 +17,7 @@ import org.jboss.jandex.DotName;
 import org.jboss.logging.Logger;
 
 import com.baomidou.mybatisplus.annotation.TableName;
+import com.baomidou.mybatisplus.core.MybatisXMLLanguageDriver;
 
 import io.quarkiverse.mp.runtime.MyBatisPlusRecorder;
 import io.quarkiverse.mybatis.runtime.ConfigurationBuilder;
@@ -57,7 +57,7 @@ class MyBatisPlusProcessor {
         reflectiveClass.produce(new ReflectiveClassBuildItem(true, true,
                 ProxyFactory.class,
                 CglibProxyFactory.class,
-                XMLLanguageDriver.class,
+                MybatisXMLLanguageDriver.class,
                 RawLanguageDriver.class,
                 SelectProvider.class,
                 UpdateProvider.class,
