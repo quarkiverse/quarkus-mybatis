@@ -14,12 +14,9 @@
 
     <dependencies>
         <dependency>
-            <groupId>io.quarkus</groupId>
-            <artifactId>quarkus-arc</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>io.quarkus</groupId>
-            <artifactId>quarkus-agroal</artifactId>
+            <groupId>io.quarkiverse.mybatis</groupId>
+            <artifactId>quarkus-mybatis</artifactId>
+            <version>${project.version}</version>
         </dependency>
         <dependency>
             <groupId>com.baomidou</groupId>

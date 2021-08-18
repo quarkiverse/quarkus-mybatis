@@ -27,6 +27,7 @@ import org.apache.ibatis.logging.log4j.Log4jImpl;
 import org.apache.ibatis.scripting.defaults.RawLanguageDriver;
 import org.apache.ibatis.scripting.xmltags.XMLLanguageDriver;
 import org.apache.ibatis.session.SqlSessionFactory;
+import org.apache.ibatis.session.SqlSessionFactoryBuilder;
 import org.apache.ibatis.type.EnumTypeHandler;
 import org.apache.ibatis.type.MappedJdbcTypes;
 import org.apache.ibatis.type.MappedTypes;
@@ -35,6 +36,7 @@ import org.jboss.jandex.AnnotationTarget;
 import org.jboss.jandex.DotName;
 import org.jboss.logging.Logger;
 
+import io.quarkiverse.mybatis.runtime.MyBatisConfigurationFactory;
 import io.quarkiverse.mybatis.runtime.MyBatisRecorder;
 import io.quarkiverse.mybatis.runtime.config.MyBatisDataSourceRuntimeConfig;
 import io.quarkiverse.mybatis.runtime.config.MyBatisRuntimeConfig;
@@ -44,6 +46,7 @@ import io.quarkus.arc.deployment.SyntheticBeanBuildItem;
 import io.quarkus.deployment.annotations.BuildProducer;
 import io.quarkus.deployment.annotations.BuildStep;
 import io.quarkus.deployment.annotations.ExecutionTime;
+import io.quarkus.deployment.annotations.Overridable;
 import io.quarkus.deployment.annotations.Record;
 import io.quarkus.deployment.builditem.CombinedIndexBuildItem;
 import io.quarkus.deployment.builditem.FeatureBuildItem;
@@ -53,7 +56,7 @@ import io.quarkus.deployment.builditem.nativeimage.ReflectiveClassBuildItem;
 import io.quarkus.deployment.builditem.nativeimage.RuntimeInitializedClassBuildItem;
 import io.quarkus.deployment.configuration.ConfigurationError;
 
-class MyBatisProcessor {
+public class MyBatisProcessor {
 
     private static final Logger LOG = Logger.getLogger(MyBatisProcessor.class);
     private static final String FEATURE = "mybatis";
@@ -93,6 +96,7 @@ class MyBatisProcessor {
     }
 
     @BuildStep
+    @Overridable
     void addMyBatisMappers(BuildProducer<MyBatisMapperBuildItem> mappers,
             BuildProducer<ReflectiveClassBuildItem> reflective,
             BuildProducer<NativeImageProxyDefinitionBuildItem> proxy,
@@ -150,6 +154,8 @@ class MyBatisProcessor {
     @Record(ExecutionTime.STATIC_INIT)
     @BuildStep
     void generateSqlSessionFactory(MyBatisRuntimeConfig myBatisRuntimeConfig,
+            ConfigurationFactoryBuildItem configurationFactoryBuildItem,
+            SqlSessionFactoryBuilderBuildItem sqlSessionFactoryBuilderBuildItem,
             List<MyBatisMapperBuildItem> myBatisMapperBuildItems,
             List<MyBatisMappedTypeBuildItem> myBatisMappedTypeBuildItems,
             List<MyBatisMappedJdbcTypeBuildItem> myBatisMappedJdbcTypeBuildItems,
@@ -188,6 +194,8 @@ class MyBatisProcessor {
             sqlSessionFactory.produce(
                     new SqlSessionFactoryBuildItem(
                             recorder.createSqlSessionFactory(
+                                    configurationFactoryBuildItem.getFactory(),
+                                    sqlSessionFactoryBuilderBuildItem.getBuilder(),
                                     myBatisRuntimeConfig,
                                     dataSourceConfig,
                                     dataSource.getKey(),
@@ -196,6 +204,18 @@ class MyBatisProcessor {
                                     mappedJdbcTypes),
                             dataSource.getKey(), dataSource.getValue(), false));
         });
+    }
+
+    @BuildStep
+    @Overridable
+    ConfigurationFactoryBuildItem createConfigurationFactory() {
+        return new ConfigurationFactoryBuildItem(new MyBatisConfigurationFactory());
+    }
+
+    @BuildStep
+    @Overridable
+    SqlSessionFactoryBuilderBuildItem createSqlSessionFactoryBuilder() {
+        return new SqlSessionFactoryBuilderBuildItem(new SqlSessionFactoryBuilder());
     }
 
     @BuildStep
