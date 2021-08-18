@@ -59,17 +59,24 @@ public class MyBatisRecorder {
         return new RuntimeValue<>(sqlSessionFactory);
     }
 
+    public RuntimeValue<Configuration> createConfiguration() {
+        return new RuntimeValue<>(new Configuration());
+    }
+
     public RuntimeValue<SqlSessionFactory> createSqlSessionFactory(
+            ConfigurationFactory configurationFactory,
+            SqlSessionFactoryBuilder builder,
             MyBatisRuntimeConfig myBatisRuntimeConfig,
             MyBatisDataSourceRuntimeConfig myBatisDataSourceRuntimeConfig,
             String dataSourceName,
             List<String> mappers,
             List<String> mappedTypes,
             List<String> mappedJdbcTypes) {
-        Configuration configuration = createConfiguration(myBatisRuntimeConfig, myBatisDataSourceRuntimeConfig, dataSourceName);
+        Configuration configuration = configurationFactory.createConfiguration();
+        setupConfiguration(configuration, myBatisRuntimeConfig, myBatisDataSourceRuntimeConfig, dataSourceName);
         addMappers(configuration, mappedTypes, mappedJdbcTypes, mappers);
 
-        SqlSessionFactory sqlSessionFactory = new SqlSessionFactoryBuilder().build(configuration);
+        SqlSessionFactory sqlSessionFactory = builder.build(configuration);
         return new RuntimeValue<>(sqlSessionFactory);
     }
 
@@ -100,11 +107,10 @@ public class MyBatisRecorder {
         }
     }
 
-    private Configuration createConfiguration(MyBatisRuntimeConfig runtimeConfig,
+    private Configuration setupConfiguration(Configuration configuration,
+            MyBatisRuntimeConfig runtimeConfig,
             MyBatisDataSourceRuntimeConfig dataSourceRuntimeConfig,
             String dataSourceName) {
-        Configuration configuration = new Configuration();
-
         TransactionFactory factory;
         String transactionFactory = dataSourceRuntimeConfig != null && dataSourceRuntimeConfig.transactionFactory.isPresent()
                 ? dataSourceRuntimeConfig.transactionFactory.get()
