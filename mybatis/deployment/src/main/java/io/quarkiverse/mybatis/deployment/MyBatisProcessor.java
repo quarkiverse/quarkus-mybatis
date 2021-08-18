@@ -112,7 +112,7 @@ class MyBatisProcessor {
                     String dataSourceName = mapperDatasource.get().value().asString();
                     mappers.produce(new MyBatisMapperBuildItem(dotName, dataSourceName));
                 } else {
-                    mappers.produce(new MyBatisMapperBuildItem(dotName, null));
+                    mappers.produce(new MyBatisMapperBuildItem(dotName, "<default>"));
                 }
             }
         }
@@ -156,8 +156,6 @@ class MyBatisProcessor {
             List<JdbcDataSourceBuildItem> jdbcDataSourcesBuildItem,
             BuildProducer<SqlSessionFactoryBuildItem> sqlSessionFactory,
             MyBatisRecorder recorder) {
-        List<String> mappers = myBatisMapperBuildItems
-                .stream().map(m -> m.getMapperName().toString()).collect(Collectors.toList());
         List<String> mappedTypes = myBatisMappedTypeBuildItems
                 .stream().map(m -> m.getMappedTypeName().toString()).collect(Collectors.toList());
         List<String> mappedJdbcTypes = myBatisMappedJdbcTypeBuildItems
@@ -184,6 +182,9 @@ class MyBatisProcessor {
 
         dataSources.forEach(dataSource -> {
             MyBatisDataSourceRuntimeConfig dataSourceConfig = myBatisRuntimeConfig.dataSources.get(dataSource.getKey());
+            List<String> mappers = myBatisMapperBuildItems
+                    .stream().filter(m -> m.getDataSourceName().equals(dataSource.getKey()))
+                    .map(m -> m.getMapperName().toString()).collect(Collectors.toList());
             sqlSessionFactory.produce(
                     new SqlSessionFactoryBuildItem(
                             recorder.createSqlSessionFactory(
