@@ -44,7 +44,7 @@ public class MyBatisPlusProcessor {
 
     @BuildStep
     void reflectiveClasses(BuildProducer<ReflectiveClassBuildItem> reflectiveClass,
-                           CombinedIndexBuildItem indexBuildItem) {
+            CombinedIndexBuildItem indexBuildItem) {
 
         reflectiveClass.produce(new ReflectiveClassBuildItem(true, true, PerpetualCache.class, LruCache.class));
         for (AnnotationInstance i : indexBuildItem.getIndex().getAnnotations(DotName.createSimple(TableName.class.getName()))) {
