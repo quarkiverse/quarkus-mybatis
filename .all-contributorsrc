@@ -50,6 +50,15 @@
       "contributions": [
         "code"
       ]
+    },
+    {
+      "login": "zohar-soul",
+      "name": "Zohar",
+      "avatar_url": "https://avatars.githubusercontent.com/u/13990539?v=4",
+      "profile": "https://github.com/zohar-soul",
+      "contributions": [
+        "maintenance"
+      ]
     }
   ],
   "contributorsPerLine": 7,
