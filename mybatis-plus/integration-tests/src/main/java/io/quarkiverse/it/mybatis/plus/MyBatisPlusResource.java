@@ -6,10 +6,10 @@ import javax.inject.Inject;
 import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
 
-import com.baomidou.mybatisplus.core.conditions.Wrapper;
-import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 
 @Path("/mybatis/plus")
 public class MyBatisPlusResource {

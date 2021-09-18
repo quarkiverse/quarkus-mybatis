@@ -1,9 +1,18 @@
 package io.quarkiverse.mybatis.plus.deployment;
 
+import org.apache.ibatis.cache.decorators.LruCache;
+import org.apache.ibatis.cache.impl.PerpetualCache;
+import org.jboss.jandex.AnnotationInstance;
+import org.jboss.jandex.AnnotationTarget;
+import org.jboss.jandex.ClassInfo;
+import org.jboss.jandex.DotName;
+import org.jboss.logging.Logger;
+
 import com.baomidou.mybatisplus.annotation.TableName;
 import com.baomidou.mybatisplus.core.MybatisSqlSessionFactoryBuilder;
 import com.baomidou.mybatisplus.core.conditions.Wrapper;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
+
 import io.quarkiverse.mybatis.deployment.ConfigurationFactoryBuildItem;
 import io.quarkiverse.mybatis.deployment.SqlSessionFactoryBuilderBuildItem;
 import io.quarkiverse.mybatis.plus.runtime.MyBatisPlusConfigurationFactory;
@@ -12,13 +21,8 @@ import io.quarkus.deployment.annotations.BuildProducer;
 import io.quarkus.deployment.annotations.BuildStep;
 import io.quarkus.deployment.builditem.CombinedIndexBuildItem;
 import io.quarkus.deployment.builditem.FeatureBuildItem;
+import io.quarkus.deployment.builditem.IndexDependencyBuildItem;
 import io.quarkus.deployment.builditem.nativeimage.ReflectiveClassBuildItem;
-import org.apache.ibatis.cache.decorators.LruCache;
-import org.apache.ibatis.cache.impl.PerpetualCache;
-import org.jboss.jandex.AnnotationInstance;
-import org.jboss.jandex.AnnotationTarget;
-import org.jboss.jandex.ClassInfo;
-import org.jboss.jandex.DotName;
 
 public class MyBatisPlusProcessor {
 
@@ -26,6 +30,7 @@ public class MyBatisPlusProcessor {
     private static final DotName MYBATIS_PLUS_MAPPER = DotName.createSimple(BaseMapper.class.getName());
     private static final DotName MYBATIS_MAPPER_DATA_SOURCE = DotName.createSimple(MapperDataSource.class.getName());
     private static final DotName MYBATIS_PLUS_WRAPPER = DotName.createSimple(Wrapper.class.getName());
+    private static final Logger LOG = Logger.getLogger(MyBatisPlusProcessor.class);
 
     @BuildStep
     FeatureBuildItem feature() {
@@ -40,6 +45,11 @@ public class MyBatisPlusProcessor {
     @BuildStep
     SqlSessionFactoryBuilderBuildItem createSqlSessionFactoryBuilder() {
         return new SqlSessionFactoryBuilderBuildItem(new MybatisSqlSessionFactoryBuilder());
+    }
+
+    @BuildStep
+    void addDependencies(BuildProducer<IndexDependencyBuildItem> indexDependency) {
+        indexDependency.produce(new IndexDependencyBuildItem("com.baomidou", "mybatis-plus-core"));
     }
 
     @BuildStep
