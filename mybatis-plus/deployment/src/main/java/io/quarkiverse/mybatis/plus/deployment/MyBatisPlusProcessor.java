@@ -15,7 +15,9 @@ import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 
 import io.quarkiverse.mybatis.deployment.ConfigurationFactoryBuildItem;
 import io.quarkiverse.mybatis.deployment.SqlSessionFactoryBuilderBuildItem;
+import io.quarkiverse.mybatis.deployment.XMLConfigBuilderBuildItem;
 import io.quarkiverse.mybatis.plus.runtime.MyBatisPlusConfigurationFactory;
+import io.quarkiverse.mybatis.plus.runtime.MyBatisPlusXMLConfigDelegateBuilder;
 import io.quarkiverse.mybatis.runtime.meta.MapperDataSource;
 import io.quarkus.deployment.annotations.BuildProducer;
 import io.quarkus.deployment.annotations.BuildStep;
@@ -45,6 +47,11 @@ public class MyBatisPlusProcessor {
     @BuildStep
     SqlSessionFactoryBuilderBuildItem createSqlSessionFactoryBuilder() {
         return new SqlSessionFactoryBuilderBuildItem(new MybatisSqlSessionFactoryBuilder());
+    }
+
+    @BuildStep
+    XMLConfigBuilderBuildItem createXMLConfigBuilder() throws Exception {
+        return new XMLConfigBuilderBuildItem(new MyBatisPlusXMLConfigDelegateBuilder());
     }
 
     @BuildStep

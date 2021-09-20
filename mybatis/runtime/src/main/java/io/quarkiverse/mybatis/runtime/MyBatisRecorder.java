@@ -1,6 +1,5 @@
 package io.quarkiverse.mybatis.runtime;
 
-import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.Reader;
 import java.sql.Connection;
@@ -12,7 +11,6 @@ import java.util.function.Supplier;
 
 import javax.sql.DataSource;
 
-import org.apache.ibatis.builder.xml.XMLConfigBuilder;
 import org.apache.ibatis.executor.loader.cglib.CglibProxyFactory;
 import org.apache.ibatis.executor.loader.javassist.JavassistProxyFactory;
 import org.apache.ibatis.io.Resources;
@@ -43,15 +41,15 @@ import io.quarkus.runtime.annotations.Recorder;
 public class MyBatisRecorder {
     private static final Logger LOG = Logger.getLogger(MyBatisRecorder.class);
 
-    public RuntimeValue<SqlSessionFactory> createSqlSessionFactory(MyBatisRuntimeConfig myBatisRuntimeConfig) {
+    public RuntimeValue<SqlSessionFactory> createSqlSessionFactory(
+            MyBatisRuntimeConfig config, XMLConfigDelegateBuilder builder) {
         Configuration configuration;
 
         try {
-            Reader reader = Resources.getResourceAsReader(myBatisRuntimeConfig.xmlconfig.path);
-            XMLConfigBuilder builder = new XMLConfigBuilder(reader, myBatisRuntimeConfig.environment);
+            builder.setConfig(config);
             builder.getConfiguration().getTypeAliasRegistry().registerAlias("QUARKUS", QuarkusDataSourceFactory.class);
             configuration = builder.parse();
-        } catch (IOException e) {
+        } catch (Exception e) {
             throw new RuntimeException(e);
         }
 
