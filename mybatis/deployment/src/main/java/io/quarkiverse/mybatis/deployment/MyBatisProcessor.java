@@ -38,6 +38,7 @@ import org.jboss.logging.Logger;
 
 import io.quarkiverse.mybatis.runtime.MyBatisConfigurationFactory;
 import io.quarkiverse.mybatis.runtime.MyBatisRecorder;
+import io.quarkiverse.mybatis.runtime.MyBatisXMLConfigDelegateBuilder;
 import io.quarkiverse.mybatis.runtime.config.MyBatisDataSourceRuntimeConfig;
 import io.quarkiverse.mybatis.runtime.config.MyBatisRuntimeConfig;
 import io.quarkiverse.mybatis.runtime.meta.MapperDataSource;
@@ -219,6 +220,12 @@ public class MyBatisProcessor {
     }
 
     @BuildStep
+    @Overridable
+    XMLConfigBuilderBuildItem createXMLConfigBuilder() throws Exception {
+        return new XMLConfigBuilderBuildItem(new MyBatisXMLConfigDelegateBuilder());
+    }
+
+    @BuildStep
     void xmlConfig(MyBatisRuntimeConfig config, BuildProducer<MyBatisXmlConfigBuildItem> xmlConfig) {
         if (config.xmlconfig.enable == true) {
             xmlConfig.produce(new MyBatisXmlConfigBuildItem("xmlconfig", true));
@@ -227,14 +234,17 @@ public class MyBatisProcessor {
 
     @Record(ExecutionTime.STATIC_INIT)
     @BuildStep
-    void generateSqlSessionFactoryFromXmlConfig(MyBatisRuntimeConfig config,
+    void generateSqlSessionFactoryFromXmlConfig(
+            MyBatisRuntimeConfig config,
+            XMLConfigBuilderBuildItem xmlConfigBuilderBuildItem,
             MyBatisXmlConfigBuildItem xmlConfigBuildItem,
             BuildProducer<SqlSessionFactoryBuildItem> sqlSessionFactory,
             MyBatisRecorder recorder) {
         if (xmlConfigBuildItem != null && xmlConfigBuildItem.isEnabled()) {
             sqlSessionFactory.produce(
                     new SqlSessionFactoryBuildItem(
-                            recorder.createSqlSessionFactory(config), xmlConfigBuildItem.getName(), false, true));
+                            recorder.createSqlSessionFactory(config, xmlConfigBuilderBuildItem.getBuilder()),
+                            xmlConfigBuildItem.getName(), false, true));
         }
     }
 
