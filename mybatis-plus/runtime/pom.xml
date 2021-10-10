@@ -26,6 +26,11 @@
             <groupId>org.graalvm.nativeimage</groupId>
             <artifactId>svm</artifactId>
         </dependency>
+        <dependency>
+            <groupId>ru.vyarus</groupId>
+            <artifactId>generics-resolver</artifactId>
+            <version>3.0.3</version>
+        </dependency>
     </dependencies>
 
     <build>
