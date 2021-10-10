@@ -47,7 +47,7 @@ public class MyBatisPlusResource {
     @Path("/user/count/h2")
     @GET
     @Produces(MediaType.APPLICATION_JSON)
-    public int getUserCount() {
+    public Long getUserCount() {
         return userMapper.selectCount(new QueryWrapper<>(new User()));
     }
 
