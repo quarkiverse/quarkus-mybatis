@@ -24,7 +24,7 @@
 
         <quarkus.version>2.3.0.Final</quarkus.version>
         <mybatis.version>3.5.7</mybatis.version>
-	<mybatis-plus.version>3.4.3.3</mybatis-plus.version>
+	<mybatis-plus.version>3.4.3.4</mybatis-plus.version>
     </properties>
 
     <modules>
