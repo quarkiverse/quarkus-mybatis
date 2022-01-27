@@ -22,7 +22,7 @@
         <compiler.plugin.version>3.8.1</compiler.plugin.version>
         <surefire.plugin.version>2.22.2</surefire.plugin.version>
 
-        <quarkus.version>2.6.3.Final</quarkus.version>
+        <quarkus.version>2.7.0.Final</quarkus.version>
         <mybatis.version>3.5.9</mybatis.version>
 	<mybatis-plus.version>3.5.0</mybatis-plus.version>
     </properties>
