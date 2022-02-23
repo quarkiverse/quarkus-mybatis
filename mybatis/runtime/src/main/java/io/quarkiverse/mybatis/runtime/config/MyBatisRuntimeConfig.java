@@ -1,5 +1,6 @@
 package io.quarkiverse.mybatis.runtime.config;
 
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
@@ -252,4 +253,10 @@ public class MyBatisRuntimeConfig {
      */
     @ConfigItem
     public Optional<String> defaultSqlProviderType;
+
+    /**
+     * xml mapper location
+     * */
+    @ConfigItem
+    public Optional<List<String>> mapperLocations;
 }
