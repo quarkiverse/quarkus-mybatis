@@ -255,8 +255,8 @@ public class MyBatisRuntimeConfig {
     public Optional<String> defaultSqlProviderType;
 
     /**
-     * xml mapper location
-     * */
+     * MyBatis mapperLocations
+     */
     @ConfigItem
     public Optional<List<String>> mapperLocations;
 }

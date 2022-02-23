@@ -78,7 +78,7 @@ public class MyBatisRecorder {
             List<String> mappedJdbcTypes) {
         Configuration configuration = configurationFactory.createConfiguration();
         setupConfiguration(configuration, myBatisRuntimeConfig, myBatisDataSourceRuntimeConfig, dataSourceName);
-        xmlMapperBuild(configuration,myBatisRuntimeConfig);
+        xmlMapperBuild(configuration, myBatisRuntimeConfig);
         addMappers(configuration, mappedTypes, mappedJdbcTypes, mappers);
 
         SqlSessionFactory sqlSessionFactory = builder.build(configuration);
@@ -136,7 +136,7 @@ public class MyBatisRecorder {
     }
 
     private void addMappers(Configuration configuration,
-                            List<String> mappedTypes, List<String> mappedJdbcTypes, List<String> mappers) {
+            List<String> mappedTypes, List<String> mappedJdbcTypes, List<String> mappers) {
         for (String mappedType : mappedTypes) {
             try {
                 if (configuration.getTypeHandlerRegistry().hasTypeHandler(Resources.classForName(mappedType))) {
@@ -172,9 +172,9 @@ public class MyBatisRecorder {
     }
 
     private Configuration setupConfiguration(Configuration configuration,
-                                             MyBatisRuntimeConfig runtimeConfig,
-                                             MyBatisDataSourceRuntimeConfig dataSourceRuntimeConfig,
-                                             String dataSourceName) {
+            MyBatisRuntimeConfig runtimeConfig,
+            MyBatisDataSourceRuntimeConfig dataSourceRuntimeConfig,
+            String dataSourceName) {
         TransactionFactory factory;
         String transactionFactory = dataSourceRuntimeConfig != null && dataSourceRuntimeConfig.transactionFactory.isPresent()
                 ? dataSourceRuntimeConfig.transactionFactory.get()
@@ -190,30 +190,30 @@ public class MyBatisRecorder {
                 : runtimeConfig.cacheEnabled);
         configuration.setLazyLoadingEnabled(dataSourceRuntimeConfig != null &&
                 dataSourceRuntimeConfig.lazyLoadingEnabled.isPresent() ? dataSourceRuntimeConfig.lazyLoadingEnabled.get()
-                : runtimeConfig.lazyLoadingEnabled);
+                        : runtimeConfig.lazyLoadingEnabled);
         configuration.setAggressiveLazyLoading(dataSourceRuntimeConfig != null &&
                 dataSourceRuntimeConfig.aggressiveLazyLoading.isPresent() ? dataSourceRuntimeConfig.aggressiveLazyLoading.get()
-                : runtimeConfig.aggressiveLazyLoading);
+                        : runtimeConfig.aggressiveLazyLoading);
         configuration.setMultipleResultSetsEnabled(dataSourceRuntimeConfig != null &&
                 dataSourceRuntimeConfig.multipleResultSetsEnabled.isPresent()
-                ? dataSourceRuntimeConfig.multipleResultSetsEnabled.get()
-                : runtimeConfig.multipleResultSetsEnabled);
+                        ? dataSourceRuntimeConfig.multipleResultSetsEnabled.get()
+                        : runtimeConfig.multipleResultSetsEnabled);
         configuration.setUseColumnLabel(dataSourceRuntimeConfig != null && dataSourceRuntimeConfig.useColumnLabel.isPresent()
                 ? dataSourceRuntimeConfig.useColumnLabel.get()
                 : runtimeConfig.useColumnLabel);
         configuration.setUseGeneratedKeys(dataSourceRuntimeConfig != null &&
                 dataSourceRuntimeConfig.useGeneratedKeys.isPresent() ? dataSourceRuntimeConfig.useGeneratedKeys.get()
-                : runtimeConfig.useGeneratedKeys);
+                        : runtimeConfig.useGeneratedKeys);
         configuration.setAutoMappingBehavior(dataSourceRuntimeConfig != null &&
                 dataSourceRuntimeConfig.autoMappingBehavior.isPresent() ? dataSourceRuntimeConfig.autoMappingBehavior.get()
-                : runtimeConfig.autoMappingBehavior);
+                        : runtimeConfig.autoMappingBehavior);
         configuration.setAutoMappingUnknownColumnBehavior(dataSourceRuntimeConfig != null &&
                 dataSourceRuntimeConfig.autoMappingUnknownColumnBehavior.isPresent()
-                ? dataSourceRuntimeConfig.autoMappingUnknownColumnBehavior.get()
-                : runtimeConfig.autoMappingUnknownColumnBehavior);
+                        ? dataSourceRuntimeConfig.autoMappingUnknownColumnBehavior.get()
+                        : runtimeConfig.autoMappingUnknownColumnBehavior);
         configuration.setDefaultExecutorType(dataSourceRuntimeConfig != null &&
                 dataSourceRuntimeConfig.defaultExecutorType.isPresent() ? dataSourceRuntimeConfig.defaultExecutorType.get()
-                : runtimeConfig.defaultExecutorType);
+                        : runtimeConfig.defaultExecutorType);
         if (dataSourceRuntimeConfig != null && dataSourceRuntimeConfig.defaultStatementTimeout.isPresent()) {
             configuration.setDefaultStatementTimeout(dataSourceRuntimeConfig.defaultStatementTimeout.get());
         } else {
@@ -231,15 +231,15 @@ public class MyBatisRecorder {
         }
         configuration.setSafeRowBoundsEnabled(dataSourceRuntimeConfig != null &&
                 dataSourceRuntimeConfig.safeRowBoundsEnabled.isPresent() ? dataSourceRuntimeConfig.safeRowBoundsEnabled.get()
-                : runtimeConfig.safeRowBoundsEnabled);
+                        : runtimeConfig.safeRowBoundsEnabled);
         configuration.setSafeResultHandlerEnabled(dataSourceRuntimeConfig != null &&
                 dataSourceRuntimeConfig.safeResultHandlerEnabled.isPresent()
-                ? dataSourceRuntimeConfig.safeResultHandlerEnabled.get()
-                : runtimeConfig.safeResultHandlerEnabled);
+                        ? dataSourceRuntimeConfig.safeResultHandlerEnabled.get()
+                        : runtimeConfig.safeResultHandlerEnabled);
         configuration.setMapUnderscoreToCamelCase(dataSourceRuntimeConfig != null &&
                 dataSourceRuntimeConfig.mapUnderscoreToCamelCase.isPresent()
-                ? dataSourceRuntimeConfig.mapUnderscoreToCamelCase.get()
-                : runtimeConfig.mapUnderscoreToCamelCase);
+                        ? dataSourceRuntimeConfig.mapUnderscoreToCamelCase.get()
+                        : runtimeConfig.mapUnderscoreToCamelCase);
         configuration.setLocalCacheScope(dataSourceRuntimeConfig != null && dataSourceRuntimeConfig.localCacheScope.isPresent()
                 ? dataSourceRuntimeConfig.localCacheScope.get()
                 : runtimeConfig.localCacheScope);
@@ -248,13 +248,13 @@ public class MyBatisRecorder {
                 : runtimeConfig.jdbcTypeForNull);
         configuration.setLazyLoadTriggerMethods(dataSourceRuntimeConfig != null &&
                 dataSourceRuntimeConfig.lazyLoadTriggerMethods.isPresent()
-                ? dataSourceRuntimeConfig.lazyLoadTriggerMethods.get()
-                : runtimeConfig.lazyLoadTriggerMethods);
+                        ? dataSourceRuntimeConfig.lazyLoadTriggerMethods.get()
+                        : runtimeConfig.lazyLoadTriggerMethods);
         try {
             String defaultScriptingLanguage = dataSourceRuntimeConfig != null &&
                     dataSourceRuntimeConfig.defaultScriptingLanguage.isPresent()
-                    ? dataSourceRuntimeConfig.defaultScriptingLanguage.get()
-                    : runtimeConfig.defaultScriptingLanguage;
+                            ? dataSourceRuntimeConfig.defaultScriptingLanguage.get()
+                            : runtimeConfig.defaultScriptingLanguage;
             configuration.setDefaultScriptingLanguage(
                     (Class<? extends LanguageDriver>) Class.forName(defaultScriptingLanguage));
         } catch (ClassNotFoundException e) {
@@ -263,8 +263,8 @@ public class MyBatisRecorder {
         try {
             String defaultEnumTypeHandler = dataSourceRuntimeConfig != null &&
                     dataSourceRuntimeConfig.defaultEnumTypeHandler.isPresent()
-                    ? dataSourceRuntimeConfig.defaultEnumTypeHandler.get()
-                    : runtimeConfig.defaultEnumTypeHandler;
+                            ? dataSourceRuntimeConfig.defaultEnumTypeHandler.get()
+                            : runtimeConfig.defaultEnumTypeHandler;
             configuration.setDefaultEnumTypeHandler(
                     (Class<? extends TypeHandler>) Class.forName(defaultEnumTypeHandler));
         } catch (ClassNotFoundException e) {
@@ -272,11 +272,11 @@ public class MyBatisRecorder {
         }
         configuration.setCallSettersOnNulls(dataSourceRuntimeConfig != null &&
                 dataSourceRuntimeConfig.callSettersOnNulls.isPresent() ? dataSourceRuntimeConfig.callSettersOnNulls.get()
-                : runtimeConfig.callSettersOnNulls);
+                        : runtimeConfig.callSettersOnNulls);
         configuration.setReturnInstanceForEmptyRow(dataSourceRuntimeConfig != null &&
                 dataSourceRuntimeConfig.returnInstanceForEmptyRow.isPresent()
-                ? dataSourceRuntimeConfig.returnInstanceForEmptyRow.get()
-                : runtimeConfig.returnInstanceForEmptyRow);
+                        ? dataSourceRuntimeConfig.returnInstanceForEmptyRow.get()
+                        : runtimeConfig.returnInstanceForEmptyRow);
         if (dataSourceRuntimeConfig != null && dataSourceRuntimeConfig.logPrefix.isPresent()) {
             configuration.setLogPrefix(dataSourceRuntimeConfig.logPrefix.get());
         } else {
@@ -316,11 +316,11 @@ public class MyBatisRecorder {
 
         configuration.setUseActualParamName(dataSourceRuntimeConfig != null &&
                 dataSourceRuntimeConfig.useActualParamName.isPresent() ? dataSourceRuntimeConfig.useActualParamName.get()
-                : runtimeConfig.useActualParamName);
+                        : runtimeConfig.useActualParamName);
 
         Optional<String> optionalConfigurationFactory = dataSourceRuntimeConfig != null &&
                 dataSourceRuntimeConfig.configurationFactory.isPresent() ? dataSourceRuntimeConfig.configurationFactory
-                : runtimeConfig.configurationFactory;
+                        : runtimeConfig.configurationFactory;
         optionalConfigurationFactory.ifPresent(configurationFactory -> {
             try {
                 configuration.setConfigurationFactory(Class.forName(configurationFactory));
@@ -331,12 +331,12 @@ public class MyBatisRecorder {
 
         configuration.setShrinkWhitespacesInSql(dataSourceRuntimeConfig != null &&
                 dataSourceRuntimeConfig.shrinkWhitespacesInSql.isPresent()
-                ? dataSourceRuntimeConfig.shrinkWhitespacesInSql.get()
-                : runtimeConfig.shrinkWhitespacesInSql);
+                        ? dataSourceRuntimeConfig.shrinkWhitespacesInSql.get()
+                        : runtimeConfig.shrinkWhitespacesInSql);
 
         Optional<String> optionalDefaultSqlProviderType = dataSourceRuntimeConfig != null &&
                 dataSourceRuntimeConfig.defaultSqlProviderType.isPresent() ? dataSourceRuntimeConfig.defaultSqlProviderType
-                : runtimeConfig.defaultSqlProviderType;
+                        : runtimeConfig.defaultSqlProviderType;
         optionalDefaultSqlProviderType.ifPresent(defaultSqlProviderType -> {
             try {
                 configuration.setDefaultSqlProviderType(Class.forName(defaultSqlProviderType));
