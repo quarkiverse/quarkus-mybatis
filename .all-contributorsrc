@@ -59,6 +59,15 @@
       "contributions": [
         "maintenance"
       ]
+    },
+    {
+      "login": "y-bowen",
+      "name": "bowen",
+      "avatar_url": "https://avatars.githubusercontent.com/u/20274912?v=4",
+      "profile": "https://github.com/y-bowen",
+      "contributions": [
+        "code"
+      ]
     }
   ],
   "contributorsPerLine": 7,
