@@ -27,5 +27,13 @@ public class BaseMyBatisTestCase {
         RestAssured.when().get("/mybatis/book/1").then()
                 .body(is(
                         "{\"id\":1,\"author\":{\"id\":1,\"name\":\"Test User1\",\"externalId\":\"ccb16b65-8924-4c3f-8c55-681d85a16e79\"},\"title\":\"Test Title\"}"));
+
+        RestAssured.when().get("/mybatis/book/xmlMapper/1").then()
+                .body(is(
+                        "{\"id\":1,\"author\":{\"id\":1,\"name\":\"Test User1\",\"externalId\":\"ccb16b65-8924-4c3f-8c55-681d85a16e79\"},\"title\":\"Test Title\"}"));
+
+        RestAssured.when().get("/mybatis/user/xmlMapper/1").then()
+                .body(is("{\"id\":1,\"name\":\"Test User1\",\"externalId\":\"ccb16b65-8924-4c3f-8c55-681d85a16e79\"}"));
+
     }
 }

@@ -75,4 +75,18 @@ public class MyBatisResource {
     public Book getBook(@PathParam("id") Integer id) {
         return bookMapper.getBook(id);
     }
+
+    @Path("/book/xmlMapper/{id}")
+    @GET
+    @Produces(MediaType.APPLICATION_JSON)
+    public Book findBookById(@PathParam("id") Integer id) {
+        return bookMapper.findById(id);
+    }
+
+    @Path("/user/xmlMapper/{id}")
+    @GET
+    @Produces(MediaType.APPLICATION_JSON)
+    public User findUserById(@PathParam("id") Integer id) {
+        return userMapper.findById(id);
+    }
 }

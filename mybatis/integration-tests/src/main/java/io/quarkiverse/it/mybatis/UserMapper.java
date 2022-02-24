@@ -28,4 +28,6 @@ public interface UserMapper {
 
     @Select("select count(*) from users")
     int getUserCount();
+
+    User findById(Integer id);
 }
