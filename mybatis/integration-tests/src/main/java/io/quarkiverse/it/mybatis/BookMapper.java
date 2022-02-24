@@ -17,4 +17,6 @@ public interface BookMapper {
 
     @Select("select * from users where id = #{id}")
     User getUser(Integer id);
+
+    Book findById(Integer id);
 }

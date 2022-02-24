@@ -78,14 +78,13 @@ public class MyBatisRecorder {
             List<String> mappedJdbcTypes) {
         Configuration configuration = configurationFactory.createConfiguration();
         setupConfiguration(configuration, myBatisRuntimeConfig, myBatisDataSourceRuntimeConfig, dataSourceName);
-        xmlMapperBuild(configuration, myBatisRuntimeConfig);
-        addMappers(configuration, mappedTypes, mappedJdbcTypes, mappers);
 
+        addMappers(configuration, myBatisRuntimeConfig, mappedTypes, mappedJdbcTypes, mappers);
         SqlSessionFactory sqlSessionFactory = builder.build(configuration);
         return new RuntimeValue<>(sqlSessionFactory);
     }
 
-    private void xmlMapperBuild(Configuration configuration, MyBatisRuntimeConfig myBatisRuntimeConfig) {
+    private void buildFromMapperLocations(Configuration configuration, MyBatisRuntimeConfig myBatisRuntimeConfig) {
         myBatisRuntimeConfig.mapperLocations.ifPresent(mapperLocations -> {
             for (String mapperLocation : mapperLocations) {
                 try {
@@ -135,13 +134,10 @@ public class MyBatisRecorder {
         });
     }
 
-    private void addMappers(Configuration configuration,
+    private void addMappers(Configuration configuration, MyBatisRuntimeConfig myBatisRuntimeConfig,
             List<String> mappedTypes, List<String> mappedJdbcTypes, List<String> mappers) {
         for (String mappedType : mappedTypes) {
             try {
-                if (configuration.getTypeHandlerRegistry().hasTypeHandler(Resources.classForName(mappedType))) {
-                    continue;
-                }
                 configuration.getTypeHandlerRegistry().register(Resources.classForName(mappedType));
             } catch (ClassNotFoundException e) {
                 LOG.debug("Can not find the mapped type class " + mappedType);
@@ -150,14 +146,13 @@ public class MyBatisRecorder {
 
         for (String mappedJdbcType : mappedJdbcTypes) {
             try {
-                if (configuration.getTypeHandlerRegistry().hasTypeHandler(Resources.classForName(mappedJdbcType))) {
-                    continue;
-                }
                 configuration.getTypeHandlerRegistry().register(Resources.classForName(mappedJdbcType));
             } catch (ClassNotFoundException e) {
                 LOG.debug("Can not find the mapped jdbc type class " + mappedJdbcType);
             }
         }
+
+        buildFromMapperLocations(configuration, myBatisRuntimeConfig);
 
         for (String mapper : mappers) {
             try {
