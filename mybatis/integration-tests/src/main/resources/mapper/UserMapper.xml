@@ -4,7 +4,7 @@
     <resultMap id="BaseResultMap" type="io.quarkiverse.it.mybatis.User">
         <id column="id" jdbcType="INTEGER" property="id" />
         <result column="name" jdbcType="VARCHAR" property="name" />
-        <result column="external_id" jdbcType="VARCHAR" property="externalId" />
+        <result column="externalId" jdbcType="VARCHAR" property="externalId" />
     </resultMap>
     <select id="findById" parameterType="int" resultMap="BaseResultMap">
         select * from users where id=#{id}

@@ -7,7 +7,7 @@
         <association property="author" javaType="io.quarkiverse.it.mybatis.User">
             <id column="id" jdbcType="INTEGER" property="id"/>
             <result column="name" jdbcType="VARCHAR" property="name"/>
-            <result column="external_id" jdbcType="VARCHAR" property="externalId"/>
+            <result column="externalId" jdbcType="VARCHAR" property="externalId"/>
         </association>
     </resultMap>
 
@@ -16,7 +16,7 @@
         b.title,
         u.id,
         u.name,
-        u.external_id
+        u.externalId
         from books as b left join users as u on b.author_id=u.id where b.id=#{id}
     </select>
 </mapper>
