@@ -89,7 +89,7 @@ public class MyBatisResource {
     public User findUserById(@PathParam("id") Integer id) {
         return userMapper.findById(id);
     }
-
+  
     @Path("/user/xmlMapper/derby/{id}")
     @GET
     @Produces(MediaType.APPLICATION_JSON)

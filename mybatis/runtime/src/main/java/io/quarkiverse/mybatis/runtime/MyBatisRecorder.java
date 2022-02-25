@@ -81,7 +81,6 @@ public class MyBatisRecorder {
             List<String> mappedJdbcTypes) {
         Configuration configuration = configurationFactory.createConfiguration();
         setupConfiguration(configuration, myBatisRuntimeConfig, myBatisDataSourceRuntimeConfig, dataSourceName);
-
         addMappers(configuration, myBatisRuntimeConfig, mappedTypes, mappedJdbcTypes, mappers, dataSourceName);
         SqlSessionFactory sqlSessionFactory = builder.build(configuration);
         return new RuntimeValue<>(sqlSessionFactory);
@@ -111,7 +110,6 @@ public class MyBatisRecorder {
                                         && !resourceName.endsWith(".class") && resourceName.endsWith(".xml")) {
                                     buildXmlMapper(jarFile.getInputStream(entry), jarFile.getInputStream(entry),
                                             entry.toString(), configuration, dataSourceName);
-
                                 }
                             }
                         }
@@ -173,9 +171,7 @@ public class MyBatisRecorder {
                 LOG.debug("Can not find the mapped jdbc type class " + mappedJdbcType);
             }
         }
-
         buildFromMapperLocations(configuration, myBatisRuntimeConfig, dataSourceName);
-
         for (String mapper : mappers) {
             try {
                 if (configuration.getMapperRegistry().hasMapper(Resources.classForName(mapper))) {
