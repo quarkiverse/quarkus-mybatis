@@ -10,4 +10,6 @@ import io.quarkiverse.mybatis.runtime.meta.MapperDataSource;
 public interface DerbyUserMapper {
     @Select("select count(*) from users")
     int getUserCount();
+
+    User findById(Integer id);
 }

@@ -17,6 +17,7 @@ import java.util.jar.JarFile;
 import javax.sql.DataSource;
 
 import org.apache.ibatis.builder.xml.XMLMapperBuilder;
+import org.apache.ibatis.builder.xml.XMLMapperEntityResolver;
 import org.apache.ibatis.executor.loader.cglib.CglibProxyFactory;
 import org.apache.ibatis.executor.loader.javassist.JavassistProxyFactory;
 import org.apache.ibatis.io.Resources;
@@ -24,6 +25,7 @@ import org.apache.ibatis.io.VFS;
 import org.apache.ibatis.jdbc.ScriptRunner;
 import org.apache.ibatis.logging.Log;
 import org.apache.ibatis.mapping.Environment;
+import org.apache.ibatis.parsing.XPathParser;
 import org.apache.ibatis.scripting.LanguageDriver;
 import org.apache.ibatis.session.Configuration;
 import org.apache.ibatis.session.SqlSession;
@@ -39,6 +41,7 @@ import org.jboss.logging.Logger;
 import io.agroal.api.AgroalDataSource;
 import io.quarkiverse.mybatis.runtime.config.MyBatisDataSourceRuntimeConfig;
 import io.quarkiverse.mybatis.runtime.config.MyBatisRuntimeConfig;
+import io.quarkiverse.mybatis.runtime.meta.MapperDataSource;
 import io.quarkus.agroal.runtime.DataSources;
 import io.quarkus.runtime.RuntimeValue;
 import io.quarkus.runtime.annotations.Recorder;
@@ -79,12 +82,13 @@ public class MyBatisRecorder {
         Configuration configuration = configurationFactory.createConfiguration();
         setupConfiguration(configuration, myBatisRuntimeConfig, myBatisDataSourceRuntimeConfig, dataSourceName);
 
-        addMappers(configuration, myBatisRuntimeConfig, mappedTypes, mappedJdbcTypes, mappers);
+        addMappers(configuration, myBatisRuntimeConfig, mappedTypes, mappedJdbcTypes, mappers, dataSourceName);
         SqlSessionFactory sqlSessionFactory = builder.build(configuration);
         return new RuntimeValue<>(sqlSessionFactory);
     }
 
-    private void buildFromMapperLocations(Configuration configuration, MyBatisRuntimeConfig myBatisRuntimeConfig) {
+    private void buildFromMapperLocations(Configuration configuration, MyBatisRuntimeConfig myBatisRuntimeConfig,
+            String dataSourceName) {
         myBatisRuntimeConfig.mapperLocations.ifPresent(mapperLocations -> {
             for (String mapperLocation : mapperLocations) {
                 try {
@@ -94,7 +98,8 @@ public class MyBatisRecorder {
                     if (mapperLocation.startsWith("/")) {
                         mapperLocation = mapperLocation.substring(1);
                     }
-                    final String path = Thread.currentThread().getContextClassLoader().getResource(mapperLocation).getFile();
+                    final String path = Thread.currentThread().getContextClassLoader()
+                            .getResource(mapperLocation).getFile();
                     if (path.contains("jar!")) {
                         File resourceFile = Paths.get(new URL(path.substring(0, path.indexOf("!"))).toURI()).toFile();
                         try (JarFile jarFile = new JarFile(resourceFile)) {
@@ -104,10 +109,9 @@ public class MyBatisRecorder {
                                 String resourceName = entry.getName();
                                 if (!entry.isDirectory() && resourceName.startsWith(mapperLocation)
                                         && !resourceName.endsWith(".class") && resourceName.endsWith(".xml")) {
-                                    XMLMapperBuilder xmlMapperBuilder = new XMLMapperBuilder(jarFile.getInputStream(entry),
-                                            configuration,
-                                            entry.toString(), configuration.getSqlFragments());
-                                    xmlMapperBuilder.parse();
+                                    buildXmlMapper(jarFile.getInputStream(entry), jarFile.getInputStream(entry),
+                                            entry.toString(), configuration, dataSourceName);
+
                                 }
                             }
                         }
@@ -119,23 +123,41 @@ public class MyBatisRecorder {
                         }
                         for (File file : resources.listFiles()) {
                             if (file.getName().endsWith(".xml")) {
-                                XMLMapperBuilder xmlMapperBuilder = new XMLMapperBuilder(new FileInputStream(file),
-                                        configuration,
-                                        file.toString(), configuration.getSqlFragments());
-                                xmlMapperBuilder.parse();
+                                buildXmlMapper(new FileInputStream(file), new FileInputStream(file),
+                                        file.toString(),
+                                        configuration, dataSourceName);
                             }
                         }
                     }
                 } catch (NullPointerException | IOException | URISyntaxException e) {
                     LOG.warnf("Not found mapper location :%s.", mapperLocation);
                     continue;
+                } catch (ClassNotFoundException e) {
+                    LOG.warnf("Not found mapper class :%s.", e.getMessage());
+                    continue;
                 }
             }
         });
     }
 
+    private void buildXmlMapper(InputStream filterStream, InputStream resourceStream, String resource,
+            Configuration configuration,
+            String dataSourceName)
+            throws ClassNotFoundException {
+        final XPathParser xPathParser = new XPathParser(filterStream,
+                true, configuration.getVariables(), new XMLMapperEntityResolver());
+        String nameSpace = xPathParser.evalNode("/mapper").getStringAttribute("namespace");
+        final Class<?> mapperClass = Resources.classForName(nameSpace);
+        final MapperDataSource annotation = mapperClass.getAnnotation(MapperDataSource.class);
+        if ((annotation != null && annotation.value().equals(dataSourceName)) || annotation == null) {
+            XMLMapperBuilder xmlMapperBuilder = new XMLMapperBuilder(resourceStream,
+                    configuration, resource, configuration.getSqlFragments());
+            xmlMapperBuilder.parse();
+        }
+    }
+
     private void addMappers(Configuration configuration, MyBatisRuntimeConfig myBatisRuntimeConfig,
-            List<String> mappedTypes, List<String> mappedJdbcTypes, List<String> mappers) {
+            List<String> mappedTypes, List<String> mappedJdbcTypes, List<String> mappers, String dataSourceName) {
         for (String mappedType : mappedTypes) {
             try {
                 configuration.getTypeHandlerRegistry().register(Resources.classForName(mappedType));
@@ -152,7 +174,7 @@ public class MyBatisRecorder {
             }
         }
 
-        buildFromMapperLocations(configuration, myBatisRuntimeConfig);
+        buildFromMapperLocations(configuration, myBatisRuntimeConfig, dataSourceName);
 
         for (String mapper : mappers) {
             try {
