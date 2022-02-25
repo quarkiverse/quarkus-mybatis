@@ -147,7 +147,8 @@ public class MyBatisRecorder {
         String nameSpace = xPathParser.evalNode("/mapper").getStringAttribute("namespace");
         final Class<?> mapperClass = Resources.classForName(nameSpace);
         final MapperDataSource annotation = mapperClass.getAnnotation(MapperDataSource.class);
-        if ((annotation != null && annotation.value().equals(dataSourceName)) || annotation == null) {
+        if ((annotation != null && annotation.value().equals(dataSourceName))
+                || (annotation == null && dataSourceName.equals("<default>"))) {
             XMLMapperBuilder xmlMapperBuilder = new XMLMapperBuilder(resourceStream,
                     configuration, resource, configuration.getSqlFragments());
             xmlMapperBuilder.parse();
