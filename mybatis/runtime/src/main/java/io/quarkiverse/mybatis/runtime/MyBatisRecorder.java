@@ -171,7 +171,9 @@ public class MyBatisRecorder {
                 LOG.debug("Can not find the mapped jdbc type class " + mappedJdbcType);
             }
         }
+
         buildFromMapperLocations(configuration, myBatisRuntimeConfig, dataSourceName);
+
         for (String mapper : mappers) {
             try {
                 if (configuration.getMapperRegistry().hasMapper(Resources.classForName(mapper))) {
