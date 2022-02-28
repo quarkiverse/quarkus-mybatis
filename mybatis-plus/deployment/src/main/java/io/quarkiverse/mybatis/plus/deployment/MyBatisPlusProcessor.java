@@ -1,7 +1,10 @@
 package io.quarkiverse.mybatis.plus.deployment;
 
-import org.apache.ibatis.cache.decorators.LruCache;
-import org.apache.ibatis.cache.impl.PerpetualCache;
+import java.util.List;
+
+import org.apache.ibatis.executor.Executor;
+import org.apache.ibatis.executor.statement.StatementHandler;
+import org.apache.ibatis.mapping.BoundSql;
 import org.jboss.jandex.AnnotationInstance;
 import org.jboss.jandex.AnnotationTarget;
 import org.jboss.jandex.ClassInfo;
@@ -14,16 +17,22 @@ import com.baomidou.mybatisplus.core.conditions.Wrapper;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 
 import io.quarkiverse.mybatis.deployment.ConfigurationFactoryBuildItem;
+import io.quarkiverse.mybatis.deployment.SqlSessionFactoryBuildItem;
 import io.quarkiverse.mybatis.deployment.SqlSessionFactoryBuilderBuildItem;
 import io.quarkiverse.mybatis.deployment.XMLConfigBuilderBuildItem;
+import io.quarkiverse.mybatis.plus.MyBatisPlusConfig;
 import io.quarkiverse.mybatis.plus.runtime.MyBatisPlusConfigurationFactory;
+import io.quarkiverse.mybatis.plus.runtime.MyBatisPlusRecorder;
 import io.quarkiverse.mybatis.plus.runtime.MyBatisPlusXMLConfigDelegateBuilder;
 import io.quarkiverse.mybatis.runtime.meta.MapperDataSource;
 import io.quarkus.deployment.annotations.BuildProducer;
 import io.quarkus.deployment.annotations.BuildStep;
+import io.quarkus.deployment.annotations.ExecutionTime;
+import io.quarkus.deployment.annotations.Record;
 import io.quarkus.deployment.builditem.CombinedIndexBuildItem;
 import io.quarkus.deployment.builditem.FeatureBuildItem;
 import io.quarkus.deployment.builditem.IndexDependencyBuildItem;
+import io.quarkus.deployment.builditem.nativeimage.NativeImageProxyDefinitionBuildItem;
 import io.quarkus.deployment.builditem.nativeimage.ReflectiveClassBuildItem;
 
 public class MyBatisPlusProcessor {
@@ -61,9 +70,15 @@ public class MyBatisPlusProcessor {
 
     @BuildStep
     void reflectiveClasses(BuildProducer<ReflectiveClassBuildItem> reflectiveClass,
+            BuildProducer<NativeImageProxyDefinitionBuildItem> proxyClass,
             CombinedIndexBuildItem indexBuildItem) {
+        reflectiveClass.produce(new ReflectiveClassBuildItem(true, false,
+                StatementHandler.class,
+                Executor.class));
+        reflectiveClass.produce(new ReflectiveClassBuildItem(true, true, BoundSql.class));
+        proxyClass.produce(new NativeImageProxyDefinitionBuildItem(StatementHandler.class.getName()));
+        proxyClass.produce(new NativeImageProxyDefinitionBuildItem(Executor.class.getName()));
 
-        reflectiveClass.produce(new ReflectiveClassBuildItem(true, true, PerpetualCache.class, LruCache.class));
         for (AnnotationInstance i : indexBuildItem.getIndex().getAnnotations(DotName.createSimple(TableName.class.getName()))) {
             if (i.target().kind() == AnnotationTarget.Kind.CLASS) {
                 DotName dotName = i.target().asClass().name();
@@ -74,5 +89,14 @@ public class MyBatisPlusProcessor {
         for (ClassInfo classInfo : indexBuildItem.getIndex().getAllKnownSubclasses(MYBATIS_PLUS_WRAPPER)) {
             reflectiveClass.produce(new ReflectiveClassBuildItem(true, true, classInfo.name().toString()));
         }
+    }
+
+    @BuildStep
+    @Record(ExecutionTime.STATIC_INIT)
+    void init(List<SqlSessionFactoryBuildItem> sqlSessionFactoryBuildItems,
+            MyBatisPlusConfig config,
+            MyBatisPlusRecorder recorder) {
+        sqlSessionFactoryBuildItems
+                .forEach(sqlSessionFactory -> recorder.initSqlSession(sqlSessionFactory.getSqlSessionFactory(), config));
     }
 }

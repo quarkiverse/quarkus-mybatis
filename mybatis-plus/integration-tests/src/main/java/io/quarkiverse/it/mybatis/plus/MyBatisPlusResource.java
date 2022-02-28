@@ -10,6 +10,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 
 @Path("/mybatis/plus")
 public class MyBatisPlusResource {
@@ -51,4 +52,9 @@ public class MyBatisPlusResource {
         return userMapper.selectCount(new QueryWrapper<>(new User()));
     }
 
+    @Path("/user/page/{page}/{pageSize}")
+    @GET
+    public Page<User> list(@PathParam("page") Integer page, @PathParam("pageSize") Integer pageSize) {
+        return userMapper.selectPage(new Page<User>(page, pageSize), null);
+    }
 }

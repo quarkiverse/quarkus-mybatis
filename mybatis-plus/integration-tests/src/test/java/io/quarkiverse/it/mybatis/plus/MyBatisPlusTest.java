@@ -17,6 +17,14 @@ public class MyBatisPlusTest {
         RestAssured.when().get("/mybatis/plus/user/1").then()
                 .body(is("{\"id\":1,\"name\":\"Test User1\",\"externalId\":\"ccb16b65-8924-4c3f-8c55-681d85a16e79\"}"));
 
+        RestAssured.when().get("/mybatis/plus/user/page/1/2").then().assertThat()
+                .body("records[0].name", is("Test User1"))
+                .body("records[1].name", is("Test User2"))
+                .body("total", is(3))
+                .body("size", is(2))
+                .body("current", is(1))
+                .body("pages", is(2));
+
         RestAssured.given().param("id", "5")
                 .param("name", "New User")
                 .param("externalId", UUID.fromString("9b036c98-eb1d-4580-a8bb-1115d7a3cd44"))
