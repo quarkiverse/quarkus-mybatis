@@ -3,7 +3,7 @@ name: "MyBatis SQL Mapper"
 metadata:
   keywords:
   - "mybatis"
-  guide: "https://quarkus.io/guides/mybatis"
+  guide: "https://quarkiverse.github.io/quarkiverse-docs/quarkus-mybatis/dev/index.html"
   categories:
   - "data"
-  status: "preview"
+  status: "stable"
