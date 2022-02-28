@@ -233,21 +233,6 @@ curl -X DELETE http://localhost:8080/mybatis/user/1
 ----
 
 == Running Native
-You have to add the `--report-unsupported-elements-at-runtime` option when buiding the native image now.
-So add the following content with the native profile in the `pom.xml`:
-
-[source, xml]
-----
-<profile>
-    <id>native</id>
-    <properties>
-        <quarkus.native.additional-build-args>
-            --report-unsupported-elements-at-runtime
-        </quarkus.native.additional-build-args>
-    </properties>
-</profile>
-----
-
 You can build the native executable with:
 
 [source, shell]
