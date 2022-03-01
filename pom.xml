@@ -24,7 +24,8 @@
 
         <quarkus.version>2.7.2.Final</quarkus.version>
         <mybatis.version>3.5.9</mybatis.version>
-	<mybatis-plus.version>3.5.1</mybatis-plus.version>
+        <mybatis-plus.version>3.5.1</mybatis-plus.version>
+        <vyarus.version>3.0.3</vyarus.version>
     </properties>
 
     <modules>
@@ -50,6 +51,11 @@
                 <groupId>com.baomidou</groupId>
                 <artifactId>mybatis-plus</artifactId>
 		<version>${mybatis-plus.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>ru.vyarus</groupId>
+                <artifactId>generics-resolver</artifactId>
+                <version>${vyarus.version}</version>
             </dependency>
         </dependencies>
     </dependencyManagement>
