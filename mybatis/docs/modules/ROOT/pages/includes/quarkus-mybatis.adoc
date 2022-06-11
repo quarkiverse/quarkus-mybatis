@@ -332,6 +332,15 @@ MyBatis defaultSqlProviderType
 |
 
 
+a|icon:lock[title=Fixed at build time] [[quarkus-mybatis_quarkus.mybatis.mapper-locations]]`link:#quarkus-mybatis_quarkus.mybatis.mapper-locations[quarkus.mybatis.mapper-locations]`
+
+[.description]
+--
+MyBatis mapperLocations
+--|list of string 
+|
+
+
 h|[[quarkus-mybatis_quarkus.mybatis.data-sources-data-sources-config]]link:#quarkus-mybatis_quarkus.mybatis.data-sources-data-sources-config[Data sources config]
 
 h|Type
