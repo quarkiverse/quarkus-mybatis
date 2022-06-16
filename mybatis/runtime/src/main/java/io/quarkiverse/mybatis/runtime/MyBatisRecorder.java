@@ -272,7 +272,7 @@ public class MyBatisRecorder {
                             ? dataSourceRuntimeConfig.defaultScriptingLanguage.get()
                             : runtimeConfig.defaultScriptingLanguage;
             configuration.setDefaultScriptingLanguage(
-                    (Class<? extends LanguageDriver>) Class.forName(defaultScriptingLanguage));
+                    (Class<? extends LanguageDriver>) Resources.classForName(defaultScriptingLanguage));
         } catch (ClassNotFoundException e) {
             throw new RuntimeException(e);
         }
@@ -282,7 +282,7 @@ public class MyBatisRecorder {
                             ? dataSourceRuntimeConfig.defaultEnumTypeHandler.get()
                             : runtimeConfig.defaultEnumTypeHandler;
             configuration.setDefaultEnumTypeHandler(
-                    (Class<? extends TypeHandler>) Class.forName(defaultEnumTypeHandler));
+                    (Class<? extends TypeHandler>) Resources.classForName(defaultEnumTypeHandler));
         } catch (ClassNotFoundException e) {
             throw new RuntimeException(e);
         }
@@ -304,7 +304,7 @@ public class MyBatisRecorder {
                 : runtimeConfig.logImpl;
         optionalLogImpl.ifPresent(logImpl -> {
             try {
-                configuration.setLogImpl((Class<? extends Log>) Class.forName(logImpl));
+                configuration.setLogImpl((Class<? extends Log>) Resources.classForName(logImpl));
             } catch (ClassNotFoundException e) {
                 throw new RuntimeException(e);
             }
@@ -324,7 +324,7 @@ public class MyBatisRecorder {
                 : runtimeConfig.vfsImpl;
         optionalVfsImpl.ifPresent(vfsImpl -> {
             try {
-                configuration.setVfsImpl((Class<? extends VFS>) Class.forName(vfsImpl));
+                configuration.setVfsImpl((Class<? extends VFS>) Resources.classForName(vfsImpl));
             } catch (ClassNotFoundException e) {
                 throw new RuntimeException(e);
             }
@@ -339,7 +339,7 @@ public class MyBatisRecorder {
                         : runtimeConfig.configurationFactory;
         optionalConfigurationFactory.ifPresent(configurationFactory -> {
             try {
-                configuration.setConfigurationFactory(Class.forName(configurationFactory));
+                configuration.setConfigurationFactory(Resources.classForName(configurationFactory));
             } catch (ClassNotFoundException e) {
                 throw new RuntimeException(e);
             }
@@ -355,7 +355,7 @@ public class MyBatisRecorder {
                         : runtimeConfig.defaultSqlProviderType;
         optionalDefaultSqlProviderType.ifPresent(defaultSqlProviderType -> {
             try {
-                configuration.setDefaultSqlProviderType(Class.forName(defaultSqlProviderType));
+                configuration.setDefaultSqlProviderType(Resources.classForName(defaultSqlProviderType));
             } catch (ClassNotFoundException e) {
                 throw new RuntimeException(e);
             }
