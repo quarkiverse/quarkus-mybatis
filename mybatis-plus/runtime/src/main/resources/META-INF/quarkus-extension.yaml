@@ -3,7 +3,7 @@ name: "An powerful enhanced toolkit of MyBatis for simplify development"
 metadata:
   keywords:
   - "mybatis-plus"
-  guide: "https://quarkus.io/guides/mybatis-plus"
+  guide: "https://quarkiverse.github.io/quarkiverse-docs/quarkus-mybatis/dev/"
   categories:
   - "data"
   status: "stable"
