@@ -108,7 +108,7 @@ public class MyBatisProcessor {
                 reflective.produce(new ReflectiveClassBuildItem(true, false, dotName.toString()));
                 proxy.produce(new NativeImageProxyDefinitionBuildItem(dotName.toString()));
 
-                Optional<AnnotationInstance> mapperDatasource = i.target().asClass().annotations().entrySet().stream()
+                Optional<AnnotationInstance> mapperDatasource = i.target().asClass().annotationsMap().entrySet().stream()
                         .filter(entry -> entry.getKey().equals(MYBATIS_MAPPER_DATA_SOURCE))
                         .map(Map.Entry::getValue)
                         .map(annotationList -> annotationList.get(0))
