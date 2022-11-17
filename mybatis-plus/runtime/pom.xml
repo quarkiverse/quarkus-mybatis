@@ -10,7 +10,7 @@
 
     <artifactId>quarkus-mybatis-plus</artifactId>
     <name>Quarkus - Mybatis Plus - Runtime</name>
-    <description>An powerful enhanced toolkit of MyBatis for simplify development</description>
+    <description>A powerful enhanced toolkit of MyBatis to simplify development</description>
 
     <dependencies>
         <dependency>
