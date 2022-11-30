@@ -1,20 +1,19 @@
 package io.quarkiverse.mybatis.deployment;
 
-import org.apache.ibatis.session.SqlSessionManager;
-
+import io.quarkiverse.mybatis.runtime.TransactionalSqlSession;
 import io.quarkus.builder.item.MultiBuildItem;
 import io.quarkus.runtime.RuntimeValue;
 
 /**
- * Hold the RuntimeValue of {@link SqlSessionManager}
+ * Hold the RuntimeValue of {@link TransactionalSqlSession}
  */
 public final class SqlSessionManagerBuildItem extends MultiBuildItem {
-    private final RuntimeValue<SqlSessionManager> sqlSessionManager;
+    private final RuntimeValue<TransactionalSqlSession> sqlSessionManager;
     private final String dataSourceName;
     private final boolean defaultDataSource;
 
     public SqlSessionManagerBuildItem(
-            RuntimeValue<SqlSessionManager> sqlSessionManager,
+            RuntimeValue<TransactionalSqlSession> sqlSessionManager,
             String dataSourceName,
             Boolean defaultDataSource) {
         this.sqlSessionManager = sqlSessionManager;
@@ -22,7 +21,7 @@ public final class SqlSessionManagerBuildItem extends MultiBuildItem {
         this.defaultDataSource = defaultDataSource;
     }
 
-    public RuntimeValue<SqlSessionManager> getSqlSessionManager() {
+    public RuntimeValue<TransactionalSqlSession> getSqlSessionManager() {
         return sqlSessionManager;
     }
 
