@@ -248,7 +248,7 @@ public class MyBatisProcessor {
         }
     }
 
-    @Record(ExecutionTime.STATIC_INIT)
+    @Record(ExecutionTime.RUNTIME_INIT)
     @BuildStep
     void generateSqlSessionManager(List<SqlSessionFactoryBuildItem> sqlSessionFactoryBuildItems,
             BuildProducer<SqlSessionManagerBuildItem> sqlSessionManager,

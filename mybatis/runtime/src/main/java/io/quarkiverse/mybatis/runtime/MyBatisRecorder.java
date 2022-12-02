@@ -1,6 +1,11 @@
 package io.quarkiverse.mybatis.runtime;
 
-import java.io.*;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.PrintWriter;
+import java.io.Reader;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.nio.file.Paths;
@@ -15,6 +20,7 @@ import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
 
 import javax.sql.DataSource;
+import javax.transaction.TransactionManager;
 
 import org.apache.ibatis.builder.xml.XMLMapperBuilder;
 import org.apache.ibatis.builder.xml.XMLMapperEntityResolver;
@@ -31,7 +37,6 @@ import org.apache.ibatis.session.Configuration;
 import org.apache.ibatis.session.SqlSession;
 import org.apache.ibatis.session.SqlSessionFactory;
 import org.apache.ibatis.session.SqlSessionFactoryBuilder;
-import org.apache.ibatis.session.SqlSessionManager;
 import org.apache.ibatis.transaction.TransactionFactory;
 import org.apache.ibatis.transaction.jdbc.JdbcTransactionFactory;
 import org.apache.ibatis.transaction.managed.ManagedTransactionFactory;
@@ -43,6 +48,7 @@ import io.quarkiverse.mybatis.runtime.config.MyBatisDataSourceRuntimeConfig;
 import io.quarkiverse.mybatis.runtime.config.MyBatisRuntimeConfig;
 import io.quarkiverse.mybatis.runtime.meta.MapperDataSource;
 import io.quarkus.agroal.runtime.DataSources;
+import io.quarkus.arc.Arc;
 import io.quarkus.runtime.RuntimeValue;
 import io.quarkus.runtime.annotations.Recorder;
 
@@ -372,12 +378,14 @@ public class MyBatisRecorder {
         return configuration;
     }
 
-    public RuntimeValue<SqlSessionManager> createSqlSessionManager(RuntimeValue<SqlSessionFactory> sqlSessionFactory) {
-        SqlSessionManager sqlSessionManager = SqlSessionManager.newInstance(sqlSessionFactory.getValue());
+    public RuntimeValue<TransactionalSqlSession> createSqlSessionManager(RuntimeValue<SqlSessionFactory> sqlSessionFactory) {
+        TransactionManager transactionManager = Arc.container().instance(TransactionManager.class).get();
+        TransactionalSqlSession sqlSessionManager = new TransactionalSqlSession(sqlSessionFactory.getValue(),
+                transactionManager);
         return new RuntimeValue<>(sqlSessionManager);
     }
 
-    public Supplier<Object> MyBatisMapperSupplier(String name, RuntimeValue<SqlSessionManager> sqlSessionManager) {
+    public Supplier<Object> MyBatisMapperSupplier(String name, RuntimeValue<TransactionalSqlSession> sqlSessionManager) {
         return () -> {
             try {
                 return sqlSessionManager.getValue().getMapper(Resources.classForName(name));
@@ -387,7 +395,7 @@ public class MyBatisRecorder {
         };
     }
 
-    public Supplier<Object> MyBatisMappedTypeSupplier(String name, RuntimeValue<SqlSessionManager> sqlSessionManager) {
+    public Supplier<Object> MyBatisMappedTypeSupplier(String name, RuntimeValue<TransactionalSqlSession> sqlSessionManager) {
         return () -> {
             try {
                 return sqlSessionManager.getValue().getConfiguration().getTypeHandlerRegistry()
@@ -398,7 +406,8 @@ public class MyBatisRecorder {
         };
     }
 
-    public Supplier<Object> MyBatisMappedJdbcTypeSupplier(String name, RuntimeValue<SqlSessionManager> sqlSessionManager) {
+    public Supplier<Object> MyBatisMappedJdbcTypeSupplier(String name,
+            RuntimeValue<TransactionalSqlSession> sqlSessionManager) {
         return () -> {
             try {
                 return sqlSessionManager.getValue().getConfiguration().getTypeHandlerRegistry()
