@@ -20,7 +20,8 @@ import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
 
 import javax.sql.DataSource;
-import javax.transaction.TransactionManager;
+
+import jakarta.transaction.TransactionManager;
 
 import org.apache.ibatis.builder.xml.XMLMapperBuilder;
 import org.apache.ibatis.builder.xml.XMLMapperEntityResolver;

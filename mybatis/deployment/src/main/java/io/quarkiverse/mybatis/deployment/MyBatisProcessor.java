@@ -7,8 +7,8 @@ import java.util.Optional;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
-import javax.inject.Named;
-import javax.inject.Singleton;
+import jakarta.inject.Named;
+import jakarta.inject.Singleton;
 
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.ibatis.annotations.DeleteProvider;
