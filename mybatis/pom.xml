@@ -5,7 +5,7 @@
     <parent>
         <groupId>io.quarkiverse.mybatis</groupId>
         <artifactId>quarkus-parent</artifactId>
-        <version>1.0.5</version>
+        <version>999-SNAPSHOT</version>
     </parent>
 
     <artifactId>quarkus-mybatis-parent</artifactId>
