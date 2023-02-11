@@ -11,3 +11,10 @@ updates:
       interval: "daily"
     ignore:
       - dependency-name: "org.apache.maven.plugins:maven-compiler-plugin"
+  - package-ecosystem: "maven"
+    directory: "/"
+    schedule:
+      interval: "daily"
+    target-branch: "1.0.x"
+    ignore:
+      - dependency-name: "org.apache.maven.plugins:maven-compiler-plugin"
