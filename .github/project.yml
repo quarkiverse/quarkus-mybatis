@@ -1,4 +1,4 @@
 name: Quarkiverse MyBatis Extension
 release:
   current-version: 1.0.6
-  next-version: 999-SNAPSHOT-1.x
+  next-version: 1.x-999-SNAPSHOT
