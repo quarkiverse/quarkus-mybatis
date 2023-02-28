@@ -4,7 +4,9 @@ DROP TABLE BOOKS IF EXISTS;
 CREATE TABLE USERS (
     id integer not null primary key,
     name varchar(80) not null,
-    externalId uuid not null
+    externalId uuid not null,
+    create_time long,
+    update_time long
 );
 
 CREATE TABLE BOOKS (
