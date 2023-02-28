@@ -87,7 +87,8 @@ public class MyBatisRecorder {
             List<String> mappedTypes,
             List<String> mappedJdbcTypes) {
         Configuration configuration = configurationFactory.createConfiguration();
-        setupConfiguration(configuration, myBatisRuntimeConfig, myBatisDataSourceRuntimeConfig, dataSourceName);
+        setupConfiguration(configuration, configurationFactory.isOverrideSetting(), myBatisRuntimeConfig,
+                myBatisDataSourceRuntimeConfig, dataSourceName);
         addMappers(configuration, myBatisRuntimeConfig, mappedTypes, mappedJdbcTypes, mappers, dataSourceName);
         SqlSessionFactory sqlSessionFactory = builder.build(configuration);
         return new RuntimeValue<>(sqlSessionFactory);
@@ -195,6 +196,7 @@ public class MyBatisRecorder {
     }
 
     private Configuration setupConfiguration(Configuration configuration,
+            boolean isOverrideSetting,
             MyBatisRuntimeConfig runtimeConfig,
             MyBatisDataSourceRuntimeConfig dataSourceRuntimeConfig,
             String dataSourceName) {
@@ -274,22 +276,26 @@ public class MyBatisRecorder {
                         ? dataSourceRuntimeConfig.lazyLoadTriggerMethods.get()
                         : runtimeConfig.lazyLoadTriggerMethods);
         try {
-            String defaultScriptingLanguage = dataSourceRuntimeConfig != null &&
-                    dataSourceRuntimeConfig.defaultScriptingLanguage.isPresent()
-                            ? dataSourceRuntimeConfig.defaultScriptingLanguage.get()
-                            : runtimeConfig.defaultScriptingLanguage;
-            configuration.setDefaultScriptingLanguage(
-                    (Class<? extends LanguageDriver>) Resources.classForName(defaultScriptingLanguage));
+            if (!isOverrideSetting) {
+                String defaultScriptingLanguage = dataSourceRuntimeConfig != null &&
+                        dataSourceRuntimeConfig.defaultScriptingLanguage.isPresent()
+                                ? dataSourceRuntimeConfig.defaultScriptingLanguage.get()
+                                : runtimeConfig.defaultScriptingLanguage;
+                configuration.setDefaultScriptingLanguage(
+                        (Class<? extends LanguageDriver>) Resources.classForName(defaultScriptingLanguage));
+            }
         } catch (ClassNotFoundException e) {
             throw new RuntimeException(e);
         }
         try {
-            String defaultEnumTypeHandler = dataSourceRuntimeConfig != null &&
-                    dataSourceRuntimeConfig.defaultEnumTypeHandler.isPresent()
-                            ? dataSourceRuntimeConfig.defaultEnumTypeHandler.get()
-                            : runtimeConfig.defaultEnumTypeHandler;
-            configuration.setDefaultEnumTypeHandler(
-                    (Class<? extends TypeHandler>) Resources.classForName(defaultEnumTypeHandler));
+            if (!isOverrideSetting) {
+                String defaultEnumTypeHandler = dataSourceRuntimeConfig != null &&
+                        dataSourceRuntimeConfig.defaultEnumTypeHandler.isPresent()
+                                ? dataSourceRuntimeConfig.defaultEnumTypeHandler.get()
+                                : runtimeConfig.defaultEnumTypeHandler;
+                configuration.setDefaultEnumTypeHandler(
+                        (Class<? extends TypeHandler>) Resources.classForName(defaultEnumTypeHandler));
+            }
         } catch (ClassNotFoundException e) {
             throw new RuntimeException(e);
         }

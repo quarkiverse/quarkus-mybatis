@@ -16,4 +16,9 @@ public class MyBatisPlusConfigurationFactory implements ConfigurationFactory {
         GenericTypeUtils.setGenericTypeResolver(new GenericTypeResolverImpl());
         return new MybatisConfiguration();
     }
+
+    @Override
+    public boolean isOverrideSetting() {
+        return true;
+    }
 }
