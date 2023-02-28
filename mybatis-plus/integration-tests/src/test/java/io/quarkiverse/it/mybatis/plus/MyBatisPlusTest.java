@@ -1,6 +1,7 @@
 package io.quarkiverse.it.mybatis.plus;
 
 import static org.hamcrest.core.Is.is;
+import static org.hamcrest.core.IsNot.not;
 
 import java.util.UUID;
 
@@ -30,6 +31,10 @@ public class MyBatisPlusTest {
                 .param("externalId", UUID.fromString("9b036c98-eb1d-4580-a8bb-1115d7a3cd44"))
                 .post("/mybatis/plus/user")
                 .then().body(is("1"));
+
+        RestAssured.when().get("/mybatis/plus/user/5").then()
+                .body("createTime", not(0))
+                .body("updateTime", not(0));
 
         RestAssured.when().delete("/mybatis/plus/user/3").then()
                 .body(is("1"));
