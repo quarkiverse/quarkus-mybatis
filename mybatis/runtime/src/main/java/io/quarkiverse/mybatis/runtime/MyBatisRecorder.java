@@ -73,10 +73,6 @@ public class MyBatisRecorder {
         return new RuntimeValue<>(sqlSessionFactory);
     }
 
-    public RuntimeValue<Configuration> createConfiguration() {
-        return new RuntimeValue<>(new Configuration());
-    }
-
     public RuntimeValue<SqlSessionFactory> createSqlSessionFactory(
             ConfigurationFactory configurationFactory,
             SqlSessionFactoryBuilder builder,
@@ -105,42 +101,40 @@ public class MyBatisRecorder {
                     if (mapperLocation.startsWith("/")) {
                         mapperLocation = mapperLocation.substring(1);
                     }
-                    final String path = Thread.currentThread().getContextClassLoader()
-                            .getResource(mapperLocation).getFile();
-                    if (path.contains("jar!")) {
-                        File resourceFile = Paths.get(new URL(path.substring(0, path.indexOf("!"))).toURI()).toFile();
-                        try (JarFile jarFile = new JarFile(resourceFile)) {
-                            Enumeration<JarEntry> entries = jarFile.entries();
-                            while (entries.hasMoreElements()) {
-                                JarEntry entry = entries.nextElement();
-                                String resourceName = entry.getName();
-                                if (!entry.isDirectory() && resourceName.startsWith(mapperLocation)
-                                        && !resourceName.endsWith(".class") && resourceName.endsWith(".xml")) {
-                                    buildXmlMapper(jarFile.getInputStream(entry), jarFile.getInputStream(entry),
-                                            entry.toString(), configuration, dataSourceName);
+                    final URL resource = Thread.currentThread().getContextClassLoader().getResource(mapperLocation);
+                    if (resource != null) {
+                        final String path = resource.getFile();
+                        if (path != null && path.contains("jar!")) {
+                            File resourceFile = Paths.get(new URL(path.substring(0, path.indexOf("!"))).toURI()).toFile();
+                            try (JarFile jarFile = new JarFile(resourceFile)) {
+                                Enumeration<JarEntry> entries = jarFile.entries();
+                                while (entries.hasMoreElements()) {
+                                    JarEntry entry = entries.nextElement();
+                                    String resourceName = entry.getName();
+                                    if (!entry.isDirectory() && resourceName.startsWith(mapperLocation)
+                                            && !resourceName.endsWith(".class") && resourceName.endsWith(".xml")) {
+                                        buildXmlMapper(jarFile.getInputStream(entry), jarFile.getInputStream(entry),
+                                                entry.toString(), configuration, dataSourceName);
+                                    }
                                 }
                             }
-                        }
-                    } else {
-                        final File resources = new File(
-                                Thread.currentThread().getContextClassLoader().getResource(mapperLocation).getFile());
-                        if (resources.listFiles() == null) {
-                            continue;
-                        }
-                        for (File file : resources.listFiles()) {
-                            if (file.getName().endsWith(".xml")) {
-                                buildXmlMapper(new FileInputStream(file), new FileInputStream(file),
-                                        file.toString(),
-                                        configuration, dataSourceName);
+                        } else if (path != null) {
+                            final File[] files = new File(path).listFiles();
+                            if (files != null) {
+                                for (File file : files) {
+                                    if (file.getName().endsWith(".xml")) {
+                                        buildXmlMapper(new FileInputStream(file), new FileInputStream(file),
+                                                file.toString(),
+                                                configuration, dataSourceName);
+                                    }
+                                }
                             }
                         }
                     }
                 } catch (NullPointerException | IOException | URISyntaxException e) {
                     LOG.warnf("Not found mapper location :%s.", mapperLocation);
-                    continue;
                 } catch (ClassNotFoundException e) {
                     LOG.warnf("Not found mapper class :%s.", e.getMessage());
-                    continue;
                 }
             }
         });
@@ -195,7 +189,8 @@ public class MyBatisRecorder {
         }
     }
 
-    private Configuration setupConfiguration(Configuration configuration,
+    @SuppressWarnings({ "unchecked", "deprecation" })
+    private void setupConfiguration(Configuration configuration,
             boolean isOverrideSetting,
             MyBatisRuntimeConfig runtimeConfig,
             MyBatisDataSourceRuntimeConfig dataSourceRuntimeConfig,
@@ -294,7 +289,7 @@ public class MyBatisRecorder {
                                 ? dataSourceRuntimeConfig.defaultEnumTypeHandler.get()
                                 : runtimeConfig.defaultEnumTypeHandler;
                 configuration.setDefaultEnumTypeHandler(
-                        (Class<? extends TypeHandler>) Resources.classForName(defaultEnumTypeHandler));
+                        (Class<? extends TypeHandler<?>>) Resources.classForName(defaultEnumTypeHandler));
             }
         } catch (ClassNotFoundException e) {
             throw new RuntimeException(e);
@@ -381,8 +376,6 @@ public class MyBatisRecorder {
                 .transactionFactory(factory)
                 .dataSource(new QuarkusDataSource(dataSourceName));
         configuration.setEnvironment(environmentBuilder.build());
-
-        return configuration;
     }
 
     public RuntimeValue<TransactionalSqlSession> createSqlSessionManager(RuntimeValue<SqlSessionFactory> sqlSessionFactory) {
@@ -444,7 +437,7 @@ public class MyBatisRecorder {
 }
 
 class QuarkusDataSource implements DataSource {
-    private String dataSourceName;
+    private final String dataSourceName;
     private AgroalDataSource dataSource;
 
     public QuarkusDataSource(String dataSourceName) {
