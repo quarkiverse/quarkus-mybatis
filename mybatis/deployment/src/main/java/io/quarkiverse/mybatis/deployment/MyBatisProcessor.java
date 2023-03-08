@@ -23,7 +23,6 @@ import org.apache.ibatis.annotations.UpdateProvider;
 import org.apache.ibatis.cache.decorators.LruCache;
 import org.apache.ibatis.cache.impl.PerpetualCache;
 import org.apache.ibatis.javassist.util.proxy.ProxyFactory;
-import org.apache.ibatis.logging.log4j.Log4jImpl;
 import org.apache.ibatis.scripting.defaults.RawLanguageDriver;
 import org.apache.ibatis.scripting.xmltags.XMLLanguageDriver;
 import org.apache.ibatis.session.SqlSessionFactory;
@@ -55,8 +54,9 @@ import io.quarkus.deployment.builditem.nativeimage.NativeImageProxyDefinitionBui
 import io.quarkus.deployment.builditem.nativeimage.NativeImageResourceBuildItem;
 import io.quarkus.deployment.builditem.nativeimage.ReflectiveClassBuildItem;
 import io.quarkus.deployment.builditem.nativeimage.RuntimeInitializedClassBuildItem;
-import io.quarkus.deployment.configuration.ConfigurationError;
+import io.quarkus.runtime.configuration.ConfigurationException;
 
+@SuppressWarnings("unused")
 public class MyBatisProcessor {
 
     private static final Logger LOG = Logger.getLogger(MyBatisProcessor.class);
@@ -72,8 +72,8 @@ public class MyBatisProcessor {
     }
 
     @BuildStep
-    void runtimeInitialzed(BuildProducer<RuntimeInitializedClassBuildItem> runtimeInit) {
-        runtimeInit.produce(new RuntimeInitializedClassBuildItem(Log4jImpl.class.getName()));
+    void runtimeInitialized(BuildProducer<RuntimeInitializedClassBuildItem> runtimeInit) {
+        runtimeInit.produce(new RuntimeInitializedClassBuildItem("org.apache.ibatis.logging.log4j.Log4jImpl"));
     }
 
     @BuildStep
@@ -174,8 +174,8 @@ public class MyBatisProcessor {
             Optional<JdbcDataSourceBuildItem> jdbcDataSourceBuildItem = jdbcDataSourcesBuildItem.stream()
                     .filter(i -> i.getName().equals(dataSourceName))
                     .findFirst();
-            if (!jdbcDataSourceBuildItem.isPresent()) {
-                throw new ConfigurationError("Can not find datasource " + dataSourceName);
+            if (jdbcDataSourceBuildItem.isEmpty()) {
+                throw new ConfigurationException("Can not find datasource " + dataSourceName);
             }
             dataSources.add(Pair.of(dataSourceName, true));
         } else {
@@ -183,7 +183,7 @@ public class MyBatisProcessor {
                     .map(dataSource -> Pair.of(dataSource.getName(), dataSource.isDefault()))
                     .collect(Collectors.toList());
             if (dataSources.isEmpty()) {
-                throw new ConfigurationError("No datasource found");
+                throw new ConfigurationException("No datasource found");
             }
         }
 
@@ -221,13 +221,13 @@ public class MyBatisProcessor {
 
     @BuildStep
     @Overridable
-    XMLConfigBuilderBuildItem createXMLConfigBuilder() throws Exception {
+    XMLConfigBuilderBuildItem createXMLConfigBuilder() {
         return new XMLConfigBuilderBuildItem(new MyBatisXMLConfigDelegateBuilder());
     }
 
     @BuildStep
     void xmlConfig(MyBatisRuntimeConfig config, BuildProducer<MyBatisXmlConfigBuildItem> xmlConfig) {
-        if (config.xmlconfig.enable == true) {
+        if (config.xmlconfig.enable) {
             xmlConfig.produce(new MyBatisXmlConfigBuildItem("xmlconfig", true));
         }
     }
@@ -277,13 +277,13 @@ public class MyBatisProcessor {
                 if (defaultSqlSessionManagerBuildItem.isDefaultDataSource() || sqlSessionManagerBuildItems.size() == 1) {
                     sessionManagerBuildItem = defaultSqlSessionManagerBuildItem;
                 } else {
-                    throw new ConfigurationError("Could not choose data source for mapper: " + i.getMapperName() +
+                    throw new ConfigurationException("Could not choose data source for mapper: " + i.getMapperName() +
                             ". Please use @MapperDataSource annotation for specified the mapper class");
                 }
             } else {
                 sessionManagerBuildItem = dataSourceToSessionManagerBuildItem.get(i.getDataSourceName());
                 if (sessionManagerBuildItem == null) {
-                    throw new ConfigurationError(String.format("Data source %s does not exist", i.getDataSourceName()));
+                    throw new ConfigurationException(String.format("Data source %s does not exist", i.getDataSourceName()));
                 }
             }
             SyntheticBeanBuildItem.ExtendedBeanConfigurator configurator = SyntheticBeanBuildItem
