@@ -1,4 +1,4 @@
-:quarkus-version: 3.0.0.Alpha4
+:quarkus-version: 3.0.0.Alpha5
 :quarkus-mybatis-version: 2.0.0.CR1
 
 :mybatis-root-url: https://mybatis.org/mybatis-3/

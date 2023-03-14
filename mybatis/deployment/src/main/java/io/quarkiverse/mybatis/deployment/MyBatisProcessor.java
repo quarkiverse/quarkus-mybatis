@@ -78,8 +78,7 @@ public class MyBatisProcessor {
 
     @BuildStep
     void reflectiveClasses(BuildProducer<ReflectiveClassBuildItem> reflectiveClass) {
-        reflectiveClass.produce(new ReflectiveClassBuildItem(false, false,
-                ProxyFactory.class,
+        reflectiveClass.produce(ReflectiveClassBuildItem.builder(ProxyFactory.class,
                 XMLLanguageDriver.class,
                 RawLanguageDriver.class,
                 SelectProvider.class,
@@ -90,10 +89,10 @@ public class MyBatisProcessor {
                 Results.class,
                 ResultType.class,
                 ResultMap.class,
-                EnumTypeHandler.class));
+                EnumTypeHandler.class).methods(false).fields(false).build());
 
-        reflectiveClass.produce(new ReflectiveClassBuildItem(true, true,
-                PerpetualCache.class, LruCache.class));
+        reflectiveClass.produce(
+                ReflectiveClassBuildItem.builder(PerpetualCache.class, LruCache.class).methods(true).fields(true).build());
     }
 
     @BuildStep
@@ -105,7 +104,7 @@ public class MyBatisProcessor {
         for (AnnotationInstance i : indexBuildItem.getIndex().getAnnotations(MYBATIS_MAPPER)) {
             if (i.target().kind() == AnnotationTarget.Kind.CLASS) {
                 DotName dotName = i.target().asClass().name();
-                reflective.produce(new ReflectiveClassBuildItem(true, false, dotName.toString()));
+                reflective.produce(ReflectiveClassBuildItem.builder(dotName.toString()).methods(true).fields(false).build());
                 proxy.produce(new NativeImageProxyDefinitionBuildItem(dotName.toString()));
 
                 Optional<AnnotationInstance> mapperDatasource = i.target().asClass().annotationsMap().entrySet().stream()

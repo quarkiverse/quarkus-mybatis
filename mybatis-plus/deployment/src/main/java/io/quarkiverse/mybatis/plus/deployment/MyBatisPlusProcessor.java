@@ -72,22 +72,24 @@ public class MyBatisPlusProcessor {
     void reflectiveClasses(BuildProducer<ReflectiveClassBuildItem> reflectiveClass,
             BuildProducer<NativeImageProxyDefinitionBuildItem> proxyClass,
             CombinedIndexBuildItem indexBuildItem) {
-        reflectiveClass.produce(new ReflectiveClassBuildItem(true, false,
-                StatementHandler.class,
-                Executor.class));
-        reflectiveClass.produce(new ReflectiveClassBuildItem(true, true, BoundSql.class));
+        reflectiveClass.produce(ReflectiveClassBuildItem.builder(StatementHandler.class,
+                Executor.class).methods(true).fields(false).build());
+        reflectiveClass.produce(ReflectiveClassBuildItem.builder(BoundSql.class).methods(true).fields(true).build());
         proxyClass.produce(new NativeImageProxyDefinitionBuildItem(StatementHandler.class.getName()));
         proxyClass.produce(new NativeImageProxyDefinitionBuildItem(Executor.class.getName()));
 
         for (AnnotationInstance i : indexBuildItem.getIndex().getAnnotations(DotName.createSimple(TableName.class.getName()))) {
             if (i.target().kind() == AnnotationTarget.Kind.CLASS) {
                 DotName dotName = i.target().asClass().name();
-                reflectiveClass.produce(new ReflectiveClassBuildItem(true, false, dotName.toString()));
+                reflectiveClass
+                        .produce(ReflectiveClassBuildItem.builder(dotName.toString()).methods(true).fields(false).build());
             }
         }
-        reflectiveClass.produce(new ReflectiveClassBuildItem(true, true, MYBATIS_PLUS_WRAPPER.toString()));
+        reflectiveClass
+                .produce(ReflectiveClassBuildItem.builder(MYBATIS_PLUS_WRAPPER.toString()).methods(true).fields(true).build());
         for (ClassInfo classInfo : indexBuildItem.getIndex().getAllKnownSubclasses(MYBATIS_PLUS_WRAPPER)) {
-            reflectiveClass.produce(new ReflectiveClassBuildItem(true, true, classInfo.name().toString()));
+            reflectiveClass
+                    .produce(ReflectiveClassBuildItem.builder(classInfo.name().toString()).methods(true).fields(true).build());
         }
     }
 
