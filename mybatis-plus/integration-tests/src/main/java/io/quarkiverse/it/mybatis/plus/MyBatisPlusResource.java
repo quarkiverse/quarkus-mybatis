@@ -1,5 +1,6 @@
 package io.quarkiverse.it.mybatis.plus;
 
+import java.util.List;
 import java.util.UUID;
 
 import jakarta.inject.Inject;
@@ -36,6 +37,13 @@ public class MyBatisPlusResource {
         user.setName(name);
         user.setExternalId(externalId);
         return userMapper.insert(user);
+    }
+
+    @Path("/users")
+    @POST
+    @Consumes(MediaType.APPLICATION_JSON)
+    public Integer createUsers(List<User> users) {
+        return userMapper.insertBatchSomeColumn(users);
     }
 
     @Path("/user/{id}")
