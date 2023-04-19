@@ -15,6 +15,7 @@ import java.sql.SQLFeatureNotSupportedException;
 import java.util.Enumeration;
 import java.util.List;
 import java.util.Optional;
+import java.util.function.Consumer;
 import java.util.function.Supplier;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
@@ -75,6 +76,7 @@ public class MyBatisRecorder {
 
     public RuntimeValue<SqlSessionFactory> createSqlSessionFactory(
             ConfigurationFactory configurationFactory,
+            List<Consumer<Configuration>> customizers,
             SqlSessionFactoryBuilder builder,
             MyBatisRuntimeConfig myBatisRuntimeConfig,
             MyBatisDataSourceRuntimeConfig myBatisDataSourceRuntimeConfig,
@@ -83,6 +85,7 @@ public class MyBatisRecorder {
             List<String> mappedTypes,
             List<String> mappedJdbcTypes) {
         Configuration configuration = configurationFactory.createConfiguration();
+        customizers.forEach(customizer -> customizer.accept(configuration));
         setupConfiguration(configuration, configurationFactory.isOverrideSetting(), myBatisRuntimeConfig,
                 myBatisDataSourceRuntimeConfig, dataSourceName);
         addMappers(configuration, myBatisRuntimeConfig, mappedTypes, mappedJdbcTypes, mappers, dataSourceName);

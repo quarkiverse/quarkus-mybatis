@@ -1,3 +1,5 @@
+
+:summaryTableId: quarkus-mybatis-plus
 [.configuration-legend]
 icon:lock[title=Fixed at build time] Configuration property fixed at build time - All other configuration properties are overridable at runtime
 [.configuration-reference.searchable, cols="80,.^10,.^10"]
@@ -13,7 +15,46 @@ a|icon:lock[title=Fixed at build time] [[quarkus-mybatis-plus_quarkus.mybatis-pl
 [.description]
 --
 MyBatis-plus PaginationInnerInterceptor
+
+ifdef::add-copy-button-to-env-var[]
+Environment variable: env_var_with_copy_button:+++QUARKUS_MYBATIS_PLUS_PAGINATION_ENABLED+++[]
+endif::add-copy-button-to-env-var[]
+ifndef::add-copy-button-to-env-var[]
+Environment variable: `+++QUARKUS_MYBATIS_PLUS_PAGINATION_ENABLED+++`
+endif::add-copy-button-to-env-var[]
 --|boolean 
 |`true`
+
+
+a|icon:lock[title=Fixed at build time] [[quarkus-mybatis-plus_quarkus.mybatis-plus.sql-injector]]`link:#quarkus-mybatis-plus_quarkus.mybatis-plus.sql-injector[quarkus.mybatis-plus.sql-injector]`
+
+[.description]
+--
+MyBatis-plus SqlInjector Class
+
+ifdef::add-copy-button-to-env-var[]
+Environment variable: env_var_with_copy_button:+++QUARKUS_MYBATIS_PLUS_SQL_INJECTOR+++[]
+endif::add-copy-button-to-env-var[]
+ifndef::add-copy-button-to-env-var[]
+Environment variable: `+++QUARKUS_MYBATIS_PLUS_SQL_INJECTOR+++`
+endif::add-copy-button-to-env-var[]
+--|string 
+|
+
+
+a|icon:lock[title=Fixed at build time] [[quarkus-mybatis-plus_quarkus.mybatis-plus.meta-object-handler]]`link:#quarkus-mybatis-plus_quarkus.mybatis-plus.meta-object-handler[quarkus.mybatis-plus.meta-object-handler]`
+
+[.description]
+--
+MyBatis-plus globalConfig metaObjectHandler
+
+ifdef::add-copy-button-to-env-var[]
+Environment variable: env_var_with_copy_button:+++QUARKUS_MYBATIS_PLUS_META_OBJECT_HANDLER+++[]
+endif::add-copy-button-to-env-var[]
+ifndef::add-copy-button-to-env-var[]
+Environment variable: `+++QUARKUS_MYBATIS_PLUS_META_OBJECT_HANDLER+++`
+endif::add-copy-button-to-env-var[]
+--|string 
+|
 
 |===

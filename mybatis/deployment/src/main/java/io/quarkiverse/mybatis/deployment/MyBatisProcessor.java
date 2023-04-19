@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -25,6 +26,7 @@ import org.apache.ibatis.cache.impl.PerpetualCache;
 import org.apache.ibatis.javassist.util.proxy.ProxyFactory;
 import org.apache.ibatis.scripting.defaults.RawLanguageDriver;
 import org.apache.ibatis.scripting.xmltags.XMLLanguageDriver;
+import org.apache.ibatis.session.Configuration;
 import org.apache.ibatis.session.SqlSessionFactory;
 import org.apache.ibatis.session.SqlSessionFactoryBuilder;
 import org.apache.ibatis.type.EnumTypeHandler;
@@ -159,6 +161,7 @@ public class MyBatisProcessor {
             List<MyBatisMapperBuildItem> myBatisMapperBuildItems,
             List<MyBatisMappedTypeBuildItem> myBatisMappedTypeBuildItems,
             List<MyBatisMappedJdbcTypeBuildItem> myBatisMappedJdbcTypeBuildItems,
+            List<ConfigurationCustomizerBuildItem> configurationCustomizerBuildItems,
             List<JdbcDataSourceBuildItem> jdbcDataSourcesBuildItem,
             BuildProducer<SqlSessionFactoryBuildItem> sqlSessionFactory,
             MyBatisRecorder recorder) {
@@ -186,6 +189,10 @@ public class MyBatisProcessor {
             }
         }
 
+        List<Consumer<Configuration>> configurationCustomizers = configurationCustomizerBuildItems.stream()
+                .map(ConfigurationCustomizerBuildItem::getCustomizer)
+                .collect(Collectors.toList());
+
         dataSources.forEach(dataSource -> {
             MyBatisDataSourceRuntimeConfig dataSourceConfig = myBatisRuntimeConfig.dataSources.get(dataSource.getKey());
             List<String> mappers = myBatisMapperBuildItems
@@ -195,6 +202,7 @@ public class MyBatisProcessor {
                     new SqlSessionFactoryBuildItem(
                             recorder.createSqlSessionFactory(
                                     configurationFactoryBuildItem.getFactory(),
+                                    configurationCustomizers,
                                     sqlSessionFactoryBuilderBuildItem.getBuilder(),
                                     myBatisRuntimeConfig,
                                     dataSourceConfig,
