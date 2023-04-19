@@ -3,12 +3,14 @@ package io.quarkiverse.it.mybatis.plus;
 import static org.hamcrest.core.Is.is;
 import static org.hamcrest.core.IsNot.not;
 
+import java.util.List;
 import java.util.UUID;
 
 import org.junit.jupiter.api.Test;
 
 import io.quarkus.test.junit.QuarkusTest;
 import io.restassured.RestAssured;
+import io.restassured.http.ContentType;
 
 @QuarkusTest
 public class MyBatisPlusTest {
@@ -41,5 +43,25 @@ public class MyBatisPlusTest {
 
         RestAssured.when().get("/mybatis/plus/user/count/h2").then()
                 .body(is("3"));
+
+        User user1 = new User();
+        user1.setId(100);
+        user1.setName("Test User 100");
+        user1.setExternalId(UUID.randomUUID());
+
+        User user2 = new User();
+        user2.setId(101);
+        user2.setName("Test User 101");
+        user2.setExternalId(UUID.randomUUID());
+
+        List<User> users = List.of(user1, user2);
+        RestAssured.given()
+                .contentType(ContentType.JSON)
+                .body(users)
+                .post("/mybatis/plus/users")
+                .then().body(is("2"));
+
+        RestAssured.when().get("/mybatis/plus/user/count/h2").then()
+                .body(is("5"));
     }
 }

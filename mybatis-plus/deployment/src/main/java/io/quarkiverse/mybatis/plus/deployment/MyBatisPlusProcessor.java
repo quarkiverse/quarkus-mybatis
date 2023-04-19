@@ -16,6 +16,7 @@ import com.baomidou.mybatisplus.core.MybatisSqlSessionFactoryBuilder;
 import com.baomidou.mybatisplus.core.conditions.Wrapper;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 
+import io.quarkiverse.mybatis.deployment.ConfigurationCustomizerBuildItem;
 import io.quarkiverse.mybatis.deployment.ConfigurationFactoryBuildItem;
 import io.quarkiverse.mybatis.deployment.SqlSessionFactoryBuildItem;
 import io.quarkiverse.mybatis.deployment.SqlSessionFactoryBuilderBuildItem;
@@ -98,5 +99,11 @@ public class MyBatisPlusProcessor {
             MyBatisPlusRecorder recorder) {
         sqlSessionFactoryBuildItems
                 .forEach(sqlSessionFactory -> recorder.initSqlSession(sqlSessionFactory.getSqlSessionFactory(), config));
+    }
+
+    @BuildStep
+    @Record(ExecutionTime.STATIC_INIT)
+    ConfigurationCustomizerBuildItem addCustomSqlInjector(MyBatisPlusRecorder recorder, MyBatisPlusConfig config) {
+        return new ConfigurationCustomizerBuildItem(recorder.addCustomSqlInjector(config));
     }
 }

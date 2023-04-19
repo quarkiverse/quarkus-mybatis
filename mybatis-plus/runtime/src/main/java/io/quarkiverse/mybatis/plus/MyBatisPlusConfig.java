@@ -16,6 +16,12 @@ public class MyBatisPlusConfig {
     public boolean pageEnabled;
 
     /**
+     * MyBatis-plus SqlInjector Class
+     */
+    @ConfigItem(name = "sql-injector")
+    public Optional<String> sqlInjector;
+
+    /**
      * MyBatis-plus globalConfig metaObjectHandler
      */
     @ConfigItem(name = "meta-object-handler")
