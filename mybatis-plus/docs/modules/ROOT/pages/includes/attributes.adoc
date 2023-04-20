@@ -1,5 +1,5 @@
-:quarkus-version: 2.16.3.Final
-:quarkus-mybatis-plus-version: 1.0.7
+:quarkus-version: 2.16.6.Final
+:quarkus-mybatis-plus-version: 1.0.8
 
 :mybatis-root-url: https://mybatis.org/mybatis-3/
 :mybatis-plus-root-url: https://mybatis.plus/
