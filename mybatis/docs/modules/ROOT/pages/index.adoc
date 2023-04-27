@@ -11,7 +11,7 @@ To complete this guide, you need:
 
 * less than 15 minutes
 * an IDE
-* JDK 1.8+ installed with `JAVA_HOME` configured appropriately
+* JDK 11+ installed with `JAVA_HOME` configured appropriately
 * Apache Maven
 * A running Mysql Database server
 * GraalVM, or Docker, installed if you want to run in native mode.
@@ -327,7 +327,7 @@ quarkus.mybatis.h2.initial-sql=insert-h2.sql
 </configuration>
 ----
 
-The dataSource type must be ```QARKUS``` and the property ```db``` could be specified to the datasource name in the
+The dataSource type must be ```QUARKUS``` and the property ```db``` could be specified to the datasource name in the
 quarkus configuration.
 
 
