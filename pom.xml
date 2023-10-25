@@ -9,7 +9,7 @@
   <groupId>io.quarkiverse.mybatis</groupId>
   <artifactId>quarkus-parent</artifactId>
   <name>Quarkus - Parent</name>
-  <version>999-SNAPSHOT</version>
+  <version>2.2.0</version>
   <packaging>pom</packaging>
   <properties>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -27,7 +27,7 @@
     <connection>:git:git@github.com:quarkiverse/quarkus-mybatis.git</connection>
     <developerConnection>scm:git:git@github.com:quarkiverse/quarkus-mybatis.git</developerConnection>
     <url>https://github.com/quarkiverse/quarkus-mybatis</url>
-    <tag>HEAD</tag>
+    <tag>2.2.0</tag>
   </scm>
   <modules>
     <module>mybatis</module>
