@@ -19,7 +19,7 @@
     <compiler.plugin.version>3.8.1</compiler.plugin.version>
     <surefire.plugin.version>3.2.2</surefire.plugin.version>
     <quarkus.version>3.6.3</quarkus.version>
-    <mybatis.version>3.5.14</mybatis.version>
+    <mybatis.version>3.5.15</mybatis.version>
     <mybatis-plus.version>3.5.4.1</mybatis-plus.version>
     <vyarus.version>3.0.3</vyarus.version>
   </properties>
