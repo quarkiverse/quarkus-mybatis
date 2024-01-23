@@ -1,6 +1,7 @@
 ---
 name: "MyBatis SQL Mapper"
 metadata:
+  icon-url: "https://github.com/mybatis/logo/blob/master/logo-bird-ninja.svg"
   keywords:
   - "mybatis"
   guide: "https://quarkiverse.github.io/quarkiverse-docs/quarkus-mybatis/dev/index.html"
