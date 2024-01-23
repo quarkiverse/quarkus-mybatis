@@ -1,6 +1,7 @@
 ---
 name: "MyBatis Plus"
 metadata:
+  icon-url: "https://mybatis.plus/img/logo.svg"
   keywords:
   - "mybatis-plus"
   guide: "https://quarkiverse.github.io/quarkiverse-docs/quarkus-mybatis/dev/"
