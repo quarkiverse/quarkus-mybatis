@@ -49,9 +49,10 @@ jobs:
 
       - name: Update latest release version in docs
         run: |
-          mvn -B -ntp -pl docs -am generate-resources -Denforcer.skip -Dformatter.skip -Dimpsort.skip
-          if ! git diff --quiet docs/modules/ROOT/pages/includes/attributes.adoc; then
-            git add docs/modules/ROOT/pages/includes/attributes.adoc
+          mvn -B -ntp -pl mybatis/docs,mybatis-plus/docs -am generate-resources -Denforcer.skip -Dformatter.skip -Dimpsort.skip
+          if ! git diff --quiet mybatis/docs/modules/ROOT/pages/includes/attributes.adoc; then
+            git add mybatis/docs/modules/ROOT/pages/includes/attributes.adoc
+            git add mybatis-plus/docs/modules/ROOT/pages/includes/attributes.adoc
             git commit -m "Update the latest release version ${{steps.metadata.outputs.current-version}} in documentation"
           fi
 

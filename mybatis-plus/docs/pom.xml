@@ -51,7 +51,7 @@
                 <executions>
                     <execution>
                         <id>copy-resources</id>
-                        <phase>prepare-package</phase>
+                        <phase>generate-resources</phase>
                         <goals>
                             <goal>copy-resources</goal>
                         </goals>
@@ -73,7 +73,7 @@
                     </execution>
                     <execution>
                         <id>copy-images</id>
-                        <phase>prepare-package</phase>
+                        <phase>generate-resources</phase>
                         <goals>
                             <goal>copy-resources</goal>
                         </goals>
