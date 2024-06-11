@@ -25,7 +25,7 @@
 
         <quarkus.version>2.16.12.Final</quarkus.version>
         <mybatis.version>3.5.16</mybatis.version>
-        <mybatis-plus.version>3.5.6</mybatis-plus.version>
+        <mybatis-plus.version>3.5.7</mybatis-plus.version>
         <vyarus.version>3.0.3</vyarus.version>
     </properties>
 
