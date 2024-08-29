@@ -69,6 +69,12 @@ public class MyBatisRuntimeConfig {
     public Optional<String> dataSource;
 
     /**
+     * MyBatis DatabaseId
+     */
+    @ConfigItem
+    public Optional<String> databaseId;
+
+    /**
      * MyBatis initial sql
      */
     @ConfigItem(name = "initial-sql")

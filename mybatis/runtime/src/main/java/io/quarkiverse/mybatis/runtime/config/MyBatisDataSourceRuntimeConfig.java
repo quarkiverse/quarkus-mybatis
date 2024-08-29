@@ -28,6 +28,12 @@ public class MyBatisDataSourceRuntimeConfig {
     public Optional<String> transactionFactory;
 
     /**
+     * MyBatis databaseId
+     */
+    @ConfigItem
+    public Optional<String> databaseId;
+
+    /**
      * MyBatis initial sql
      */
     @ConfigItem(name = "initial-sql")

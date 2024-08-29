@@ -65,6 +65,7 @@ public class MyBatisRecorder {
         try {
             builder.setConfig(config);
             builder.getConfiguration().getTypeAliasRegistry().registerAlias("QUARKUS", QuarkusDataSourceFactory.class);
+            builder.getConfiguration().getTypeAliasRegistry().registerAlias("QUARKUS_VENDOR", QuarkusDatabaseIdProvider.class);
             configuration = builder.parse();
         } catch (Exception e) {
             throw new RuntimeException(e);
@@ -208,6 +209,9 @@ public class MyBatisRecorder {
             factory = new JdbcTransactionFactory();
         }
 
+        configuration.setDatabaseId(dataSourceRuntimeConfig != null && dataSourceRuntimeConfig.databaseId.isPresent()
+                ? dataSourceRuntimeConfig.databaseId.get()
+                : runtimeConfig.databaseId.orElse(null));
         configuration.setCacheEnabled(dataSourceRuntimeConfig != null && dataSourceRuntimeConfig.cacheEnabled.isPresent()
                 ? dataSourceRuntimeConfig.cacheEnabled.get()
                 : runtimeConfig.cacheEnabled);
@@ -446,6 +450,10 @@ class QuarkusDataSource implements DataSource {
     public QuarkusDataSource(String dataSourceName) {
         this.dataSourceName = dataSourceName;
         this.dataSource = null;
+    }
+
+    public String getDataSourceName() {
+        return dataSourceName;
     }
 
     private DataSource getDataSource() {
