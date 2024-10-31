@@ -20,7 +20,7 @@
     <surefire.plugin.version>3.5.1</surefire.plugin.version>
     <quarkus.version>3.16.1</quarkus.version>
     <mybatis.version>3.5.16</mybatis.version>
-    <mybatis-plus.version>3.5.8</mybatis-plus.version>
+    <mybatis-plus.version>3.5.9</mybatis-plus.version>
     <vyarus.version>3.0.3</vyarus.version>
     <spring.version>5.3.34</spring.version>
   </properties>
@@ -51,6 +51,11 @@
       <dependency>
         <groupId>com.baomidou</groupId>
         <artifactId>mybatis-plus</artifactId>
+        <version>${mybatis-plus.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>com.baomidou</groupId>
+        <artifactId>mybatis-plus-jsqlparser</artifactId>
         <version>${mybatis-plus.version}</version>
       </dependency>
       <dependency>
