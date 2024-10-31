@@ -58,6 +58,11 @@
 		<version>${mybatis-plus.version}</version>
             </dependency>
             <dependency>
+                <groupId>com.baomidou</groupId>
+                <artifactId>mybatis-plus-jsqlparser</artifactId>
+                <version>${mybatis-plus.version}</version>
+            </dependency>
+            <dependency>
                 <groupId>ru.vyarus</groupId>
                 <artifactId>generics-resolver</artifactId>
                 <version>${vyarus.version}</version>
