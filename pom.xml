@@ -24,7 +24,7 @@
         <surefire.plugin.version>3.5.2</surefire.plugin.version>
 
         <quarkus.version>2.16.12.Final</quarkus.version>
-        <mybatis.version>3.5.17</mybatis.version>
+        <mybatis.version>3.5.18</mybatis.version>
         <mybatis-plus.version>3.5.9</mybatis-plus.version>
         <vyarus.version>3.0.3</vyarus.version>
         <spring.version>5.3.34</spring.version>
