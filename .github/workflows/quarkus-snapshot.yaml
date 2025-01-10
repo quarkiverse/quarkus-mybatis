@@ -24,9 +24,6 @@ jobs:
     if: github.actor == 'quarkusbot' || github.actor == 'quarkiversebot'
 
     steps:
-      - name: Install yq
-        run: sudo add-apt-repository ppa:rmescandon/yq && sudo apt update && sudo apt install yq -y
-
       - name: Set up Java
         uses: actions/setup-java@v1
         with:
