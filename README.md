@@ -3,7 +3,7 @@
 [![License](https://img.shields.io/github/license/quarkiverse/quarkus-mybatis)](http://www.apache.org/licenses/LICENSE-2.0)
 [![Central](https://img.shields.io/maven-central/v/io.quarkiverse.mybatis/quarkus-mybatis-parent?color=green)](https://search.maven.org/search?q=g:io.quarkiverse.mybatis%20AND%20a:quarkus-mybatis-parent)
 <!-- ALL-CONTRIBUTORS-BADGE:START - Do not remove or modify this section -->
-[![All Contributors](https://img.shields.io/badge/all_contributors-7-orange.svg?style=flat-square)](#contributors-)
+[![All Contributors](https://img.shields.io/badge/all_contributors-8-orange.svg?style=flat-square)](#contributors-)
 <!-- ALL-CONTRIBUTORS-BADGE:END -->
 
 MyBatis is a first class persistence framework with support for custom SQL, stored procedures and advanced mappings. This extension provides the developers ease of configuration and native support. Add the following dependency in your pom.xml to get started,
@@ -42,15 +42,20 @@ Thanks goes to these wonderful people ([emoji key](https://allcontributors.org/d
 <!-- prettier-ignore-start -->
 <!-- markdownlint-disable -->
 <table>
-  <tr>
-    <td align="center"><a href="https://github.com/zhfeng"><img src="https://avatars2.githubusercontent.com/u/1246139?v=4?s=100" width="100px;" alt=""/><br /><sub><b>Amos Feng</b></sub></a><br /><a href="https://github.com/quarkiverse/quarkus-mybatis/commits?author=zhfeng" title="Code">💻</a> <a href="#maintenance-zhfeng" title="Maintenance">🚧</a></td>
-    <td align="center"><a href="https://github.com/362228416"><img src="https://avatars.githubusercontent.com/u/5248797?v=4?s=100" width="100px;" alt=""/><br /><sub><b>Chao</b></sub></a><br /><a href="https://github.com/quarkiverse/quarkus-mybatis/commits?author=362228416" title="Code">💻</a></td>
-    <td align="center"><a href="https://github.com/AndLvovSky"><img src="https://avatars.githubusercontent.com/u/46902956?v=4?s=100" width="100px;" alt=""/><br /><sub><b>Viktor Ilvovskyi</b></sub></a><br /><a href="https://github.com/quarkiverse/quarkus-mybatis/commits?author=AndLvovSky" title="Code">💻</a></td>
-    <td align="center"><a href="https://github.com/igor-dmitriev"><img src="https://avatars.githubusercontent.com/u/4592740?v=4?s=100" width="100px;" alt=""/><br /><sub><b>Igor Dmitriev</b></sub></a><br /><a href="https://github.com/quarkiverse/quarkus-mybatis/commits?author=igor-dmitriev" title="Code">💻</a></td>
-    <td align="center"><a href="https://github.com/kbrumer"><img src="https://avatars.githubusercontent.com/u/244873?v=4?s=100" width="100px;" alt=""/><br /><sub><b>Ken Brumer</b></sub></a><br /><a href="https://github.com/quarkiverse/quarkus-mybatis/commits?author=kbrumer" title="Code">💻</a></td>
-    <td align="center"><a href="https://github.com/zohar-soul"><img src="https://avatars.githubusercontent.com/u/13990539?v=4?s=100" width="100px;" alt=""/><br /><sub><b>Zohar</b></sub></a><br /><a href="#maintenance-zohar-soul" title="Maintenance">🚧</a></td>
-    <td align="center"><a href="https://github.com/y-bowen"><img src="https://avatars.githubusercontent.com/u/20274912?v=4?s=100" width="100px;" alt=""/><br /><sub><b>bowen</b></sub></a><br /><a href="https://github.com/quarkiverse/quarkus-mybatis/commits?author=y-bowen" title="Code">💻</a></td>
-  </tr>
+  <tbody>
+    <tr>
+      <td align="center" valign="top" width="14.28%"><a href="https://github.com/zhfeng"><img src="https://avatars2.githubusercontent.com/u/1246139?v=4?s=100" width="100px;" alt="Amos Feng"/><br /><sub><b>Amos Feng</b></sub></a><br /><a href="https://github.com/quarkiverse/quarkus-mybatis/commits?author=zhfeng" title="Code">💻</a> <a href="#maintenance-zhfeng" title="Maintenance">🚧</a></td>
+      <td align="center" valign="top" width="14.28%"><a href="https://github.com/362228416"><img src="https://avatars.githubusercontent.com/u/5248797?v=4?s=100" width="100px;" alt="Chao"/><br /><sub><b>Chao</b></sub></a><br /><a href="https://github.com/quarkiverse/quarkus-mybatis/commits?author=362228416" title="Code">💻</a></td>
+      <td align="center" valign="top" width="14.28%"><a href="https://github.com/AndLvovSky"><img src="https://avatars.githubusercontent.com/u/46902956?v=4?s=100" width="100px;" alt="Viktor Ilvovskyi"/><br /><sub><b>Viktor Ilvovskyi</b></sub></a><br /><a href="https://github.com/quarkiverse/quarkus-mybatis/commits?author=AndLvovSky" title="Code">💻</a></td>
+      <td align="center" valign="top" width="14.28%"><a href="https://github.com/igor-dmitriev"><img src="https://avatars.githubusercontent.com/u/4592740?v=4?s=100" width="100px;" alt="Igor Dmitriev"/><br /><sub><b>Igor Dmitriev</b></sub></a><br /><a href="https://github.com/quarkiverse/quarkus-mybatis/commits?author=igor-dmitriev" title="Code">💻</a></td>
+      <td align="center" valign="top" width="14.28%"><a href="https://github.com/kbrumer"><img src="https://avatars.githubusercontent.com/u/244873?v=4?s=100" width="100px;" alt="Ken Brumer"/><br /><sub><b>Ken Brumer</b></sub></a><br /><a href="https://github.com/quarkiverse/quarkus-mybatis/commits?author=kbrumer" title="Code">💻</a></td>
+      <td align="center" valign="top" width="14.28%"><a href="https://github.com/zohar-soul"><img src="https://avatars.githubusercontent.com/u/13990539?v=4?s=100" width="100px;" alt="Zohar"/><br /><sub><b>Zohar</b></sub></a><br /><a href="#maintenance-zohar-soul" title="Maintenance">🚧</a></td>
+      <td align="center" valign="top" width="14.28%"><a href="https://github.com/y-bowen"><img src="https://avatars.githubusercontent.com/u/20274912?v=4?s=100" width="100px;" alt="bowen"/><br /><sub><b>bowen</b></sub></a><br /><a href="https://github.com/quarkiverse/quarkus-mybatis/commits?author=y-bowen" title="Code">💻</a></td>
+    </tr>
+    <tr>
+      <td align="center" valign="top" width="14.28%"><a href="https://github.com/kwseeker"><img src="https://avatars.githubusercontent.com/u/7456558?v=4?s=100" width="100px;" alt="Arvin Lee"/><br /><sub><b>Arvin Lee</b></sub></a><br /><a href="https://github.com/quarkiverse/quarkus-mybatis/commits?author=kwseeker" title="Code">💻</a></td>
+    </tr>
+  </tbody>
 </table>
 
 <!-- markdownlint-restore -->
