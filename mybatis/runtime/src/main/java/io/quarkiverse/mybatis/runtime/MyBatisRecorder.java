@@ -137,8 +137,6 @@ public class MyBatisRecorder {
                     }
                 } catch (NullPointerException | IOException | URISyntaxException e) {
                     LOG.warnf("Not found mapper location :%s.", mapperLocation);
-                } catch (ClassNotFoundException e) {
-                    LOG.warnf("Not found mapper class :%s.", e.getMessage());
                 }
             }
         });
@@ -146,18 +144,21 @@ public class MyBatisRecorder {
 
     private void buildXmlMapper(InputStream filterStream, InputStream resourceStream, String resource,
             Configuration configuration,
-            String dataSourceName)
-            throws ClassNotFoundException {
+            String dataSourceName) {
         final XPathParser xPathParser = new XPathParser(filterStream,
                 true, configuration.getVariables(), new XMLMapperEntityResolver());
         String nameSpace = xPathParser.evalNode("/mapper").getStringAttribute("namespace");
-        final Class<?> mapperClass = Resources.classForName(nameSpace);
-        final MapperDataSource annotation = mapperClass.getAnnotation(MapperDataSource.class);
-        if ((annotation != null && annotation.value().equals(dataSourceName))
-                || (annotation == null && dataSourceName.equals("<default>"))) {
-            XMLMapperBuilder xmlMapperBuilder = new XMLMapperBuilder(resourceStream,
-                    configuration, resource, configuration.getSqlFragments());
-            xmlMapperBuilder.parse();
+        try {
+            final Class<?> mapperClass = Resources.classForName(nameSpace);
+            final MapperDataSource annotation = mapperClass.getAnnotation(MapperDataSource.class);
+            if ((annotation != null && annotation.value().equals(dataSourceName))
+                    || (annotation == null && dataSourceName.equals("<default>"))) {
+                XMLMapperBuilder xmlMapperBuilder = new XMLMapperBuilder(resourceStream,
+                        configuration, resource, configuration.getSqlFragments());
+                xmlMapperBuilder.parse();
+            }
+        } catch (ClassNotFoundException e) {
+            LOG.warnf("Not found mapper class :%s.", e.getMessage());
         }
     }
 
