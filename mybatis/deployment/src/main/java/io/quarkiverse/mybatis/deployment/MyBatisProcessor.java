@@ -150,8 +150,8 @@ public class MyBatisProcessor {
 
     @BuildStep
     void initialSql(BuildProducer<NativeImageResourceBuildItem> resource, MyBatisRuntimeConfig config) {
-        config.initialSql.ifPresent(initialSql -> resource.produce(new NativeImageResourceBuildItem(initialSql)));
-        config.dataSources.values().forEach(dataSource -> dataSource.initialSql
+        config.initialSql().ifPresent(initialSql -> resource.produce(new NativeImageResourceBuildItem(initialSql)));
+        config.dataSources().values().forEach(dataSource -> dataSource.initialSql()
                 .ifPresent(initialSql -> resource.produce(new NativeImageResourceBuildItem(initialSql))));
     }
 
@@ -173,8 +173,8 @@ public class MyBatisProcessor {
                 .stream().map(m -> m.getMappedJdbcTypeName().toString()).collect(Collectors.toList());
 
         List<Pair<String, Boolean>> dataSources = new ArrayList<>();
-        if (myBatisRuntimeConfig.dataSource.isPresent()) {
-            String dataSourceName = myBatisRuntimeConfig.dataSource.get();
+        if (myBatisRuntimeConfig.dataSource().isPresent()) {
+            String dataSourceName = myBatisRuntimeConfig.dataSource().get();
             Optional<JdbcDataSourceBuildItem> jdbcDataSourceBuildItem = jdbcDataSourcesBuildItem.stream()
                     .filter(i -> i.getName().equals(dataSourceName))
                     .findFirst();
@@ -196,7 +196,6 @@ public class MyBatisProcessor {
                 .collect(Collectors.toList());
 
         dataSources.forEach(dataSource -> {
-            MyBatisDataSourceRuntimeConfig dataSourceConfig = myBatisRuntimeConfig.dataSources.get(dataSource.getKey());
             List<String> mappers = myBatisMapperBuildItems
                     .stream().filter(m -> m.getDataSourceName().equals(dataSource.getKey()))
                     .map(m -> m.getMapperName().toString()).collect(Collectors.toList());
@@ -207,7 +206,6 @@ public class MyBatisProcessor {
                                     configurationCustomizers,
                                     sqlSessionFactoryBuilderBuildItem.getBuilder(),
                                     myBatisRuntimeConfig,
-                                    dataSourceConfig,
                                     dataSource.getKey(),
                                     mappers,
                                     mappedTypes,
@@ -236,7 +234,7 @@ public class MyBatisProcessor {
 
     @BuildStep
     void xmlConfig(MyBatisRuntimeConfig config, BuildProducer<MyBatisXmlConfigBuildItem> xmlConfig) {
-        if (config.xmlconfig.enable) {
+        if (config.xmlconfig().enable()) {
             xmlConfig.produce(new MyBatisXmlConfigBuildItem("xmlconfig", true));
         }
     }
@@ -353,15 +351,15 @@ public class MyBatisProcessor {
             MyBatisRuntimeConfig myBatisRuntimeConfig,
             MyBatisRecorder recorder) {
         sqlSessionFactoryBuildItems.forEach(sqlSessionFactoryBuildItem -> {
-            MyBatisDataSourceRuntimeConfig dataSourceConfig = myBatisRuntimeConfig.dataSources
+            MyBatisDataSourceRuntimeConfig dataSourceConfig = myBatisRuntimeConfig.dataSources()
                     .get(sqlSessionFactoryBuildItem.getDataSourceName());
             Optional<String> optionalInitialSql;
             if (sqlSessionFactoryBuildItem.isDefaultDataSource() || sqlSessionFactoryBuildItems.size() == 1) {
-                optionalInitialSql = dataSourceConfig != null && dataSourceConfig.initialSql.isPresent()
-                        ? dataSourceConfig.initialSql
-                        : myBatisRuntimeConfig.initialSql;
+                optionalInitialSql = dataSourceConfig != null && dataSourceConfig.initialSql().isPresent()
+                        ? dataSourceConfig.initialSql()
+                        : myBatisRuntimeConfig.initialSql();
             } else {
-                optionalInitialSql = dataSourceConfig != null ? dataSourceConfig.initialSql : Optional.empty();
+                optionalInitialSql = dataSourceConfig != null ? dataSourceConfig.initialSql() : Optional.empty();
             }
             optionalInitialSql.ifPresent(initialSql -> recorder.runInitialSql(
                     sqlSessionFactoryBuildItem.getSqlSessionFactory(), initialSql));

@@ -80,7 +80,6 @@ public class MyBatisRecorder {
             List<Consumer<Configuration>> customizers,
             SqlSessionFactoryBuilder builder,
             MyBatisRuntimeConfig myBatisRuntimeConfig,
-            MyBatisDataSourceRuntimeConfig myBatisDataSourceRuntimeConfig,
             String dataSourceName,
             List<String> mappers,
             List<String> mappedTypes,
@@ -88,7 +87,7 @@ public class MyBatisRecorder {
         Configuration configuration = configurationFactory.createConfiguration();
         customizers.forEach(customizer -> customizer.accept(configuration));
         setupConfiguration(configuration, configurationFactory.isOverrideSetting(), myBatisRuntimeConfig,
-                myBatisDataSourceRuntimeConfig, dataSourceName);
+                myBatisRuntimeConfig.dataSources().get(dataSourceName), dataSourceName);
         addMappers(configuration, myBatisRuntimeConfig, mappedTypes, mappedJdbcTypes, mappers, dataSourceName);
         SqlSessionFactory sqlSessionFactory = builder.build(configuration);
         return new RuntimeValue<>(sqlSessionFactory);
@@ -96,7 +95,7 @@ public class MyBatisRecorder {
 
     private void buildFromMapperLocations(Configuration configuration, MyBatisRuntimeConfig myBatisRuntimeConfig,
             String dataSourceName) {
-        myBatisRuntimeConfig.mapperLocations.ifPresent(mapperLocations -> {
+        myBatisRuntimeConfig.mapperLocations().ifPresent(mapperLocations -> {
             for (String mapperLocation : mapperLocations) {
                 try {
                     if (mapperLocation.endsWith("/")) {
@@ -201,89 +200,93 @@ public class MyBatisRecorder {
             MyBatisDataSourceRuntimeConfig dataSourceRuntimeConfig,
             String dataSourceName) {
         TransactionFactory factory;
-        String transactionFactory = dataSourceRuntimeConfig != null && dataSourceRuntimeConfig.transactionFactory.isPresent()
-                ? dataSourceRuntimeConfig.transactionFactory.get()
-                : runtimeConfig.transactionFactory;
+        String transactionFactory = dataSourceRuntimeConfig != null && dataSourceRuntimeConfig.transactionFactory().isPresent()
+                ? dataSourceRuntimeConfig.transactionFactory().get()
+                : runtimeConfig.transactionFactory();
         if (transactionFactory.equals("MANAGED")) {
             factory = new ManagedTransactionFactory();
         } else {
             factory = new JdbcTransactionFactory();
         }
 
-        configuration.setDatabaseId(dataSourceRuntimeConfig != null && dataSourceRuntimeConfig.databaseId.isPresent()
-                ? dataSourceRuntimeConfig.databaseId.get()
-                : runtimeConfig.databaseId.orElse(null));
-        configuration.setCacheEnabled(dataSourceRuntimeConfig != null && dataSourceRuntimeConfig.cacheEnabled.isPresent()
-                ? dataSourceRuntimeConfig.cacheEnabled.get()
-                : runtimeConfig.cacheEnabled);
+        configuration.setDatabaseId(dataSourceRuntimeConfig != null && dataSourceRuntimeConfig.databaseId().isPresent()
+                ? dataSourceRuntimeConfig.databaseId().get()
+                : runtimeConfig.databaseId().orElse(null));
+        configuration.setCacheEnabled(dataSourceRuntimeConfig != null && dataSourceRuntimeConfig.cacheEnabled().isPresent()
+                ? dataSourceRuntimeConfig.cacheEnabled().get()
+                : runtimeConfig.cacheEnabled());
         configuration.setLazyLoadingEnabled(dataSourceRuntimeConfig != null &&
-                dataSourceRuntimeConfig.lazyLoadingEnabled.isPresent() ? dataSourceRuntimeConfig.lazyLoadingEnabled.get()
-                        : runtimeConfig.lazyLoadingEnabled);
+                dataSourceRuntimeConfig.lazyLoadingEnabled().isPresent() ? dataSourceRuntimeConfig.lazyLoadingEnabled().get()
+                        : runtimeConfig.lazyLoadingEnabled());
         configuration.setAggressiveLazyLoading(dataSourceRuntimeConfig != null &&
-                dataSourceRuntimeConfig.aggressiveLazyLoading.isPresent() ? dataSourceRuntimeConfig.aggressiveLazyLoading.get()
-                        : runtimeConfig.aggressiveLazyLoading);
+                dataSourceRuntimeConfig.aggressiveLazyLoading().isPresent()
+                        ? dataSourceRuntimeConfig.aggressiveLazyLoading().get()
+                        : runtimeConfig.aggressiveLazyLoading());
         configuration.setMultipleResultSetsEnabled(dataSourceRuntimeConfig != null &&
-                dataSourceRuntimeConfig.multipleResultSetsEnabled.isPresent()
-                        ? dataSourceRuntimeConfig.multipleResultSetsEnabled.get()
-                        : runtimeConfig.multipleResultSetsEnabled);
-        configuration.setUseColumnLabel(dataSourceRuntimeConfig != null && dataSourceRuntimeConfig.useColumnLabel.isPresent()
-                ? dataSourceRuntimeConfig.useColumnLabel.get()
-                : runtimeConfig.useColumnLabel);
+                dataSourceRuntimeConfig.multipleResultSetsEnabled().isPresent()
+                        ? dataSourceRuntimeConfig.multipleResultSetsEnabled().get()
+                        : runtimeConfig.multipleResultSetsEnabled());
+        configuration.setUseColumnLabel(dataSourceRuntimeConfig != null && dataSourceRuntimeConfig.useColumnLabel().isPresent()
+                ? dataSourceRuntimeConfig.useColumnLabel().get()
+                : runtimeConfig.useColumnLabel());
         configuration.setUseGeneratedKeys(dataSourceRuntimeConfig != null &&
-                dataSourceRuntimeConfig.useGeneratedKeys.isPresent() ? dataSourceRuntimeConfig.useGeneratedKeys.get()
-                        : runtimeConfig.useGeneratedKeys);
+                dataSourceRuntimeConfig.useGeneratedKeys().isPresent() ? dataSourceRuntimeConfig.useGeneratedKeys().get()
+                        : runtimeConfig.useGeneratedKeys());
         configuration.setAutoMappingBehavior(dataSourceRuntimeConfig != null &&
-                dataSourceRuntimeConfig.autoMappingBehavior.isPresent() ? dataSourceRuntimeConfig.autoMappingBehavior.get()
-                        : runtimeConfig.autoMappingBehavior);
+                dataSourceRuntimeConfig.autoMappingBehavior().isPresent() ? dataSourceRuntimeConfig.autoMappingBehavior().get()
+                        : runtimeConfig.autoMappingBehavior());
         configuration.setAutoMappingUnknownColumnBehavior(dataSourceRuntimeConfig != null &&
-                dataSourceRuntimeConfig.autoMappingUnknownColumnBehavior.isPresent()
-                        ? dataSourceRuntimeConfig.autoMappingUnknownColumnBehavior.get()
-                        : runtimeConfig.autoMappingUnknownColumnBehavior);
+                dataSourceRuntimeConfig.autoMappingUnknownColumnBehavior().isPresent()
+                        ? dataSourceRuntimeConfig.autoMappingUnknownColumnBehavior().get()
+                        : runtimeConfig.autoMappingUnknownColumnBehavior());
         configuration.setDefaultExecutorType(dataSourceRuntimeConfig != null &&
-                dataSourceRuntimeConfig.defaultExecutorType.isPresent() ? dataSourceRuntimeConfig.defaultExecutorType.get()
-                        : runtimeConfig.defaultExecutorType);
-        if (dataSourceRuntimeConfig != null && dataSourceRuntimeConfig.defaultStatementTimeout.isPresent()) {
-            configuration.setDefaultStatementTimeout(dataSourceRuntimeConfig.defaultStatementTimeout.get());
+                dataSourceRuntimeConfig.defaultExecutorType().isPresent() ? dataSourceRuntimeConfig.defaultExecutorType().get()
+                        : runtimeConfig.defaultExecutorType());
+        if (dataSourceRuntimeConfig != null && dataSourceRuntimeConfig.defaultStatementTimeout().isPresent()) {
+            configuration.setDefaultStatementTimeout(dataSourceRuntimeConfig.defaultStatementTimeout().get());
         } else {
-            runtimeConfig.defaultStatementTimeout.ifPresent(configuration::setDefaultStatementTimeout);
+            runtimeConfig.defaultStatementTimeout().ifPresent(configuration::setDefaultStatementTimeout);
         }
-        if (dataSourceRuntimeConfig != null && dataSourceRuntimeConfig.defaultFetchSize.isPresent()) {
-            configuration.setDefaultFetchSize(dataSourceRuntimeConfig.defaultFetchSize.get());
+        if (dataSourceRuntimeConfig != null && dataSourceRuntimeConfig.defaultFetchSize().isPresent()) {
+            configuration.setDefaultFetchSize(dataSourceRuntimeConfig.defaultFetchSize().get());
         } else {
-            runtimeConfig.defaultFetchSize.ifPresent(configuration::setDefaultFetchSize);
+            runtimeConfig.defaultFetchSize().ifPresent(configuration::setDefaultFetchSize);
         }
-        if (dataSourceRuntimeConfig != null && dataSourceRuntimeConfig.defaultResultSetType.isPresent()) {
-            configuration.setDefaultResultSetType(dataSourceRuntimeConfig.defaultResultSetType.get());
+        if (dataSourceRuntimeConfig != null && dataSourceRuntimeConfig.defaultResultSetType().isPresent()) {
+            configuration.setDefaultResultSetType(dataSourceRuntimeConfig.defaultResultSetType().get());
         } else {
-            runtimeConfig.defaultResultSetType.ifPresent(configuration::setDefaultResultSetType);
+            runtimeConfig.defaultResultSetType().ifPresent(configuration::setDefaultResultSetType);
         }
         configuration.setSafeRowBoundsEnabled(dataSourceRuntimeConfig != null &&
-                dataSourceRuntimeConfig.safeRowBoundsEnabled.isPresent() ? dataSourceRuntimeConfig.safeRowBoundsEnabled.get()
-                        : runtimeConfig.safeRowBoundsEnabled);
+                dataSourceRuntimeConfig.safeRowBoundsEnabled().isPresent()
+                        ? dataSourceRuntimeConfig.safeRowBoundsEnabled().get()
+                        : runtimeConfig.safeRowBoundsEnabled());
         configuration.setSafeResultHandlerEnabled(dataSourceRuntimeConfig != null &&
-                dataSourceRuntimeConfig.safeResultHandlerEnabled.isPresent()
-                        ? dataSourceRuntimeConfig.safeResultHandlerEnabled.get()
-                        : runtimeConfig.safeResultHandlerEnabled);
+                dataSourceRuntimeConfig.safeResultHandlerEnabled().isPresent()
+                        ? dataSourceRuntimeConfig.safeResultHandlerEnabled().get()
+                        : runtimeConfig.safeResultHandlerEnabled());
         configuration.setMapUnderscoreToCamelCase(dataSourceRuntimeConfig != null &&
-                dataSourceRuntimeConfig.mapUnderscoreToCamelCase.isPresent()
-                        ? dataSourceRuntimeConfig.mapUnderscoreToCamelCase.get()
-                        : runtimeConfig.mapUnderscoreToCamelCase);
-        configuration.setLocalCacheScope(dataSourceRuntimeConfig != null && dataSourceRuntimeConfig.localCacheScope.isPresent()
-                ? dataSourceRuntimeConfig.localCacheScope.get()
-                : runtimeConfig.localCacheScope);
-        configuration.setJdbcTypeForNull(dataSourceRuntimeConfig != null && dataSourceRuntimeConfig.jdbcTypeForNull.isPresent()
-                ? dataSourceRuntimeConfig.jdbcTypeForNull.get()
-                : runtimeConfig.jdbcTypeForNull);
+                dataSourceRuntimeConfig.mapUnderscoreToCamelCase().isPresent()
+                        ? dataSourceRuntimeConfig.mapUnderscoreToCamelCase().get()
+                        : runtimeConfig.mapUnderscoreToCamelCase());
+        configuration
+                .setLocalCacheScope(dataSourceRuntimeConfig != null && dataSourceRuntimeConfig.localCacheScope().isPresent()
+                        ? dataSourceRuntimeConfig.localCacheScope().get()
+                        : runtimeConfig.localCacheScope());
+        configuration
+                .setJdbcTypeForNull(dataSourceRuntimeConfig != null && dataSourceRuntimeConfig.jdbcTypeForNull().isPresent()
+                        ? dataSourceRuntimeConfig.jdbcTypeForNull().get()
+                        : runtimeConfig.jdbcTypeForNull());
         configuration.setLazyLoadTriggerMethods(dataSourceRuntimeConfig != null &&
-                dataSourceRuntimeConfig.lazyLoadTriggerMethods.isPresent()
-                        ? dataSourceRuntimeConfig.lazyLoadTriggerMethods.get()
-                        : runtimeConfig.lazyLoadTriggerMethods);
+                dataSourceRuntimeConfig.lazyLoadTriggerMethods().isPresent()
+                        ? dataSourceRuntimeConfig.lazyLoadTriggerMethods().get()
+                        : runtimeConfig.lazyLoadTriggerMethods());
         try {
             if (!isOverrideSetting) {
                 String defaultScriptingLanguage = dataSourceRuntimeConfig != null &&
-                        dataSourceRuntimeConfig.defaultScriptingLanguage.isPresent()
-                                ? dataSourceRuntimeConfig.defaultScriptingLanguage.get()
-                                : runtimeConfig.defaultScriptingLanguage;
+                        dataSourceRuntimeConfig.defaultScriptingLanguage().isPresent()
+                                ? dataSourceRuntimeConfig.defaultScriptingLanguage().get()
+                                : runtimeConfig.defaultScriptingLanguage();
                 configuration.setDefaultScriptingLanguage(
                         (Class<? extends LanguageDriver>) Resources.classForName(defaultScriptingLanguage));
             }
@@ -293,9 +296,9 @@ public class MyBatisRecorder {
         try {
             if (!isOverrideSetting) {
                 String defaultEnumTypeHandler = dataSourceRuntimeConfig != null &&
-                        dataSourceRuntimeConfig.defaultEnumTypeHandler.isPresent()
-                                ? dataSourceRuntimeConfig.defaultEnumTypeHandler.get()
-                                : runtimeConfig.defaultEnumTypeHandler;
+                        dataSourceRuntimeConfig.defaultEnumTypeHandler().isPresent()
+                                ? dataSourceRuntimeConfig.defaultEnumTypeHandler().get()
+                                : runtimeConfig.defaultEnumTypeHandler();
                 configuration.setDefaultEnumTypeHandler(
                         (Class<? extends TypeHandler<?>>) Resources.classForName(defaultEnumTypeHandler));
             }
@@ -303,21 +306,21 @@ public class MyBatisRecorder {
             throw new RuntimeException(e);
         }
         configuration.setCallSettersOnNulls(dataSourceRuntimeConfig != null &&
-                dataSourceRuntimeConfig.callSettersOnNulls.isPresent() ? dataSourceRuntimeConfig.callSettersOnNulls.get()
-                        : runtimeConfig.callSettersOnNulls);
+                dataSourceRuntimeConfig.callSettersOnNulls().isPresent() ? dataSourceRuntimeConfig.callSettersOnNulls().get()
+                        : runtimeConfig.callSettersOnNulls());
         configuration.setReturnInstanceForEmptyRow(dataSourceRuntimeConfig != null &&
-                dataSourceRuntimeConfig.returnInstanceForEmptyRow.isPresent()
-                        ? dataSourceRuntimeConfig.returnInstanceForEmptyRow.get()
-                        : runtimeConfig.returnInstanceForEmptyRow);
-        if (dataSourceRuntimeConfig != null && dataSourceRuntimeConfig.logPrefix.isPresent()) {
-            configuration.setLogPrefix(dataSourceRuntimeConfig.logPrefix.get());
+                dataSourceRuntimeConfig.returnInstanceForEmptyRow().isPresent()
+                        ? dataSourceRuntimeConfig.returnInstanceForEmptyRow().get()
+                        : runtimeConfig.returnInstanceForEmptyRow());
+        if (dataSourceRuntimeConfig != null && dataSourceRuntimeConfig.logPrefix().isPresent()) {
+            configuration.setLogPrefix(dataSourceRuntimeConfig.logPrefix().get());
         } else {
-            runtimeConfig.logPrefix.ifPresent(configuration::setLogPrefix);
+            runtimeConfig.logPrefix().ifPresent(configuration::setLogPrefix);
         }
 
-        Optional<String> optionalLogImpl = dataSourceRuntimeConfig != null && dataSourceRuntimeConfig.logImpl.isPresent()
-                ? dataSourceRuntimeConfig.logImpl
-                : runtimeConfig.logImpl;
+        Optional<String> optionalLogImpl = dataSourceRuntimeConfig != null && dataSourceRuntimeConfig.logImpl().isPresent()
+                ? dataSourceRuntimeConfig.logImpl()
+                : runtimeConfig.logImpl();
         optionalLogImpl.ifPresent(logImpl -> {
             try {
                 configuration.setLogImpl((Class<? extends Log>) Resources.classForName(logImpl));
@@ -326,18 +329,18 @@ public class MyBatisRecorder {
             }
         });
 
-        String proxyFactory = dataSourceRuntimeConfig != null && dataSourceRuntimeConfig.proxyFactory.isPresent()
-                ? dataSourceRuntimeConfig.proxyFactory.get()
-                : runtimeConfig.proxyFactory;
+        String proxyFactory = dataSourceRuntimeConfig != null && dataSourceRuntimeConfig.proxyFactory().isPresent()
+                ? dataSourceRuntimeConfig.proxyFactory().get()
+                : runtimeConfig.proxyFactory();
         if ("JAVASSIST".equals(proxyFactory)) {
             configuration.setProxyFactory(new JavassistProxyFactory());
         } else if ("CGLIB".equals(proxyFactory)) {
             configuration.setProxyFactory(new CglibProxyFactory());
         }
 
-        Optional<String> optionalVfsImpl = dataSourceRuntimeConfig != null && dataSourceRuntimeConfig.vfsImpl.isPresent()
-                ? dataSourceRuntimeConfig.vfsImpl
-                : runtimeConfig.vfsImpl;
+        Optional<String> optionalVfsImpl = dataSourceRuntimeConfig != null && dataSourceRuntimeConfig.vfsImpl().isPresent()
+                ? dataSourceRuntimeConfig.vfsImpl()
+                : runtimeConfig.vfsImpl();
         optionalVfsImpl.ifPresent(vfsImpl -> {
             try {
                 configuration.setVfsImpl((Class<? extends VFS>) Resources.classForName(vfsImpl));
@@ -347,12 +350,12 @@ public class MyBatisRecorder {
         });
 
         configuration.setUseActualParamName(dataSourceRuntimeConfig != null &&
-                dataSourceRuntimeConfig.useActualParamName.isPresent() ? dataSourceRuntimeConfig.useActualParamName.get()
-                        : runtimeConfig.useActualParamName);
+                dataSourceRuntimeConfig.useActualParamName().isPresent() ? dataSourceRuntimeConfig.useActualParamName().get()
+                        : runtimeConfig.useActualParamName());
 
         Optional<String> optionalConfigurationFactory = dataSourceRuntimeConfig != null &&
-                dataSourceRuntimeConfig.configurationFactory.isPresent() ? dataSourceRuntimeConfig.configurationFactory
-                        : runtimeConfig.configurationFactory;
+                dataSourceRuntimeConfig.configurationFactory().isPresent() ? dataSourceRuntimeConfig.configurationFactory()
+                        : runtimeConfig.configurationFactory();
         optionalConfigurationFactory.ifPresent(configurationFactory -> {
             try {
                 configuration.setConfigurationFactory(Resources.classForName(configurationFactory));
@@ -362,13 +365,13 @@ public class MyBatisRecorder {
         });
 
         configuration.setShrinkWhitespacesInSql(dataSourceRuntimeConfig != null &&
-                dataSourceRuntimeConfig.shrinkWhitespacesInSql.isPresent()
-                        ? dataSourceRuntimeConfig.shrinkWhitespacesInSql.get()
-                        : runtimeConfig.shrinkWhitespacesInSql);
+                dataSourceRuntimeConfig.shrinkWhitespacesInSql().isPresent()
+                        ? dataSourceRuntimeConfig.shrinkWhitespacesInSql().get()
+                        : runtimeConfig.shrinkWhitespacesInSql());
 
         Optional<String> optionalDefaultSqlProviderType = dataSourceRuntimeConfig != null &&
-                dataSourceRuntimeConfig.defaultSqlProviderType.isPresent() ? dataSourceRuntimeConfig.defaultSqlProviderType
-                        : runtimeConfig.defaultSqlProviderType;
+                dataSourceRuntimeConfig.defaultSqlProviderType().isPresent() ? dataSourceRuntimeConfig.defaultSqlProviderType()
+                        : runtimeConfig.defaultSqlProviderType();
         optionalDefaultSqlProviderType.ifPresent(defaultSqlProviderType -> {
             try {
                 configuration.setDefaultSqlProviderType(Resources.classForName(defaultSqlProviderType));
@@ -377,9 +380,9 @@ public class MyBatisRecorder {
             }
         });
 
-        String environment = dataSourceRuntimeConfig != null && dataSourceRuntimeConfig.environment.isPresent()
-                ? dataSourceRuntimeConfig.environment.get()
-                : runtimeConfig.environment;
+        String environment = dataSourceRuntimeConfig != null && dataSourceRuntimeConfig.environment().isPresent()
+                ? dataSourceRuntimeConfig.environment().get()
+                : runtimeConfig.environment();
         Environment.Builder environmentBuilder = new Environment.Builder(environment)
                 .transactionFactory(factory)
                 .dataSource(new QuarkusDataSource(dataSourceName));
