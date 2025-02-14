@@ -35,8 +35,8 @@ public class MyBatisPlusXMLConfigDelegateBuilder implements XMLConfigDelegateBui
 
     private MybatisXMLConfigBuilder getBuilder() throws Exception {
         if (builder == null) {
-            Reader reader = Resources.getResourceAsReader(config.xmlconfig.path);
-            builder = new MybatisXMLConfigBuilder(reader, config.environment);
+            Reader reader = Resources.getResourceAsReader(config.xmlconfig().path());
+            builder = new MybatisXMLConfigBuilder(reader, config.environment());
         }
         return builder;
     }

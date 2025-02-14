@@ -11,211 +11,178 @@ import org.apache.ibatis.session.LocalCacheScope;
 import org.apache.ibatis.type.JdbcType;
 
 import io.quarkus.runtime.annotations.ConfigGroup;
-import io.quarkus.runtime.annotations.ConfigItem;
+import io.smallrye.config.WithName;
 
 @ConfigGroup
-public class MyBatisDataSourceRuntimeConfig {
+public interface MyBatisDataSourceRuntimeConfig {
     /**
      * MyBatis environment id
      */
-    @ConfigItem
-    public Optional<String> environment;
+    Optional<String> environment();
 
     /**
      * MyBatis transaction factory
      */
-    @ConfigItem
-    public Optional<String> transactionFactory;
+    Optional<String> transactionFactory();
 
     /**
      * MyBatis databaseId
      */
-    @ConfigItem
-    public Optional<String> databaseId;
+    Optional<String> databaseId();
 
     /**
      * MyBatis initial sql
      */
-    @ConfigItem(name = "initial-sql")
-    public Optional<String> initialSql;
+    @WithName("initial-sql")
+    Optional<String> initialSql();
 
     /**
      * MyBatis cacheEnabled
      */
-    @ConfigItem
-    public Optional<Boolean> cacheEnabled;
+    Optional<Boolean> cacheEnabled();
 
     /**
      * MyBatis lazyLoadingEnabled
      */
-    @ConfigItem
-    public Optional<Boolean> lazyLoadingEnabled;
+    Optional<Boolean> lazyLoadingEnabled();
 
     /**
      * MyBatis aggressiveLazyLoading
      */
-    @ConfigItem
-    public Optional<Boolean> aggressiveLazyLoading;
+    Optional<Boolean> aggressiveLazyLoading();
 
     /**
      * MyBatis useColumnLabel
      */
-    @ConfigItem
-    public Optional<Boolean> useColumnLabel;
+    Optional<Boolean> useColumnLabel();
 
     /**
      * MyBatis useGeneratedKeys
      */
-    @ConfigItem
-    public Optional<Boolean> useGeneratedKeys;
+    Optional<Boolean> useGeneratedKeys();
 
     /**
      * MyBatis autoMappingBehavior
      */
-    @ConfigItem
-    public Optional<AutoMappingBehavior> autoMappingBehavior;
+    Optional<AutoMappingBehavior> autoMappingBehavior();
 
     /**
      * MyBatis autoMappingUnknownColumnBehavior
      */
-    @ConfigItem
-    public Optional<AutoMappingUnknownColumnBehavior> autoMappingUnknownColumnBehavior;
+    Optional<AutoMappingUnknownColumnBehavior> autoMappingUnknownColumnBehavior();
 
     /**
      * MyBatis defaultExecutorType
      */
-    @ConfigItem
-    public Optional<ExecutorType> defaultExecutorType;
+    Optional<ExecutorType> defaultExecutorType();
 
     /**
      * MyBatis defaultStatementTimeout
      */
-    @ConfigItem
-    public Optional<Integer> defaultStatementTimeout;
+    Optional<Integer> defaultStatementTimeout();
 
     /**
      * MyBatis defaultFetchSize
      */
-    @ConfigItem
-    public Optional<Integer> defaultFetchSize;
+    Optional<Integer> defaultFetchSize();
 
     /**
      * MyBatis defaultResultSetType
      */
-    @ConfigItem
-    public Optional<ResultSetType> defaultResultSetType;
+    Optional<ResultSetType> defaultResultSetType();
 
     /**
      * MyBatis safeRowBoundsEnabled
      */
-    @ConfigItem
-    public Optional<Boolean> safeRowBoundsEnabled;
+    Optional<Boolean> safeRowBoundsEnabled();
 
     /**
      * MyBatis safeResultHandlerEnabled
      */
-    @ConfigItem
-    public Optional<Boolean> safeResultHandlerEnabled;
+    Optional<Boolean> safeResultHandlerEnabled();
 
     /**
      * MyBatis mapUnderscoreToCamelCase
      */
-    @ConfigItem
-    public Optional<Boolean> mapUnderscoreToCamelCase;
+    Optional<Boolean> mapUnderscoreToCamelCase();
 
     /**
      * MyBatis multipleResultSetsEnabled
      */
-    @ConfigItem
-    public Optional<Boolean> multipleResultSetsEnabled;
+    Optional<Boolean> multipleResultSetsEnabled();
 
     /**
      * MyBatis localCacheScope
      */
-    @ConfigItem
-    public Optional<LocalCacheScope> localCacheScope;
+    Optional<LocalCacheScope> localCacheScope();
 
     /**
      * MyBatis jdbcTypeForNull
      */
-    @ConfigItem
-    public Optional<JdbcType> jdbcTypeForNull;
+    Optional<JdbcType> jdbcTypeForNull();
 
     /**
      * MyBatis lazyLoadTriggerMethods
      */
-    @ConfigItem
-    public Optional<Set<String>> lazyLoadTriggerMethods;
+    Optional<Set<String>> lazyLoadTriggerMethods();
 
     /**
      * MyBatis defaultScriptingLanguage
      */
-    @ConfigItem
-    public Optional<String> defaultScriptingLanguage;
+    Optional<String> defaultScriptingLanguage();
 
     /**
      * MyBatis defaultEnumTypeHandler
      */
-    @ConfigItem
-    public Optional<String> defaultEnumTypeHandler;
+    Optional<String> defaultEnumTypeHandler();
 
     /**
      * MyBatis callSettersOnNulls
      */
-    @ConfigItem
-    public Optional<Boolean> callSettersOnNulls;
+    Optional<Boolean> callSettersOnNulls();
 
     /**
      * MyBatis returnInstanceForEmptyRow
      */
-    @ConfigItem
-    public Optional<Boolean> returnInstanceForEmptyRow;
+    Optional<Boolean> returnInstanceForEmptyRow();
 
     /**
      * MyBatis logPrefix
      */
-    @ConfigItem
-    public Optional<String> logPrefix;
+    Optional<String> logPrefix();
 
     /**
      * MyBatis logImpl
      */
-    @ConfigItem
-    public Optional<String> logImpl;
+    Optional<String> logImpl();
 
     /**
      * MyBatis proxyFactory
      */
-    @ConfigItem
-    public Optional<String> proxyFactory;
+    Optional<String> proxyFactory();
 
     /**
      * MyBatis vfsImpl
      */
-    @ConfigItem
-    public Optional<String> vfsImpl;
+    Optional<String> vfsImpl();
 
     /**
      * MyBatis useActualParamName
      */
-    @ConfigItem
-    public Optional<Boolean> useActualParamName;
+    Optional<Boolean> useActualParamName();
 
     /**
      * MyBatis configurationFactory
      */
-    @ConfigItem
-    public Optional<String> configurationFactory;
+    Optional<String> configurationFactory();
 
     /**
      * MyBatis shrinkWhitespacesInSql
      */
-    @ConfigItem
-    public Optional<Boolean> shrinkWhitespacesInSql;
+    Optional<Boolean> shrinkWhitespacesInSql();
 
     /**
      * MyBatis defaultSqlProviderType
      */
-    @ConfigItem
-    public Optional<String> defaultSqlProviderType;
+    Optional<String> defaultSqlProviderType();
 }

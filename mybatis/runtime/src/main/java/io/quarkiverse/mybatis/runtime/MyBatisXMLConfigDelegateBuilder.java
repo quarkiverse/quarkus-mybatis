@@ -33,8 +33,8 @@ public class MyBatisXMLConfigDelegateBuilder implements XMLConfigDelegateBuilder
 
     private XMLConfigBuilder getBuilder() throws Exception {
         if (builder == null) {
-            Reader reader = Resources.getResourceAsReader(config.xmlconfig.path);
-            builder = new XMLConfigBuilder(reader, config.environment);
+            Reader reader = Resources.getResourceAsReader(config.xmlconfig().path());
+            builder = new XMLConfigBuilder(reader, config.environment());
         }
         return builder;
     }

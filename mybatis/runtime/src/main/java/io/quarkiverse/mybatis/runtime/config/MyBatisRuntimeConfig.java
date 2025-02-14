@@ -15,254 +15,247 @@ import org.apache.ibatis.type.JdbcType;
 import io.quarkus.runtime.annotations.ConfigDocMapKey;
 import io.quarkus.runtime.annotations.ConfigDocSection;
 import io.quarkus.runtime.annotations.ConfigGroup;
-import io.quarkus.runtime.annotations.ConfigItem;
 import io.quarkus.runtime.annotations.ConfigPhase;
 import io.quarkus.runtime.annotations.ConfigRoot;
+import io.smallrye.config.ConfigMapping;
+import io.smallrye.config.WithDefault;
+import io.smallrye.config.WithName;
+import io.smallrye.config.WithParentName;
 
-@ConfigRoot(name = "mybatis", phase = ConfigPhase.BUILD_AND_RUN_TIME_FIXED)
-public class MyBatisRuntimeConfig {
+@ConfigRoot(phase = ConfigPhase.BUILD_AND_RUN_TIME_FIXED)
+@ConfigMapping(prefix = "quarkus.mybatis")
+public interface MyBatisRuntimeConfig {
     /**
      * Data sources config
      */
     @ConfigDocSection
     @ConfigDocMapKey("data-source-name")
-    @ConfigItem(name = ConfigItem.PARENT)
-    public Map<String, MyBatisDataSourceRuntimeConfig> dataSources;
+    @WithParentName
+    Map<String, MyBatisDataSourceRuntimeConfig> dataSources();
 
     /**
      * Support XML Configuration
      */
-    @ConfigItem
-    public XmlConfig xmlconfig;
+    XmlConfig xmlconfig();
 
     @ConfigGroup
-    public static class XmlConfig {
+    public interface XmlConfig {
         /**
          * enable mybatis xml configuration
          */
-        @ConfigItem(defaultValue = "false")
-        public boolean enable;
+        @WithDefault("false")
+        boolean enable();
 
         /**
          * xml configuration file
          */
-        @ConfigItem(defaultValue = "mybatis-config.xml")
-        public String path;
+        @WithDefault("mybatis-config.xml")
+        String path();
     }
 
     /**
      * MyBatis environment id
      */
-    @ConfigItem(defaultValue = "quarkus")
-    public String environment;
+    @WithDefault("quarkus")
+    String environment();
 
     /**
      * MyBatis transaction factory
      */
-    @ConfigItem(defaultValue = "MANAGED")
-    public String transactionFactory;
+    @WithDefault("MANAGED")
+    String transactionFactory();
 
     /**
      * MyBatis data source
      */
-    @ConfigItem(name = "datasource")
-    public Optional<String> dataSource;
+    @WithName("datasource")
+    Optional<String> dataSource();
 
     /**
      * MyBatis DatabaseId
      */
-    @ConfigItem
-    public Optional<String> databaseId;
+    Optional<String> databaseId();
 
     /**
      * MyBatis initial sql
      */
-    @ConfigItem(name = "initial-sql")
-    public Optional<String> initialSql;
+    @WithName("initial-sql")
+    Optional<String> initialSql();
 
     /**
      * MyBatis cacheEnabled
      */
-    @ConfigItem(defaultValue = "true")
-    public boolean cacheEnabled;
+    @WithDefault("true")
+    boolean cacheEnabled();
 
     /**
      * MyBatis lazyLoadingEnabled
      */
-    @ConfigItem(defaultValue = "false")
-    public boolean lazyLoadingEnabled;
+    @WithDefault("false")
+    boolean lazyLoadingEnabled();
 
     /**
      * MyBatis aggressiveLazyLoading
      */
-    @ConfigItem(defaultValue = "false")
-    public boolean aggressiveLazyLoading;
+    @WithDefault("false")
+    boolean aggressiveLazyLoading();
 
     /**
      * MyBatis useColumnLabel
      */
-    @ConfigItem(defaultValue = "true")
-    public boolean useColumnLabel;
+    @WithDefault("true")
+    boolean useColumnLabel();
 
     /**
      * MyBatis useGeneratedKeys
      */
-    @ConfigItem(defaultValue = "false")
-    public boolean useGeneratedKeys;
+    @WithDefault("false")
+    boolean useGeneratedKeys();
 
     /**
      * MyBatis autoMappingBehavior
      */
-    @ConfigItem(defaultValue = "PARTIAL")
-    public AutoMappingBehavior autoMappingBehavior;
+    @WithDefault("PARTIAL")
+    AutoMappingBehavior autoMappingBehavior();
 
     /**
      * MyBatis autoMappingUnknownColumnBehavior
      */
-    @ConfigItem(defaultValue = "NONE")
-    public AutoMappingUnknownColumnBehavior autoMappingUnknownColumnBehavior;
+    @WithDefault("NONE")
+    AutoMappingUnknownColumnBehavior autoMappingUnknownColumnBehavior();
 
     /**
      * MyBatis defaultExecutorType
      */
-    @ConfigItem(defaultValue = "SIMPLE")
-    public ExecutorType defaultExecutorType;
+    @WithDefault("SIMPLE")
+    ExecutorType defaultExecutorType();
 
     /**
      * MyBatis defaultStatementTimeout
      */
-    @ConfigItem
-    public Optional<Integer> defaultStatementTimeout;
+    Optional<Integer> defaultStatementTimeout();
 
     /**
      * MyBatis defaultFetchSize
      */
-    @ConfigItem
-    public Optional<Integer> defaultFetchSize;
+    Optional<Integer> defaultFetchSize();
 
     /**
      * MyBatis defaultResultSetType
      */
-    @ConfigItem
-    public Optional<ResultSetType> defaultResultSetType;
+    Optional<ResultSetType> defaultResultSetType();
 
     /**
      * MyBatis safeRowBoundsEnabled
      */
-    @ConfigItem(defaultValue = "false")
-    public boolean safeRowBoundsEnabled;
+    @WithDefault("false")
+    boolean safeRowBoundsEnabled();
 
     /**
      * MyBatis safeResultHandlerEnabled
      */
-    @ConfigItem(defaultValue = "true")
-    public boolean safeResultHandlerEnabled;
+    @WithDefault("true")
+    boolean safeResultHandlerEnabled();
 
     /**
      * MyBatis mapUnderscoreToCamelCase
      */
-    @ConfigItem(defaultValue = "false")
-    public boolean mapUnderscoreToCamelCase;
+    @WithDefault("false")
+    boolean mapUnderscoreToCamelCase();
 
     /**
      * MyBatis multipleResultSetsEnabled
      */
-    @ConfigItem(defaultValue = "true")
-    public boolean multipleResultSetsEnabled;
+    @WithDefault("true")
+    boolean multipleResultSetsEnabled();
 
     /**
      * MyBatis localCacheScope
      */
-    @ConfigItem(defaultValue = "SESSION")
-    public LocalCacheScope localCacheScope;
+    @WithDefault("SESSION")
+    LocalCacheScope localCacheScope();
 
     /**
      * MyBatis jdbcTypeForNull
      */
-    @ConfigItem(defaultValue = "OTHER")
-    public JdbcType jdbcTypeForNull;
+    @WithDefault("OTHER")
+    JdbcType jdbcTypeForNull();
 
     /**
      * MyBatis lazyLoadTriggerMethods
      */
-    @ConfigItem(defaultValue = "equals,clone,hashCode,toString")
-    public Set<String> lazyLoadTriggerMethods;
+    @WithDefault("equals,clone,hashCode,toString")
+    Set<String> lazyLoadTriggerMethods();
 
     /**
      * MyBatis defaultScriptingLanguage
      */
-    @ConfigItem(defaultValue = "org.apache.ibatis.scripting.xmltags.XMLLanguageDriver")
-    public String defaultScriptingLanguage;
+    @WithDefault("org.apache.ibatis.scripting.xmltags.XMLLanguageDriver")
+    String defaultScriptingLanguage();
 
     /**
      * MyBatis defaultEnumTypeHandler
      */
-    @ConfigItem(defaultValue = "org.apache.ibatis.type.EnumTypeHandler")
-    public String defaultEnumTypeHandler;
+    @WithDefault("org.apache.ibatis.type.EnumTypeHandler")
+    String defaultEnumTypeHandler();
 
     /**
      * MyBatis callSettersOnNulls
      */
-    @ConfigItem(defaultValue = "false")
-    public boolean callSettersOnNulls;
+    @WithDefault("false")
+    boolean callSettersOnNulls();
 
     /**
      * MyBatis returnInstanceForEmptyRow
      */
-    @ConfigItem(defaultValue = "false")
-    public boolean returnInstanceForEmptyRow;
+    @WithDefault("false")
+    boolean returnInstanceForEmptyRow();
 
     /**
      * MyBatis logPrefix
      */
-    @ConfigItem
-    public Optional<String> logPrefix;
+    Optional<String> logPrefix();
 
     /**
      * MyBatis logImpl
      */
-    @ConfigItem
-    public Optional<String> logImpl;
+    Optional<String> logImpl();
 
     /**
      * MyBatis proxyFactory
      */
-    @ConfigItem(defaultValue = "JAVASSIST")
-    public String proxyFactory;
+    @WithDefault("JAVASSIST")
+    String proxyFactory();
 
     /**
      * MyBatis vfsImpl
      */
-    @ConfigItem
-    public Optional<String> vfsImpl;
+    Optional<String> vfsImpl();
 
     /**
      * MyBatis useActualParamName
      */
-    @ConfigItem(defaultValue = "true")
-    public boolean useActualParamName;
+    @WithDefault("true")
+    boolean useActualParamName();
 
     /**
      * MyBatis configurationFactory
      */
-    @ConfigItem
-    public Optional<String> configurationFactory;
+    Optional<String> configurationFactory();
 
     /**
      * MyBatis shrinkWhitespacesInSql
      */
-    @ConfigItem(defaultValue = "false")
-    public boolean shrinkWhitespacesInSql;
+    @WithDefault("false")
+    public boolean shrinkWhitespacesInSql();
 
     /**
      * MyBatis defaultSqlProviderType
      */
-    @ConfigItem
-    public Optional<String> defaultSqlProviderType;
+    Optional<String> defaultSqlProviderType();
 
     /**
      * MyBatis mapperLocations
      */
-    @ConfigItem
-    public Optional<List<String>> mapperLocations;
+    Optional<List<String>> mapperLocations();
 }

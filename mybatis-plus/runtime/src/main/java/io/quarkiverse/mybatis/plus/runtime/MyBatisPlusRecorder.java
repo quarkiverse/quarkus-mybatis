@@ -24,34 +24,34 @@ public class MyBatisPlusRecorder {
     public void initSqlSession(RuntimeValue<SqlSessionFactory> sqlSessionFactory, MyBatisPlusConfig config) {
         Configuration configuration = sqlSessionFactory.getValue().getConfiguration();
 
-        if (config.pageEnabled) {
+        if (config.pageEnabled()) {
             MybatisPlusInterceptor interceptor = new MybatisPlusInterceptor();
             interceptor.addInnerInterceptor(new PaginationInnerInterceptor());
             configuration.addInterceptor(interceptor);
         }
 
-        if (config.metaObjectHandler.isPresent()) {
+        if (config.metaObjectHandler().isPresent()) {
             try {
-                String classMetaObjectHandler = config.metaObjectHandler.get();
+                String classMetaObjectHandler = config.metaObjectHandler().get();
                 MetaObjectHandler handler = (MetaObjectHandler) Resources.classForName(classMetaObjectHandler)
                         .getDeclaredConstructor().newInstance();
                 GlobalConfigUtils.getGlobalConfig(configuration).setMetaObjectHandler(handler);
             } catch (Exception e) {
-                LOG.warn("Can not initialize metaObjectHandler " + config.metaObjectHandler.get());
+                LOG.warn("Can not initialize metaObjectHandler " + config.metaObjectHandler().get());
             }
         }
     }
 
     public Consumer<Configuration> addCustomSqlInjector(MyBatisPlusConfig config) {
         return configuration -> {
-            if (config.sqlInjector.isPresent()) {
+            if (config.sqlInjector().isPresent()) {
                 try {
-                    String classSqlInjector = config.sqlInjector.get();
+                    String classSqlInjector = config.sqlInjector().get();
                     ISqlInjector sqlInjector = (ISqlInjector) Resources.classForName(classSqlInjector)
                             .getDeclaredConstructor().newInstance();
                     GlobalConfigUtils.getGlobalConfig(configuration).setSqlInjector(sqlInjector);
                 } catch (Exception e) {
-                    LOG.warn("Can not initialize sqlInjector " + config.sqlInjector.get());
+                    LOG.warn("Can not initialize sqlInjector " + config.sqlInjector().get());
                 }
             }
         };
