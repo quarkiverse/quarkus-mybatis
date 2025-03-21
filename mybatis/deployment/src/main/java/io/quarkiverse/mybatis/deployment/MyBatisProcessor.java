@@ -8,8 +8,8 @@ import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
+import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Named;
-import jakarta.inject.Singleton;
 
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.ibatis.annotations.DeleteProvider;
@@ -295,7 +295,7 @@ public class MyBatisProcessor {
             }
             SyntheticBeanBuildItem.ExtendedBeanConfigurator configurator = SyntheticBeanBuildItem
                     .configure(i.getMapperName())
-                    .scope(Singleton.class)
+                    .scope(ApplicationScoped.class)
                     .setRuntimeInit()
                     .unremovable()
                     .supplier(recorder.MyBatisMapperSupplier(i.getMapperName().toString(),
@@ -305,7 +305,7 @@ public class MyBatisProcessor {
         for (MyBatisMappedTypeBuildItem i : myBatisMappedTypesBuildItems) {
             SyntheticBeanBuildItem.ExtendedBeanConfigurator configurator = SyntheticBeanBuildItem
                     .configure(i.getMappedTypeName())
-                    .scope(Singleton.class)
+                    .scope(ApplicationScoped.class)
                     .setRuntimeInit()
                     .unremovable()
                     .supplier(recorder.MyBatisMappedTypeSupplier(i.getMappedTypeName().toString(),
@@ -315,7 +315,7 @@ public class MyBatisProcessor {
         for (MyBatisMappedJdbcTypeBuildItem i : myBatisMappedJdbcTypesBuildItems) {
             SyntheticBeanBuildItem.ExtendedBeanConfigurator configurator = SyntheticBeanBuildItem
                     .configure(i.getMappedJdbcTypeName())
-                    .scope(Singleton.class)
+                    .scope(ApplicationScoped.class)
                     .setRuntimeInit()
                     .unremovable()
                     .supplier(recorder.MyBatisMappedJdbcTypeSupplier(i.getMappedJdbcTypeName().toString(),
@@ -332,7 +332,7 @@ public class MyBatisProcessor {
         sqlSessionFactoryBuildItems.forEach(sqlSessionFactoryBuildItem -> {
             SyntheticBeanBuildItem.ExtendedBeanConfigurator configurator = SyntheticBeanBuildItem
                     .configure(SqlSessionFactory.class)
-                    .scope(Singleton.class)
+                    .scope(ApplicationScoped.class)
                     .unremovable()
                     .supplier(recorder.MyBatisSqlSessionFactorySupplier(sqlSessionFactoryBuildItem.getSqlSessionFactory()));
             String dataSourceName = sqlSessionFactoryBuildItem.getDataSourceName();
