@@ -3,7 +3,7 @@
 [![License](https://img.shields.io/github/license/quarkiverse/quarkus-mybatis)](http://www.apache.org/licenses/LICENSE-2.0)
 [![Central](https://img.shields.io/maven-central/v/io.quarkiverse.mybatis/quarkus-mybatis-parent?color=green)](https://search.maven.org/search?q=g:io.quarkiverse.mybatis%20AND%20a:quarkus-mybatis-parent)
 <!-- ALL-CONTRIBUTORS-BADGE:START - Do not remove or modify this section -->
-[![All Contributors](https://img.shields.io/badge/all_contributors-8-orange.svg?style=flat-square)](#contributors-)
+[![All Contributors](https://img.shields.io/badge/all_contributors-9-orange.svg?style=flat-square)](#contributors-)
 <!-- ALL-CONTRIBUTORS-BADGE:END -->
 
 MyBatis is a first class persistence framework with support for custom SQL, stored procedures and advanced mappings. This extension provides the developers ease of configuration and native support. Add the following dependency in your pom.xml to get started,
@@ -54,6 +54,7 @@ Thanks goes to these wonderful people ([emoji key](https://allcontributors.org/d
     </tr>
     <tr>
       <td align="center" valign="top" width="14.28%"><a href="https://github.com/kwseeker"><img src="https://avatars.githubusercontent.com/u/7456558?v=4?s=100" width="100px;" alt="Arvin Lee"/><br /><sub><b>Arvin Lee</b></sub></a><br /><a href="https://github.com/quarkiverse/quarkus-mybatis/commits?author=kwseeker" title="Code">💻</a></td>
+      <td align="center" valign="top" width="14.28%"><a href="https://github.com/renemarkvard-sosint"><img src="https://avatars.githubusercontent.com/u/194897321?v=4?s=100" width="100px;" alt="renemarkvard-sosint"/><br /><sub><b>renemarkvard-sosint</b></sub></a><br /><a href="https://github.com/quarkiverse/quarkus-mybatis/commits?author=renemarkvard-sosint" title="Code">💻</a></td>
     </tr>
   </tbody>
 </table>
