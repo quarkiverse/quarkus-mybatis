@@ -4,7 +4,7 @@
         <groupId>io.quarkiverse.mybatis</groupId>
         <artifactId>quarkus-mybatis-plus-parent</artifactId>
         <version>999-SNAPSHOT</version>
-        <relativePath>../</relativePath>
+        <relativePath>../pom.xml</relativePath>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
@@ -33,10 +33,6 @@
         <dependency>
             <groupId>ru.vyarus</groupId>
             <artifactId>generics-resolver</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.springframework</groupId>
-            <artifactId>spring-aop</artifactId>
         </dependency>
     </dependencies>
 
