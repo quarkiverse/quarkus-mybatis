@@ -15,10 +15,6 @@ import static io.restassured.RestAssured.when;
 import static org.hamcrest.core.Is.is;
 import static org.hamcrest.core.IsNot.not;
 
-/**
- * @author defned
- * @date 2025/4/8 11:17
- */
 @QuarkusTest
 public class MybatisPlusServiceTest {
 
@@ -40,30 +36,30 @@ public class MybatisPlusServiceTest {
                 .body("current", is(1))
                 .body("pages", is(2));
 
-        given().param("id", "5")
+        given().param("id", "205")
                 .param("name", "New User")
                 .param("externalId", UUID.fromString("9b036c98-eb1d-4580-a8bb-1115d7a3cd44"))
                 .post(apiUrl + "/user")
                 .then().body(is("true"));
 
-        when().get(apiUrl + "/user/5").then()
+        when().get(apiUrl + "/user/205").then()
                 .body("createTime", not(0))
                 .body("updateTime", not(0));
 
-        when().delete(apiUrl + "/user/3").then()
+        when().delete(apiUrl + "/user/205").then()
                 .body(is("true"));
 
         when().get(apiUrl + "/user/count/h2").then()
                 .body(is("3"));
 
         User user1 = new User();
-        user1.setId(100);
-        user1.setName("Test User 100");
+        user1.setId(200);
+        user1.setName("Test User 200");
         user1.setExternalId(UUID.randomUUID());
 
         User user2 = new User();
-        user2.setId(101);
-        user2.setName("Test User 101");
+        user2.setId(201);
+        user2.setName("Test User 201");
         user2.setExternalId(UUID.randomUUID());
 
         List<User> users = List.of(user1, user2);
@@ -75,5 +71,11 @@ public class MybatisPlusServiceTest {
 
         when().get(apiUrl + "/user/count/h2").then()
                 .body(is("5"));
+
+        when().delete(apiUrl + "/user/200").then()
+                .body(is("true"));
+
+        when().delete(apiUrl + "/user/201").then()
+                .body(is("true"));
     }
 }

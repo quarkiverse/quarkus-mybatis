@@ -14,23 +14,19 @@ import com.baomidou.mybatisplus.core.override.MybatisMapperProxy;
 
 import io.quarkus.arc.ClientProxy;
 
-/**
- * @author nieqiurong
- * @since 3.5.6
- */
 public class MybatisUtils {
 
     /**
-     * 实例化Json类型处理器
+     * Instantiate Json type processors
      * <p>
-     * 1.子类需要包含构造(Class,Field)
-     * 2.如果无上述构造或者无属性字段,则使用默认构造(Class)进行实例化
+     * 1.Subclasses need to contain constructs (Class, Field)
+     * 2.If there is no structure or no attribute field, the default structure (Class) is used for instantiation
      * </p>
      *
-     * @param typeHandler 类型处理器 {@link IJsonTypeHandler}
-     * @param javaTypeClass java类型信息
-     * @param field 属性字段
-     * @return 实例化类型处理器
+     * @param typeHandler {@link IJsonTypeHandler}
+     * @param javaTypeClass java type information
+     * @param field attribute field
+     * @return Instantiated type processor
      */
     public static TypeHandler<?> newJsonTypeHandler(Class<? extends TypeHandler<?>> typeHandler, Class<?> javaTypeClass,
             Field field) {
@@ -55,7 +51,7 @@ public class MybatisUtils {
     }
 
     /**
-     * 获取SqlSessionFactory
+     * get SqlSessionFactory
      *
      * @param mybatisMapperProxy {@link MybatisMapperProxy}
      * @return SqlSessionFactory
@@ -64,7 +60,6 @@ public class MybatisUtils {
     public static SqlSessionFactory getSqlSessionFactory(MybatisMapperProxy<?> mybatisMapperProxy) {
         SqlSession sqlSession = mybatisMapperProxy.getSqlSession();
         if (sqlSession instanceof DefaultSqlSession) {
-            // TODO 原生mybatis下只能这样了.
             return GlobalConfigUtils.getGlobalConfig(mybatisMapperProxy.getSqlSession().getConfiguration())
                     .getSqlSessionFactory();
         }
@@ -79,25 +74,25 @@ public class MybatisUtils {
     }
 
     /**
-     * 获取代理实现
+     * Get proxy implementation
      *
-     * @param mapper mapper类
-     * @return 代理实现
+     * @param mapper mapper class
+     * @return Proxy implementation
      * @since 3.5.7
      */
     public static MybatisMapperProxy<?> getMybatisMapperProxy(Object mapper) {
-        // 快速返回
+        // Fast return
         if (mapper instanceof MybatisMapperProxy) {
             return (MybatisMapperProxy<?>) mapper;
         }
 
         Object result = mapper;
-        // Quarkus的代理检测
+        //Quarkus's proxy detection
         if (result instanceof ClientProxy) {
             result = ((ClientProxy) result).arc_contextualInstance();
         }
 
-        // 处理JDK动态代理（如果MyBatis仍使用JDK代理）
+        // Handling JDK dynamic proxies (if MyBatis still uses JDK proxies)
         if (result != null && Proxy.isProxyClass(result.getClass())) {
             result = Proxy.getInvocationHandler(result);
         }

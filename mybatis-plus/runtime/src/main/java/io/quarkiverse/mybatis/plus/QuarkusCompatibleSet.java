@@ -16,10 +16,6 @@ import com.baomidou.mybatisplus.extension.spi.CompatibleSet;
 import io.quarkus.arc.Arc;
 import io.quarkus.runtime.annotations.RegisterForReflection;
 
-/**
- * @author defned
- * @date 2025/4/8 10:42
- */
 @RegisterForReflection
 public class QuarkusCompatibleSet implements CompatibleSet {
 
@@ -40,13 +36,12 @@ public class QuarkusCompatibleSet implements CompatibleSet {
         SqlSession sqlSession = sqlSessionFactory.openSession(ExecutorType.BATCH);
         try {
             consumer.accept(sqlSession);
-            sqlSession.commit(true); // Quarkus 事务由 @Transactional 控制
+            sqlSession.commit(true);
             return true;
         } catch (Throwable t) {
             sqlSession.rollback();
             Throwable unwrapped = ExceptionUtil.unwrapThrowable(t);
             if (unwrapped instanceof PersistenceException) {
-                // Quarkus 异常转换（需自定义或使用内置机制）
                 throw ExceptionUtils.mpe(unwrapped);
             }
             throw ExceptionUtils.mpe(unwrapped);

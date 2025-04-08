@@ -63,5 +63,11 @@ public class MyBatisPlusTest {
 
         RestAssured.when().get("/mybatis/plus/user/count/h2").then()
                 .body(is("5"));
+
+        RestAssured.when().delete("/mybatis/plus/user/100").then()
+                .body(is("1"));
+
+        RestAssured.when().delete("/mybatis/plus/user/101").then()
+                .body(is("1"));
     }
 }

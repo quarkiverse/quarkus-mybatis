@@ -16,10 +16,6 @@ import com.baomidou.mybatisplus.core.toolkit.CollectionUtils;
 import com.baomidou.mybatisplus.core.toolkit.StringUtils;
 import com.baomidou.mybatisplus.extension.toolkit.SqlHelper;
 
-/**
- * @author defned
- * @date 2025/4/2 15:25
- */
 public abstract class CrudRepository<M extends BaseMapper<T>, T> extends AbstractRepository<M, T> {
     @Inject
     protected M baseMapper;
