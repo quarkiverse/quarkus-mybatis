@@ -1,19 +1,20 @@
 package io.quarkiverse.it.mybatis.plus;
 
-import io.quarkus.test.common.http.TestHTTPEndpoint;
-import io.quarkus.test.common.http.TestHTTPResource;
-import io.quarkus.test.junit.QuarkusTest;
-import io.restassured.http.ContentType;
-import org.junit.jupiter.api.Test;
+import static io.restassured.RestAssured.given;
+import static io.restassured.RestAssured.when;
+import static org.hamcrest.core.Is.is;
+import static org.hamcrest.core.IsNot.not;
 
 import java.net.URL;
 import java.util.List;
 import java.util.UUID;
 
-import static io.restassured.RestAssured.given;
-import static io.restassured.RestAssured.when;
-import static org.hamcrest.core.Is.is;
-import static org.hamcrest.core.IsNot.not;
+import org.junit.jupiter.api.Test;
+
+import io.quarkus.test.common.http.TestHTTPEndpoint;
+import io.quarkus.test.common.http.TestHTTPResource;
+import io.quarkus.test.junit.QuarkusTest;
+import io.restassured.http.ContentType;
 
 @QuarkusTest
 public class MybatisPlusServiceTest {

@@ -1,12 +1,13 @@
 package io.quarkiverse.it.mybatis.plus;
 
-import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import java.util.List;
+import java.util.UUID;
+
 import jakarta.inject.Inject;
 import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.MediaType;
 
-import java.util.List;
-import java.util.UUID;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 
 @Path("/mybatis/plus/service")
 public class MybatisPlusServiceResource {
@@ -25,7 +26,7 @@ public class MybatisPlusServiceResource {
     @Produces(MediaType.TEXT_PLAIN)
     @Consumes(MediaType.APPLICATION_FORM_URLENCODED)
     public Boolean createUser(@FormParam("id") Integer id, @FormParam("name") String name,
-                              @FormParam("externalId") UUID externalId) {
+            @FormParam("externalId") UUID externalId) {
         User user = new User();
         user.setId(id);
         user.setName(name);

@@ -1,9 +1,10 @@
 package io.quarkiverse.it.mybatis.plus;
 
-import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import jakarta.annotation.PostConstruct;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
+
+import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 
 @ApplicationScoped
 public class UserServiceImpl extends ServiceImpl<UserMapper, User> {
