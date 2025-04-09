@@ -65,7 +65,7 @@
       </dependency>
       <dependency>
         <groupId>org.springframework</groupId>
-        <artifactId>spring-aop</artifactId>
+        <artifactId>spring-core</artifactId>
         <version>${spring.version}</version>
       </dependency>
     </dependencies>
