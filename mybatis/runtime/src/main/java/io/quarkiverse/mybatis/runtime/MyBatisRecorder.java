@@ -22,6 +22,7 @@ import java.util.jar.JarFile;
 
 import javax.sql.DataSource;
 
+import io.quarkus.agroal.runtime.AgroalDataSourceUtil;
 import jakarta.transaction.TransactionManager;
 
 import org.apache.ibatis.builder.xml.XMLMapperBuilder;
@@ -49,7 +50,6 @@ import io.agroal.api.AgroalDataSource;
 import io.quarkiverse.mybatis.runtime.config.MyBatisDataSourceRuntimeConfig;
 import io.quarkiverse.mybatis.runtime.config.MyBatisRuntimeConfig;
 import io.quarkiverse.mybatis.runtime.meta.MapperDataSource;
-import io.quarkus.agroal.runtime.DataSources;
 import io.quarkus.arc.Arc;
 import io.quarkus.runtime.RuntimeValue;
 import io.quarkus.runtime.annotations.Recorder;
@@ -462,7 +462,7 @@ class QuarkusDataSource implements DataSource {
 
     private DataSource getDataSource() {
         if (dataSource == null) {
-            dataSource = DataSources.fromName(dataSourceName);
+            dataSource = AgroalDataSourceUtil.dataSourceInstance(dataSourceName).get();
         }
         return dataSource;
     }
