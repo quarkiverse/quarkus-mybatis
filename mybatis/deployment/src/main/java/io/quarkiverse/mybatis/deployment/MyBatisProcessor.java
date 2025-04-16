@@ -29,6 +29,8 @@ import org.apache.ibatis.scripting.xmltags.XMLLanguageDriver;
 import org.apache.ibatis.session.Configuration;
 import org.apache.ibatis.session.SqlSessionFactory;
 import org.apache.ibatis.session.SqlSessionFactoryBuilder;
+import org.apache.ibatis.session.SqlSessionManager;
+import org.apache.ibatis.session.defaults.DefaultSqlSession;
 import org.apache.ibatis.type.EnumTypeHandler;
 import org.apache.ibatis.type.MappedJdbcTypes;
 import org.apache.ibatis.type.MappedTypes;
@@ -40,6 +42,7 @@ import org.jboss.logging.Logger;
 import io.quarkiverse.mybatis.runtime.MyBatisConfigurationFactory;
 import io.quarkiverse.mybatis.runtime.MyBatisRecorder;
 import io.quarkiverse.mybatis.runtime.MyBatisXMLConfigDelegateBuilder;
+import io.quarkiverse.mybatis.runtime.TransactionalSqlSession;
 import io.quarkiverse.mybatis.runtime.config.MyBatisDataSourceRuntimeConfig;
 import io.quarkiverse.mybatis.runtime.config.MyBatisRuntimeConfig;
 import io.quarkiverse.mybatis.runtime.meta.MapperDataSource;
@@ -95,6 +98,8 @@ public class MyBatisProcessor {
                 ResultMap.class,
                 EnumTypeHandler.class).methods(false).fields(false).build());
 
+        reflectiveClass.produce(ReflectiveClassBuildItem.builder(DefaultSqlSession.class, TransactionalSqlSession.class,
+                SqlSessionManager.class).methods(true).fields(true).build());
         reflectiveClass.produce(
                 ReflectiveClassBuildItem.builder(PerpetualCache.class, LruCache.class).methods(true).fields(true).build());
     }
