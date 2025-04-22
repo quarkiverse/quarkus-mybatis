@@ -24,6 +24,8 @@ import org.apache.ibatis.annotations.UpdateProvider;
 import org.apache.ibatis.cache.decorators.LruCache;
 import org.apache.ibatis.cache.impl.PerpetualCache;
 import org.apache.ibatis.javassist.util.proxy.ProxyFactory;
+import org.apache.ibatis.reflection.MetaObject;
+import org.apache.ibatis.reflection.SystemMetaObject;
 import org.apache.ibatis.scripting.defaults.RawLanguageDriver;
 import org.apache.ibatis.scripting.xmltags.XMLLanguageDriver;
 import org.apache.ibatis.session.Configuration;
@@ -99,7 +101,7 @@ public class MyBatisProcessor {
                 EnumTypeHandler.class).methods(false).fields(false).build());
 
         reflectiveClass.produce(ReflectiveClassBuildItem.builder(DefaultSqlSession.class, TransactionalSqlSession.class,
-                SqlSessionManager.class).methods(true).fields(true).build());
+                SqlSessionManager.class, SystemMetaObject.class, MetaObject.class).methods(true).fields(true).build());
         reflectiveClass.produce(
                 ReflectiveClassBuildItem.builder(PerpetualCache.class, LruCache.class).methods(true).fields(true).build());
     }
