@@ -1,6 +1,5 @@
 package io.quarkiverse.mybatis.plus;
 
-import java.io.InputStream;
 import java.util.function.Consumer;
 
 import org.apache.ibatis.exceptions.PersistenceException;
@@ -10,10 +9,11 @@ import org.apache.ibatis.session.ExecutorType;
 import org.apache.ibatis.session.SqlSession;
 import org.apache.ibatis.session.SqlSessionFactory;
 
+import com.baomidou.mybatisplus.core.spi.CompatibleSet;
 import com.baomidou.mybatisplus.core.toolkit.ExceptionUtils;
-import com.baomidou.mybatisplus.extension.spi.CompatibleSet;
 
 import io.quarkus.arc.Arc;
+import io.quarkus.arc.ClientProxy;
 import io.quarkus.runtime.annotations.RegisterForReflection;
 
 @RegisterForReflection
@@ -51,7 +51,20 @@ public class QuarkusCompatibleSet implements CompatibleSet {
     }
 
     @Override
-    public InputStream getInputStream(String path) throws Exception {
-        return Thread.currentThread().getContextClassLoader().getResourceAsStream(path);
+    public <T> T getBean(Class<T> clz) {
+        if (Arc.container() == null || !Arc.container().isRunning()) {
+            return null;
+        }
+        return Arc.container().instance(clz).get();
+    }
+
+    @Override
+    public Object getProxyTargetObject(Object mapper) {
+        Object result = mapper;
+        //Quarkus's proxy detection
+        while (result instanceof ClientProxy) {
+            result = ((ClientProxy) result).arc_contextualInstance();
+        }
+        return result;
     }
 }
