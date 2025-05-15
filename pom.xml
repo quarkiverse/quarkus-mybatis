@@ -22,7 +22,7 @@
     <mybatis.version>3.5.19</mybatis.version>
     <mybatis-plus.version>3.5.12</mybatis-plus.version>
     <vyarus.version>3.0.3</vyarus.version>
-    <spring.version>6.2.6</spring.version>
+    <spring.version>6.2.7</spring.version>
   </properties>
   <scm>
     <connection>:git:git@github.com:quarkiverse/quarkus-mybatis.git</connection>
