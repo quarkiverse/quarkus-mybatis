@@ -31,6 +31,7 @@ public interface MyBatisPlusConfig {
      * MyBatis-plus globalConfig metaObjectHandler
      * Plz use MyBatis-plus globalConfig metaObjectHandler
      */
+    @Deprecated
     @WithName("meta-object-handler")
     Optional<String> metaObjectHandler();
 
