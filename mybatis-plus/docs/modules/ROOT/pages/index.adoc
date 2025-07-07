@@ -4,3 +4,303 @@ include::./includes/attributes.adoc[]
 :extension-status: preview
 
 This guide demonstrates how your Quarkus application can use link:{mybatis-plus-root-url}[MyBatis Plus] to provide some efficient, useful, out-of-the-box features for link:{mybatis-root-url}[MyBatis], use it can effectively save your development time.
+
+== Prerequisites
+
+To complete this guide, you need:
+
+* less than 15 minutes
+* an IDE
+* JDK 11+ installed with `JAVA_HOME` configured appropriately
+* Apache Maven
+* A running Mysql Database server
+* GraalVM, or Docker, installed if you want to run in native mode.
+
+== Architecture
+
+The application built in this guide is quite simple: the user can get, add and remove a record through the RESTful API by using the MyBatis-Plus.
+
+
+== Solution
+
+We recommend that you follow the instructions in the next sections and create the application step by step.
+
+== Creating the Maven Project
+
+First, we need a new project. Create a new project with the following command:
+
+[source, bash, subs=attributes+]
+----
+mvn io.quarkus:quarkus-maven-plugin:{quarkus-version}:create \
+    -DprojectGroupId=org.acme \
+    -DprojectArtifactId=mybatis-plus-quickstart \
+    -Dextensions="resteasy-jackson,jdbc-mysql,io.quarkiverse.mybatis:quarkus-mybatis-plus:{quarkus-mybatis-plus-version}" \
+    -DnoExamples
+cd mybatis-plus-quickstart
+----
+
+[TIP]
+====
+Maven 3.6.2+ is required for this to work.
+====
+
+This command generates a Maven project, with its pom.xml importing the quarkus-mybatis-plus extension.
+
+If you already have your Quarkus project configured, you can add the `quarkus-mybatis-plus` extension
+to your project by adding the following dependency in your `pom.xml`:
+
+[source, subs=attributes+]
+----
+<dependency>
+    <groupId>io.quarkiverse.mybatis</groupId>
+    <artifactId>quarkus-mybatis-plus</artifactId>
+    <version>{quarkus-mybatis-version}</version>
+</dependency>
+----
+
+== Creating the User POJO
+We are going to create a `User` POJO to access to the data in the backend mysql server.
+Create the `src/main/java/org/acme/mybati/plus/User.java` file, with the following content:
+
+[source, java]
+----
+package org.acme.mybatis.plus;
+
+public class User {
+    private Integer id;
+    private String name;
+
+    public Integer getId() {
+        return id;
+    }
+
+    public void setId(Integer id) {
+        this.id = id;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+}
+----
+
+== Creating the User Mapper
+We are going to create a `UserMapper` class which will use the MyBatis annotations to inject the SQL.
+Create the `src/main/java/org/acme/mybatis/plus/UserMapper.java` file, with the following content:
+
+[source, java]
+----
+package org.acme.mybatis.plus;
+
+import com.baomidou.mybatisplus.core.mapper.BaseMapper;
+import org.apache.ibatis.annotations.Mapper;
+
+@Mapper
+public interface UserMapper extends BaseMapper<User> {
+}
+----
+
+1. Get a user from the database.
+2. Insert a user into the database. We should use the `@Param` to bind the parameters.
+3. Delete a user from the databse.
+
+== Creating the MyBatisResource to handle the requests
+We are going to create a `MyBatisPlusResource` class which will handle all the requests to create, query or remove the data
+from the database.
+
+[source, java]
+----
+package org.acme.mybatis.plus;
+
+import jakarta.inject.Inject;
+import jakarta.ws.rs.Consumes;
+import jakarta.ws.rs.DELETE;
+import jakarta.ws.rs.FormParam;
+import jakarta.ws.rs.GET;
+import jakarta.ws.rs.POST;
+import jakarta.ws.rs.Path;
+import jakarta.ws.rs.PathParam;
+import jakarta.ws.rs.Produces;
+import jakarta.ws.rs.core.MediaType;
+
+@Path("/mybatis-plus")
+public class MyBatisPlusResource {
+
+    @Inject
+    UserMapper userMapper; // <1>
+
+    @Path("/user/{id}")
+    @GET
+    @Produces(MediaType.APPLICATION_JSON)
+    public User getUser(@PathParam("id") Integer id) {
+        return userMapper.selectById(id);
+    }
+
+    @Path("/user")
+    @POST
+    @Produces(MediaType.TEXT_PLAIN)
+    @Consumes(MediaType.APPLICATION_FORM_URLENCODED)
+    public Integer createUser(@FormParam("id") Integer id, @FormParam("name") String name) {
+        User user = new User();
+        user.setId(id);
+        user.setName(name);
+        return userMapper.insert(user);
+    }
+
+    @Path("/user/{id}")
+    @DELETE
+    @Produces(MediaType.TEXT_PLAIN)
+    public Integer removeUser(@PathParam("id") Integer id) {
+        return userMapper.deleteById(id);
+    }
+}
+----
+1. It uses the UserMapper which should be injected by the Quarkus to access the database.
+
+=== We can also use service instead of mapper; service has more methods oriented to actual business, such as pagination and batch operations.
+
+=== Creating the `UserServiceImpl`
+[source, java]
+----
+package org.acme.mybatis.plus;
+
+import jakarta.enterprise.context.ApplicationScoped;
+import io.quarkiverse.mybatis.plus.extension.service.impl.ServiceImpl;
+
+@ApplicationScoped
+public class UserServiceImpl extends ServiceImpl<UserMapper, User> {
+}
+----
+
+=== Using UserServiceImpl in `MyBatisPlusResource`
+[source,java]
+----
+package org.acme.mybatis.plus;
+
+import jakarta.inject.Inject;
+import jakarta.ws.rs.Consumes;
+import jakarta.ws.rs.DELETE;
+import jakarta.ws.rs.FormParam;
+import jakarta.ws.rs.GET;
+import jakarta.ws.rs.POST;
+import jakarta.ws.rs.Path;
+import jakarta.ws.rs.PathParam;
+import jakarta.ws.rs.Produces;
+import jakarta.ws.rs.core.MediaType;
+
+@Path("/mybatis-plus")
+public class MyBatisPlusResource {
+
+    @Inject
+    UserServiceImpl userService;
+
+    @Path("/user/{id}")
+    @GET
+    @Produces(MediaType.APPLICATION_JSON)
+    public User getUser(@PathParam("id") Integer id) {
+        return userService.getById(id);
+    }
+
+    @Path("/user")
+    @POST
+    @Produces(MediaType.TEXT_PLAIN)
+    @Consumes(MediaType.APPLICATION_FORM_URLENCODED)
+    public Integer createUser(@FormParam("id") Integer id, @FormParam("name") String name) {
+        User user = new User();
+        user.setId(id);
+        user.setName(name);
+        return userService.save(user);
+    }
+
+    @Path("/user/{id}")
+    @DELETE
+    @Produces(MediaType.TEXT_PLAIN)
+    public Integer removeUser(@PathParam("id") Integer id) {
+        return userService.removeById(id);
+    }
+}
+----
+
+== Configure the properties
+
+We need to config the datasource used to connect to the database and the mybatis will choose the default one. Also you
+can use ```quarkus.mybatis.datasource``` for the specific database.
+
+[source]
+----
+quarkus.datasource.db-kind=mysql
+quarkus.datasource.username=<db user>
+
+quarkus.datasource.jdbc.url=jdbc:mysql://localhost/test  #<1>
+quarkus.mybatis.initial-sql=insert.sql  #<2>
+----
+
+1. The datasource used by the mybatis to connect the database.
+2. The SQL file which should be executed just after the application is started.
+
+We could keep the following content in the `insert.sql` to add some data:
+[source, sql]
+----
+DROP TABLE IF EXISTS USERS;
+
+CREATE TABLE USERS (
+    id integer not null primary key,
+    name varchar(80) not null
+);
+
+INSERT INTO USERS (id, name) values(1, 'Test User1');
+INSERT INTO USERS (id, name) values(2, 'Test User2');
+INSERT INTO USERS (id, name) values(3, 'Test User3');
+----
+
+== Running with the JVM mode
+At first, you should make sure the Mysql Server is running and the `test` database has been created.
+Then, you just need to run:
+
+[source, shell]
+----
+./mvnw compile quarkus:dev
+----
+
+You can get the user by using the following command:
+
+[source, shell]
+----
+curl http://localhost:8080/mybatis-plus/user/1
+----
+
+Or create a new user:
+
+[source, shell]
+----
+curl -X POST http://localhost:8080/mybatis-plus/user -d 'id=4&name=test'
+----
+
+Or remove a user:
+
+[source, shell]
+----
+curl -X DELETE http://localhost:8080/mybatis-plus/user/1
+----
+
+== Running Native
+You can build the native executable with:
+
+[source, shell]
+----
+./mvnw package -Pnative
+----
+
+and then run with:
+
+[source, shell]
+----
+./target/mybatis-plus-quickstart-1.0-SNAPSHOT-runner
+----
+
+== Configuration References
+include::includes/quarkus-mybatis-plus.adoc[opts=optional, leveloffset=+1]

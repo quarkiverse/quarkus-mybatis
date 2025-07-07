@@ -1,10 +1,13 @@
 package io.quarkiverse.mybatis.plus.deployment;
 
 import java.util.List;
+import java.util.function.Consumer;
+import java.util.function.Function;
 
 import org.apache.ibatis.executor.Executor;
 import org.apache.ibatis.executor.statement.StatementHandler;
 import org.apache.ibatis.mapping.BoundSql;
+import org.apache.ibatis.session.Configuration;
 import org.jboss.jandex.AnnotationInstance;
 import org.jboss.jandex.AnnotationTarget;
 import org.jboss.jandex.ClassInfo;
@@ -103,9 +106,100 @@ public class MyBatisPlusProcessor {
                 .forEach(sqlSessionFactory -> recorder.initSqlSession(sqlSessionFactory.getSqlSessionFactory(), config));
     }
 
+    private ConfigurationCustomizerBuildItem addCustomizer(
+            MyBatisPlusRecorder recorder,
+            MyBatisPlusConfig config,
+            Function<MyBatisPlusConfig, Consumer<Configuration>> customizerSupplier) {
+        return new ConfigurationCustomizerBuildItem(customizerSupplier.apply(config));
+    }
+
     @BuildStep
     @Record(ExecutionTime.STATIC_INIT)
     ConfigurationCustomizerBuildItem addCustomSqlInjector(MyBatisPlusRecorder recorder, MyBatisPlusConfig config) {
-        return new ConfigurationCustomizerBuildItem(recorder.addCustomSqlInjector(config));
+        return addCustomizer(recorder, config, recorder::addCustomSqlInjector);
+    }
+
+    @BuildStep
+    @Record(ExecutionTime.STATIC_INIT)
+    ConfigurationCustomizerBuildItem addCustomIdentifierGenerator(MyBatisPlusRecorder recorder, MyBatisPlusConfig config) {
+        return addCustomizer(recorder, config, recorder::addCustomIdentifierGenerator);
+    }
+
+    @BuildStep
+    @Record(ExecutionTime.STATIC_INIT)
+    ConfigurationCustomizerBuildItem setDbConfigIdType(MyBatisPlusRecorder recorder, MyBatisPlusConfig config) {
+        return addCustomizer(recorder, config, recorder::setDbConfigIdType);
+    }
+
+    @BuildStep
+    @Record(ExecutionTime.STATIC_INIT)
+    ConfigurationCustomizerBuildItem setDbConfigTablePrefix(MyBatisPlusRecorder recorder, MyBatisPlusConfig config) {
+        return addCustomizer(recorder, config, recorder::setDbConfigTablePrefix);
+    }
+
+    @BuildStep
+    @Record(ExecutionTime.STATIC_INIT)
+    ConfigurationCustomizerBuildItem setDbConfigSchema(MyBatisPlusRecorder recorder, MyBatisPlusConfig config) {
+        return addCustomizer(recorder, config, recorder::setDbConfigSchema);
+    }
+
+    @BuildStep
+    @Record(ExecutionTime.STATIC_INIT)
+    ConfigurationCustomizerBuildItem setDbConfigColumnFormat(MyBatisPlusRecorder recorder, MyBatisPlusConfig config) {
+        return addCustomizer(recorder, config, recorder::setDbConfigColumnFormat);
+    }
+
+    @BuildStep
+    @Record(ExecutionTime.STATIC_INIT)
+    ConfigurationCustomizerBuildItem setDbConfigTableFormat(MyBatisPlusRecorder recorder, MyBatisPlusConfig config) {
+        return addCustomizer(recorder, config, recorder::setDbConfigTableFormat);
+    }
+
+    @BuildStep
+    @Record(ExecutionTime.STATIC_INIT)
+    ConfigurationCustomizerBuildItem setDbConfigPropertyFormat(MyBatisPlusRecorder recorder, MyBatisPlusConfig config) {
+        return addCustomizer(recorder, config, recorder::setDbConfigPropertyFormat);
+    }
+
+    @BuildStep
+    @Record(ExecutionTime.STATIC_INIT)
+    ConfigurationCustomizerBuildItem setDbConfigTableUnderline(MyBatisPlusRecorder recorder, MyBatisPlusConfig config) {
+        return addCustomizer(recorder, config, recorder::setDbConfigTableUnderline);
+    }
+
+    @BuildStep
+    @Record(ExecutionTime.STATIC_INIT)
+    ConfigurationCustomizerBuildItem setDbConfigCapitalMode(MyBatisPlusRecorder recorder, MyBatisPlusConfig config) {
+        return addCustomizer(recorder, config, recorder::setDbConfigCapitalMode);
+    }
+
+    @BuildStep
+    @Record(ExecutionTime.STATIC_INIT)
+    ConfigurationCustomizerBuildItem setDbConfigKeyGenerator(MyBatisPlusRecorder recorder, MyBatisPlusConfig config) {
+        return addCustomizer(recorder, config, recorder::setDbConfigKeyGenerator);
+    }
+
+    @BuildStep
+    @Record(ExecutionTime.STATIC_INIT)
+    ConfigurationCustomizerBuildItem setDbConfigLogicDeleteField(MyBatisPlusRecorder recorder, MyBatisPlusConfig config) {
+        return addCustomizer(recorder, config, recorder::setDbConfigLogicDeleteField);
+    }
+
+    @BuildStep
+    @Record(ExecutionTime.STATIC_INIT)
+    ConfigurationCustomizerBuildItem setDbConfigLogicDeleteValue(MyBatisPlusRecorder recorder, MyBatisPlusConfig config) {
+        return addCustomizer(recorder, config, recorder::setDbConfigLogicDeleteValue);
+    }
+
+    @BuildStep
+    @Record(ExecutionTime.STATIC_INIT)
+    ConfigurationCustomizerBuildItem setDbConfigLogicNotDeleteValue(MyBatisPlusRecorder recorder, MyBatisPlusConfig config) {
+        return addCustomizer(recorder, config, recorder::setDbConfigLogicNotDeleteValue);
+    }
+
+    @BuildStep
+    @Record(ExecutionTime.STATIC_INIT)
+    ConfigurationCustomizerBuildItem setDbConfigFieldStrategy(MyBatisPlusRecorder recorder, MyBatisPlusConfig config) {
+        return addCustomizer(recorder, config, recorder::setDbConfigFieldStrategy);
     }
 }
