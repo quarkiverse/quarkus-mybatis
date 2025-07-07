@@ -32,6 +32,8 @@ a|icon:lock[title=Fixed at build time] [[quarkus-mybatis-plus_quarkus.mybatis-pl
 --
 MyBatis-plus SqlInjector Class
 
+** This configuration is about to become outdated, please use  `link:#quarkus-mybatis-plus_quarkus.mybatis-plus.global-config.sql-injector[quarkus.mybatis-plus.global-config.sql-injector]`
+
 ifdef::add-copy-button-to-env-var[]
 Environment variable: env_var_with_copy_button:+++QUARKUS_MYBATIS_PLUS_SQL_INJECTOR+++[]
 endif::add-copy-button-to-env-var[]
@@ -48,6 +50,8 @@ a|icon:lock[title=Fixed at build time] [[quarkus-mybatis-plus_quarkus.mybatis-pl
 --
 MyBatis-plus globalConfig metaObjectHandler
 
+** This configuration is about to become outdated, please use `link:#quarkus-mybatis-plus_quarkus.mybatis-plus.global-config.meta-object-handler[quarkus.mybatis-plus.global-config.meta-object-handler]`
+
 ifdef::add-copy-button-to-env-var[]
 Environment variable: env_var_with_copy_button:+++QUARKUS_MYBATIS_PLUS_META_OBJECT_HANDLER+++[]
 endif::add-copy-button-to-env-var[]
@@ -56,5 +60,308 @@ Environment variable: `+++QUARKUS_MYBATIS_PLUS_META_OBJECT_HANDLER+++`
 endif::add-copy-button-to-env-var[]
 --|string 
 |
+
+a|icon:lock[title=Fixed at build time] [[quarkus-mybatis-plus_quarkus.mybatis-plus.global-config.sql-injector]]`link:#quarkus-mybatis-plus_quarkus.mybatis-plus.global-config.sql-injector[quarkus.mybatis-plus.global-config.sql-injector]`
+
+[.description]
+--
+SQL injector, used to inject the general methods provided by MyBatis-Plus
+
+ifdef::add-copy-button-to-env-var[]
+Environment variable: env_var_with_copy_button:+++QUARKUS_MYBATIS_PLUS_GLOBAL_CONFIG_SQL_INJECTOR+++[]
+endif::add-copy-button-to-env-var[]
+ifndef::add-copy-button-to-env-var[]
+Environment variable: `+++QUARKUS_MYBATIS_PLUS_GLOBAL_CONFIG_SQL_INJECTOR+++`
+endif::add-copy-button-to-env-var[]
+--|string
+|
+
+a|icon:lock[title=Fixed at build time] [[quarkus-mybatis-plus_quarkus.mybatis-plus.global-config.meta-object-handler]]`link:#quarkus-mybatis-plus_quarkus.mybatis-plus.global-config.meta-object-handler[quarkus.mybatis-plus.global-config.meta-object-handler]`
+
+[.description]
+--
+Meta-object field filler controller, used for automatically populating fields of entity classes.
+
+ifdef::add-copy-button-to-env-var[]
+Environment variable: env_var_with_copy_button:+++QUARKUS_MYBATIS_PLUS_GLOBAL_CONFIG_META_OBJECT_HANDLER+++[]
+endif::add-copy-button-to-env-var[]
+ifndef::add-copy-button-to-env-var[]
+Environment variable: `+++QUARKUS_MYBATIS_PLUS_GLOBAL_CONFIG_META_OBJECT_HANDLER+++`
+endif::add-copy-button-to-env-var[]
+--|string
+|
+
+a|icon:lock[title=Fixed at build time] [[quarkus-mybatis-plus_quarkus.mybatis-plus.global-config.identifier-generator]]`link:#quarkus-mybatis-plus_quarkus.mybatis-plus.global-config.identifier-generator[quarkus.mybatis-plus.global-config.identifier-generator]`
+
+[.description]
+--
+ID generator, used to generate unique identifiers for entity classes.
+
+ifdef::add-copy-button-to-env-var[]
+Environment variable: env_var_with_copy_button:+++QUARKUS_MYBATIS_PLUS_GLOBAL_CONFIG_IDENTIFIER_GENERATOR+++[]
+endif::add-copy-button-to-env-var[]
+ifndef::add-copy-button-to-env-var[]
+Environment variable: `+++QUARKUS_MYBATIS_PLUS_GLOBAL_CONFIG_IDENTIFIER_GENERATOR+++`
+endif::add-copy-button-to-env-var[]
+--|string
+|
+
+a|icon:lock[title=Fixed at build time] `link:#quarkus-mybatis-plus_db_config[DbConfig]`
+
+[.description]
+--
+DB strategy configuration in MyBatis-Plus global strategy. For details, refer to DbConfig.
+
+--|string
+|
+
+|===
+
+
+[.configuration-reference.searchable, cols="80,.^10,.^10"]
+|===
+
+h|[[quarkus-mybatis-plus_db_config]]link:#quarkus-mybatis-plus_db_config[DbConfig]
+
+h|Type
+h|Default
+
+a|icon:lock[title=Fixed at build time] [[quarkus-mybatis-plus_quarkus.mybatis-plus.global-config.db-config.id-type]]`link:#quarkus-mybatis-plus_quarkus.mybatis-plus.global-config.db-config.id-type[quarkus.mybatis-plus.global-config.db-config.id-type]`
+
+[.description]
+--
+Global default primary key type.
+
+* AUTO: Uses database auto-increment ID as the primary key.
+* NONE: No specific generation strategy. If there are global configurations related to IdType, it will follow the global settings.
+* INPUT: The user manually sets the primary key value before inserting data.
+* ASSIGN_ID: Automatically assigns an ID, suitable for primary keys of type Long, Integer, or String. By default, it uses the snowflake algorithm implemented via IdentifierGenerator’s nextId method.
+* ASSIGN_UUID: Automatically assigns a UUID, suitable for primary keys of type String. The default implementation is the nextUUID method of IdentifierGenerator.
+
+ifdef::add-copy-button-to-env-var[]
+Environment variable: env_var_with_copy_button:+++QUARKUS_MYBATIS_PLUS_GLOBAL_CONFIG_DB_CONFIG_ID_TYPE+++[]
+endif::add-copy-button-to-env-var[]
+ifndef::add-copy-button-to-env-var[]
+Environment variable: `+++QUARKUS_MYBATIS_PLUS_GLOBAL_CONFIG_DB_CONFIG_ID_TYPE+++`
+endif::add-copy-button-to-env-var[]
+--|string
+|ASSIGN_ID
+
+a|icon:lock[title=Fixed at build time] [[quarkus-mybatis-plus_quarkus.mybatis-plus.global-config.db-config.table-prefix]]`link:#quarkus-mybatis-plus_quarkus.mybatis-plus.global-config.db-config.table-prefix[quarkus.mybatis-plus.global-config.db-config.table-prefix]`
+
+[.description]
+--
+Table name prefix
+
+ifdef::add-copy-button-to-env-var[]
+Environment variable: env_var_with_copy_button:+++QUARKUS_MYBATIS_PLUS_GLOBAL_CONFIG_DB_CONFIG_TABLE_PREFIX+++[]
+endif::add-copy-button-to-env-var[]
+ifndef::add-copy-button-to-env-var[]
+Environment variable: `+++QUARKUS_MYBATIS_PLUS_GLOBAL_CONFIG_DB_CONFIG_TABLE_PREFIX+++`
+endif::add-copy-button-to-env-var[]
+--|string
+|
+
+a|icon:lock[title=Fixed at build time] [[quarkus-mybatis-plus_quarkus.mybatis-plus.global-config.db-config.schema]]`link:#quarkus-mybatis-plus_quarkus.mybatis-plus.global-config.db-config.schema[quarkus.mybatis-plus.global-config.db-config.schema]`
+
+[.description]
+--
+Specifies the name of the database Schema, usually no need to set.
+
+ifdef::add-copy-button-to-env-var[]
+Environment variable: env_var_with_copy_button:+++QUARKUS_MYBATIS_PLUS_GLOBAL_CONFIG_DB_CONFIG_SCHEMA+++[]
+endif::add-copy-button-to-env-var[]
+ifndef::add-copy-button-to-env-var[]
+Environment variable: `+++QUARKUS_MYBATIS_PLUS_GLOBAL_CONFIG_DB_CONFIG_SCHEMA+++`
+endif::add-copy-button-to-env-var[]
+--|string
+|
+
+a|icon:lock[title=Fixed at build time] [[quarkus-mybatis-plus_quarkus.mybatis-plus.global-config.db-config.column-format]]`link:#quarkus-mybatis-plus_quarkus.mybatis-plus.global-config.db-config.column-format[quarkus.mybatis-plus.global-config.db-config.column-format]`
+
+[.description]
+--
+Used to format column names when generating SQL, such as adding prefixes or suffixes. Does not apply to primary keys. Example: %s_field.
+
+ifdef::add-copy-button-to-env-var[]
+Environment variable: env_var_with_copy_button:+++QUARKUS_MYBATIS_PLUS_GLOBAL_CONFIG_DB_CONFIG_COLUMN_FORMAT+++[]
+endif::add-copy-button-to-env-var[]
+ifndef::add-copy-button-to-env-var[]
+Environment variable: `+++QUARKUS_MYBATIS_PLUS_GLOBAL_CONFIG_DB_CONFIG_COLUMN_FORMAT+++`
+endif::add-copy-button-to-env-var[]
+--|string
+|
+
+a|icon:lock[title=Fixed at build time] [[quarkus-mybatis-plus_quarkus.mybatis-plus.global-config.db-config.table-format]]`link:#quarkus-mybatis-plus_quarkus.mybatis-plus.global-config.db-config.table-format[quarkus.mybatis-plus.global-config.db-config.table-format]`
+
+[.description]
+--
+Formats table names when generating SQL, Example: tbl_%s.
+
+ifdef::add-copy-button-to-env-var[]
+Environment variable: env_var_with_copy_button:+++QUARKUS_MYBATIS_PLUS_GLOBAL_CONFIG_DB_CONFIG_TABLE_FORMAT+++[]
+endif::add-copy-button-to-env-var[]
+ifndef::add-copy-button-to-env-var[]
+Environment variable: `+++QUARKUS_MYBATIS_PLUS_GLOBAL_CONFIG_DB_CONFIG_TABLE_FORMAT+++`
+endif::add-copy-button-to-env-var[]
+--|string
+|
+
+a|icon:lock[title=Fixed at build time] [[quarkus-mybatis-plus_quarkus.mybatis-plus.global-config.db-config.property-format]]`link:#quarkus-mybatis-plus_quarkus.mybatis-plus.global-config.db-config.property-format[quarkus.mybatis-plus.global-config.db-config.property-format]`
+
+[.description]
+--
+Used to format Entity field names when mapping to database columns. This only takes effect in the case of column as property and does not apply to primary keys. Example: %s_prop.
+
+ifdef::add-copy-button-to-env-var[]
+Environment variable: env_var_with_copy_button:+++QUARKUS_MYBATIS_PLUS_GLOBAL_CONFIG_DB_CONFIG_PROPERTY_FORMAT+++[]
+endif::add-copy-button-to-env-var[]
+ifndef::add-copy-button-to-env-var[]
+Environment variable: `+++QUARKUS_MYBATIS_PLUS_GLOBAL_CONFIG_DB_CONFIG_PROPERTY_FORMAT+++`
+endif::add-copy-button-to-env-var[]
+--|string
+|
+
+a|icon:lock[title=Fixed at build time] [[quarkus-mybatis-plus_quarkus.mybatis-plus.global-config.db-config.table-underline]]`link:#quarkus-mybatis-plus_quarkus.mybatis-plus.global-config.db-config.table-underline[quarkus.mybatis-plus.global-config.db-config.table-underline]`
+
+[.description]
+--
+Controls whether table names should be converted from camelCase to underscore naming.
+
+ifdef::add-copy-button-to-env-var[]
+Environment variable: env_var_with_copy_button:+++QUARKUS_MYBATIS_PLUS_GLOBAL_CONFIG_DB_CONFIG_TABLE_UNDERLINE+++[]
+endif::add-copy-button-to-env-var[]
+ifndef::add-copy-button-to-env-var[]
+Environment variable: `+++QUARKUS_MYBATIS_PLUS_GLOBAL_CONFIG_DB_CONFIG_TABLE_UNDERLINE+++`
+endif::add-copy-button-to-env-var[]
+--|boolean
+|true
+
+a|icon:lock[title=Fixed at build time] [[quarkus-mybatis-plus_quarkus.mybatis-plus.global-config.db-config.capital-mode]]`link:#quarkus-mybatis-plus_quarkus.mybatis-plus.global-config.db-config.capital-mode[quarkus.mybatis-plus.global-config.db-config.capital-mode]`
+
+[.description]
+--
+Controls whether table names and field names use uppercase naming.
+
+ifdef::add-copy-button-to-env-var[]
+Environment variable: env_var_with_copy_button:+++QUARKUS_MYBATIS_PLUS_GLOBAL_CONFIG_DB_CONFIG_CAPITAL_MODE+++[]
+endif::add-copy-button-to-env-var[]
+ifndef::add-copy-button-to-env-var[]
+Environment variable: `+++QUARKUS_MYBATIS_PLUS_GLOBAL_CONFIG_DB_CONFIG_CAPITAL_MODE+++`
+endif::add-copy-button-to-env-var[]
+--|boolean
+|false
+
+a|icon:lock[title=Fixed at build time] [[quarkus-mybatis-plus_quarkus.mybatis-plus.global-config.db-config.key-generator]]`link:#quarkus-mybatis-plus_quarkus.mybatis-plus.global-config.db-config.key-generator[quarkus.mybatis-plus.global-config.db-config.key-generator]`
+
+[.description]
+--
+Custom table primary key generator.Implementation class path of IKeyGenerator, multiple classes separated by commas
+
+ifdef::add-copy-button-to-env-var[]
+Environment variable: env_var_with_copy_button:+++QUARKUS_MYBATIS_PLUS_GLOBAL_CONFIG_DB_CONFIG_KEY_GENERATOR+++[]
+endif::add-copy-button-to-env-var[]
+ifndef::add-copy-button-to-env-var[]
+Environment variable: `+++QUARKUS_MYBATIS_PLUS_GLOBAL_CONFIG_DB_CONFIG_KEY_GENERATOR+++`
+endif::add-copy-button-to-env-var[]
+--|string
+|
+
+a|icon:lock[title=Fixed at build time] [[quarkus-mybatis-plus_quarkus.mybatis-plus.global-config.db-config.logic-delete-field]]`link:#quarkus-mybatis-plus_quarkus.mybatis-plus.global-config.db-config.logic-delete-field[quarkus.mybatis-plus.global-config.db-config.logic-delete-field]`
+
+[.description]
+--
+The global Entity logical delete field property name, only effective when the logical delete feature is enabled.
+
+ifdef::add-copy-button-to-env-var[]
+Environment variable: env_var_with_copy_button:+++QUARKUS_MYBATIS_PLUS_GLOBAL_CONFIG_DB_CONFIG_LOGIC_DELETE_FIELD+++[]
+endif::add-copy-button-to-env-var[]
+ifndef::add-copy-button-to-env-var[]
+Environment variable: `+++QUARKUS_MYBATIS_PLUS_GLOBAL_CONFIG_DB_CONFIG_LOGIC_DELETE_FIELD+++`
+endif::add-copy-button-to-env-var[]
+--|string
+|
+
+a|icon:lock[title=Fixed at build time] [[quarkus-mybatis-plus_quarkus.mybatis-plus.global-config.db-config.logic-delete-value]]`link:#quarkus-mybatis-plus_quarkus.mybatis-plus.global-config.db-config.logic-delete-value[quarkus.mybatis-plus.global-config.db-config.logic-delete-value]`
+
+[.description]
+--
+The value indicating a logically deleted record, only effective when the logical delete feature is enabled.
+
+ifdef::add-copy-button-to-env-var[]
+Environment variable: env_var_with_copy_button:+++QUARKUS_MYBATIS_PLUS_GLOBAL_CONFIG_DB_CONFIG_LOGIC_DELETE_VALUE+++[]
+endif::add-copy-button-to-env-var[]
+ifndef::add-copy-button-to-env-var[]
+Environment variable: `+++QUARKUS_MYBATIS_PLUS_GLOBAL_CONFIG_DB_CONFIG_LOGIC_DELETE_VALUE+++`
+endif::add-copy-button-to-env-var[]
+--|string
+|`1`
+
+a|icon:lock[title=Fixed at build time] [[quarkus-mybatis-plus_quarkus.mybatis-plus.global-config.db-config.logic-not-delete-value]]`link:#quarkus-mybatis-plus_quarkus.mybatis-plus.global-config.db-config.logic-not-delete-value[quarkus.mybatis-plus.global-config.db-config.logic-not-delete-value]`
+
+[.description]
+--
+The value indicating a record is not logically deleted, only effective when the logical delete feature is enabled.
+
+ifdef::add-copy-button-to-env-var[]
+Environment variable: env_var_with_copy_button:+++QUARKUS_MYBATIS_PLUS_GLOBAL_CONFIG_DB_CONFIG_LOGIC_NOT_DELETE_VALUE+++[]
+endif::add-copy-button-to-env-var[]
+ifndef::add-copy-button-to-env-var[]
+Environment variable: `+++QUARKUS_MYBATIS_PLUS_GLOBAL_CONFIG_DB_CONFIG_LOGIC_NOT_DELETE_VALUE+++`
+endif::add-copy-button-to-env-var[]
+--|string
+|`0`
+
+a|icon:lock[title=Fixed at build time] [[quarkus-mybatis-plus_quarkus.mybatis-plus.global-config.db-config.insert-strategy]]`link:#quarkus-mybatis-plus_quarkus.mybatis-plus.global-config.db-config.insert-strategy[quarkus.mybatis-plus.global-config.db-config.insert-strategy]`
+
+[.description]
+--
+Controls the field validation strategy during Insert operations.
+
+* DEFAULT: Follows the global configuration strategy. If the global configuration is not specified, the default behavior is to insert the field only when its value is not NULL.
+* ALWAYS: Always inserts the field, regardless of whether the value is NULL.
+* NOT_NULL: Inserts the field only when its value is not NULL.
+* NOT_EMPTY: Inserts the field only when its value is not empty (for string types) or not NULL (for other types).
+* NEVER: Never inserts the field, even if the value is not NULL.
+* IGNORED: Ignores validation, equivalent to “ALWAYS” @Deprecated
+
+ifdef::add-copy-button-to-env-var[]
+Environment variable: env_var_with_copy_button:+++QUARKUS_MYBATIS_PLUS_GLOBAL_CONFIG_DB_CONFIG_INSERT_STRATEGY+++[]
+endif::add-copy-button-to-env-var[]
+ifndef::add-copy-button-to-env-var[]
+Environment variable: `+++QUARKUS_MYBATIS_PLUS_GLOBAL_CONFIG_DB_CONFIG_INSERT_STRATEGY+++`
+endif::add-copy-button-to-env-var[]
+--|string
+|`NOT_NULL`
+
+a|icon:lock[title=Fixed at build time] [[quarkus-mybatis-plus_quarkus.mybatis-plus.global-config.db-config.update-strategy]]`link:#quarkus-mybatis-plus_quarkus.mybatis-plus.global-config.db-config.update-strategy[quarkus.mybatis-plus.global-config.db-config.update-strategy]`
+
+[.description]
+--
+Controls the field validation strategy during Update operations.
+
+ifdef::add-copy-button-to-env-var[]
+Environment variable: env_var_with_copy_button:+++QUARKUS_MYBATIS_PLUS_GLOBAL_CONFIG_DB_CONFIG_UPDATE_STRATEGY+++[]
+endif::add-copy-button-to-env-var[]
+ifndef::add-copy-button-to-env-var[]
+Environment variable: `+++QUARKUS_MYBATIS_PLUS_GLOBAL_CONFIG_DB_CONFIG_UPDATE_STRATEGY+++`
+endif::add-copy-button-to-env-var[]
+--|string
+|`NOT_NULL`
+
+a|icon:lock[title=Fixed at build time] [[quarkus-mybatis-plus_quarkus.mybatis-plus.global-config.db-config.where-strategy]]`link:#quarkus-mybatis-plus_quarkus.mybatis-plus.global-config.db-config.where-strategy[quarkus.mybatis-plus.global-config.db-config.where-strategy]`
+
+[.description]
+--
+Controls the field validation strategy during Update operations. Specifically, it determines the WHERE conditions generated by the Wrapper based on the internal Entity.
+
+ifdef::add-copy-button-to-env-var[]
+Environment variable: env_var_with_copy_button:+++QUARKUS_MYBATIS_PLUS_GLOBAL_CONFIG_DB_CONFIG_WHERE_STRATEGY+++[]
+endif::add-copy-button-to-env-var[]
+ifndef::add-copy-button-to-env-var[]
+Environment variable: `+++QUARKUS_MYBATIS_PLUS_GLOBAL_CONFIG_DB_CONFIG_WHERE_STRATEGY+++`
+endif::add-copy-button-to-env-var[]
+--|string
+|`NOT_NULL`
 
 |===
