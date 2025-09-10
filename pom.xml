@@ -20,7 +20,7 @@
     <surefire.plugin.version>3.5.3</surefire.plugin.version>
     <quarkus.version>3.26.3</quarkus.version>
     <mybatis.version>3.5.19</mybatis.version>
-    <mybatis-plus.version>3.5.12</mybatis-plus.version>
+    <mybatis-plus.version>3.5.14</mybatis-plus.version>
     <vyarus.version>3.0.3</vyarus.version>
   </properties>
   <scm>
