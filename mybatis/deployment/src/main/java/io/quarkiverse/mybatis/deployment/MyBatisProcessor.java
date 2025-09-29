@@ -59,6 +59,7 @@ import io.quarkus.deployment.annotations.Overridable;
 import io.quarkus.deployment.annotations.Record;
 import io.quarkus.deployment.builditem.CombinedIndexBuildItem;
 import io.quarkus.deployment.builditem.FeatureBuildItem;
+import io.quarkus.deployment.builditem.HotDeploymentWatchedFileBuildItem;
 import io.quarkus.deployment.builditem.nativeimage.NativeImageProxyDefinitionBuildItem;
 import io.quarkus.deployment.builditem.nativeimage.NativeImageResourceBuildItem;
 import io.quarkus.deployment.builditem.nativeimage.ReflectiveClassBuildItem;
@@ -244,6 +245,20 @@ public class MyBatisProcessor {
         if (config.xmlconfig().enable()) {
             xmlConfig.produce(new MyBatisXmlConfigBuildItem("xmlconfig", true));
         }
+    }
+
+    @BuildStep
+    void registerXmlMappersForHotDeployment(MyBatisRuntimeConfig config,
+            BuildProducer<HotDeploymentWatchedFileBuildItem> hotDeploymentProducer) {
+        config.mapperLocations().ifPresent(mapperLocations -> {
+            for (String mapperLocation : mapperLocations) {
+                hotDeploymentProducer.produce(new HotDeploymentWatchedFileBuildItem(mapperLocation + "/**/*.xml"));
+            }
+        });
+
+        hotDeploymentProducer.produce(new HotDeploymentWatchedFileBuildItem("**/*Mapper.xml"));
+        hotDeploymentProducer.produce(new HotDeploymentWatchedFileBuildItem("mapper/**/*.xml"));
+        hotDeploymentProducer.produce(new HotDeploymentWatchedFileBuildItem("mappers/**/*.xml"));
     }
 
     @Record(ExecutionTime.STATIC_INIT)
