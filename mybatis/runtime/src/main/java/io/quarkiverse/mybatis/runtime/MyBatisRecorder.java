@@ -445,6 +445,13 @@ public class MyBatisRecorder {
             LOG.warn("Error executing SQL Script " + sql, e);
         }
     }
+
+    public void runInitialSqlString(RuntimeValue<SqlSessionFactory> sqlSessionFactory, String initialSqlString) {
+        String[] sqlFiles = initialSqlString.split(",");
+        for (String sqlFile : sqlFiles) {
+            runInitialSql(sqlSessionFactory, sqlFile.trim());
+        }
+    }
 }
 
 class QuarkusDataSource implements DataSource {
