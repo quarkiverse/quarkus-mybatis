@@ -31,7 +31,7 @@ public interface MyBatisDataSourceRuntimeConfig {
     Optional<String> databaseId();
 
     /**
-     * MyBatis initial sql
+     * MyBatis initial sql files (comma-separated)
      */
     @WithName("initial-sql")
     Optional<String> initialSql();
