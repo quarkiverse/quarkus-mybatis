@@ -13,8 +13,5 @@ class MultipleDataSourcesTest {
     public void test() {
         RestAssured.when().get("/mybatis/user/count/h2").then()
                 .body(is("3"));
-
-        RestAssured.when().get("/mybatis/user/count/derby").then()
-                .body(is("4"));
     }
 }

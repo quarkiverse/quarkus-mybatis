@@ -27,9 +27,6 @@ public class MyBatisResource {
     @Inject
     BookMapper bookMapper;
 
-    @Inject
-    DerbyUserMapper derbyUserMapper;
-
     @Path("/user/{id}")
     @GET
     @Produces(MediaType.APPLICATION_JSON)
@@ -68,13 +65,6 @@ public class MyBatisResource {
         return userMapper.getUserCount();
     }
 
-    @Path("/user/count/derby")
-    @GET
-    @Produces(MediaType.APPLICATION_JSON)
-    public int getDerbyUserCount() {
-        return derbyUserMapper.getUserCount();
-    }
-
     @Path("/user/cursor")
     @GET
     @Produces(MediaType.APPLICATION_JSON)
@@ -108,12 +98,5 @@ public class MyBatisResource {
     @Produces(MediaType.APPLICATION_JSON)
     public User findUserById(@PathParam("id") Integer id) {
         return userMapper.findById(id);
-    }
-
-    @Path("/user/xmlMapper/derby/{id}")
-    @GET
-    @Produces(MediaType.APPLICATION_JSON)
-    public User findDerbyUserById(@PathParam("id") Integer id) {
-        return derbyUserMapper.findById(id);
     }
 }
