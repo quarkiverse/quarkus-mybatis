@@ -125,6 +125,12 @@ public interface MyBatisRuntimeConfig {
     AutoMappingUnknownColumnBehavior autoMappingUnknownColumnBehavior();
 
     /**
+     * MyBatis argNameBasedConstructorAutoMapping
+     */
+    @WithDefault("false")
+    Boolean argNameBasedConstructorAutoMapping();
+
+    /**
      * MyBatis defaultExecutorType
      */
     @WithDefault("SIMPLE")

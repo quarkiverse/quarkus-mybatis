@@ -72,6 +72,11 @@ public interface MyBatisDataSourceRuntimeConfig {
     Optional<AutoMappingUnknownColumnBehavior> autoMappingUnknownColumnBehavior();
 
     /**
+     * MyBatis argNameBasedConstructorAutoMapping
+     */
+    Optional<Boolean> argNameBasedConstructorAutoMapping();
+
+    /**
      * MyBatis defaultExecutorType
      */
     Optional<ExecutorType> defaultExecutorType();

@@ -239,6 +239,10 @@ public class MyBatisRecorder {
                 dataSourceRuntimeConfig.autoMappingUnknownColumnBehavior().isPresent()
                         ? dataSourceRuntimeConfig.autoMappingUnknownColumnBehavior().get()
                         : runtimeConfig.autoMappingUnknownColumnBehavior());
+        configuration.setArgNameBasedConstructorAutoMapping(dataSourceRuntimeConfig != null &&
+                dataSourceRuntimeConfig.argNameBasedConstructorAutoMapping().isPresent()
+                        ? dataSourceRuntimeConfig.argNameBasedConstructorAutoMapping().get()
+                        : runtimeConfig.argNameBasedConstructorAutoMapping());
         configuration.setDefaultExecutorType(dataSourceRuntimeConfig != null &&
                 dataSourceRuntimeConfig.defaultExecutorType().isPresent() ? dataSourceRuntimeConfig.defaultExecutorType().get()
                         : runtimeConfig.defaultExecutorType());
