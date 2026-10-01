@@ -4,7 +4,7 @@
   <parent>
     <groupId>io.quarkiverse</groupId>
     <artifactId>quarkiverse-parent</artifactId>
-    <version>22</version>
+    <version>25</version>
   </parent>
   <groupId>io.quarkiverse.mybatis</groupId>
   <artifactId>quarkus-parent</artifactId>
@@ -12,12 +12,6 @@
   <version>999-SNAPSHOT</version>
   <packaging>pom</packaging>
   <properties>
-    <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-    <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
-    <maven.compiler.source>1.8</maven.compiler.source>
-    <maven.compiler.target>1.8</maven.compiler.target>
-    <compiler.plugin.version>3.8.1</compiler.plugin.version>
-    <surefire.plugin.version>3.6.0</surefire.plugin.version>
     <quarkus.version>3.39.4</quarkus.version>
     <mybatis.version>3.5.19</mybatis.version>
     <mybatis-plus.version>3.5.16</mybatis-plus.version>
@@ -68,24 +62,9 @@
     <pluginManagement>
       <plugins>
         <plugin>
-          <groupId>org.apache.maven.plugins</groupId>
-          <artifactId>maven-compiler-plugin</artifactId>
-          <version>${compiler.plugin.version}</version>
-        </plugin>
-        <plugin>
           <groupId>io.quarkus</groupId>
           <artifactId>quarkus-maven-plugin</artifactId>
           <version>${quarkus.version}</version>
-        </plugin>
-        <plugin>
-          <groupId>org.apache.maven.plugins</groupId>
-          <artifactId>maven-surefire-plugin</artifactId>
-          <version>${surefire.plugin.version}</version>
-          <configuration>
-            <systemProperties>
-              <java.util.logging.manager>org.jboss.logmanager.LogManager</java.util.logging.manager>
-            </systemProperties>
-          </configuration>
         </plugin>
       </plugins>
     </pluginManagement>
