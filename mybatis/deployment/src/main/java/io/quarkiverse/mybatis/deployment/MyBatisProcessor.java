@@ -1,9 +1,25 @@
 package io.quarkiverse.mybatis.deployment;
 
+import java.math.BigDecimal;
+import java.math.BigInteger;
+import java.nio.file.Files;
+import java.sql.Time;
+import java.sql.Timestamp;
+import java.time.Instant;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.LocalTime;
+import java.time.OffsetDateTime;
+import java.time.OffsetTime;
+import java.time.ZonedDateTime;
 import java.util.ArrayList;
+import java.util.Date;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
+import java.util.UUID;
 import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.stream.Collectors;
@@ -12,6 +28,8 @@ import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Named;
 
 import org.apache.commons.lang3.tuple.Pair;
+import org.apache.ibatis.annotations.CacheNamespace;
+import org.apache.ibatis.annotations.CacheNamespaceRef;
 import org.apache.ibatis.annotations.DeleteProvider;
 import org.apache.ibatis.annotations.InsertProvider;
 import org.apache.ibatis.annotations.Mapper;
@@ -21,9 +39,12 @@ import org.apache.ibatis.annotations.ResultType;
 import org.apache.ibatis.annotations.Results;
 import org.apache.ibatis.annotations.SelectProvider;
 import org.apache.ibatis.annotations.UpdateProvider;
+import org.apache.ibatis.builder.xml.XMLMapperEntityResolver;
 import org.apache.ibatis.cache.decorators.LruCache;
 import org.apache.ibatis.cache.impl.PerpetualCache;
 import org.apache.ibatis.javassist.util.proxy.ProxyFactory;
+import org.apache.ibatis.parsing.XNode;
+import org.apache.ibatis.parsing.XPathParser;
 import org.apache.ibatis.reflection.MetaObject;
 import org.apache.ibatis.reflection.SystemMetaObject;
 import org.apache.ibatis.scripting.defaults.RawLanguageDriver;
@@ -38,7 +59,12 @@ import org.apache.ibatis.type.MappedJdbcTypes;
 import org.apache.ibatis.type.MappedTypes;
 import org.jboss.jandex.AnnotationInstance;
 import org.jboss.jandex.AnnotationTarget;
+import org.jboss.jandex.AnnotationValue;
+import org.jboss.jandex.ClassInfo;
 import org.jboss.jandex.DotName;
+import org.jboss.jandex.IndexView;
+import org.jboss.jandex.MethodInfo;
+import org.jboss.jandex.Type;
 import org.jboss.logging.Logger;
 
 import io.quarkiverse.mybatis.runtime.MyBatisConfigurationFactory;
@@ -51,18 +77,22 @@ import io.quarkiverse.mybatis.runtime.meta.MapperDataSource;
 import io.quarkus.agroal.spi.JdbcDataSourceBuildItem;
 import io.quarkus.arc.deployment.SyntheticBeanBuildItem;
 import io.quarkus.arc.deployment.SyntheticBeansRuntimeInitBuildItem;
+import io.quarkus.deployment.ApplicationArchive;
 import io.quarkus.deployment.annotations.BuildProducer;
 import io.quarkus.deployment.annotations.BuildStep;
 import io.quarkus.deployment.annotations.Consume;
 import io.quarkus.deployment.annotations.ExecutionTime;
 import io.quarkus.deployment.annotations.Overridable;
 import io.quarkus.deployment.annotations.Record;
+import io.quarkus.deployment.builditem.ApplicationArchivesBuildItem;
 import io.quarkus.deployment.builditem.CombinedIndexBuildItem;
 import io.quarkus.deployment.builditem.FeatureBuildItem;
 import io.quarkus.deployment.builditem.HotDeploymentWatchedFileBuildItem;
 import io.quarkus.deployment.builditem.nativeimage.NativeImageProxyDefinitionBuildItem;
 import io.quarkus.deployment.builditem.nativeimage.NativeImageResourceBuildItem;
 import io.quarkus.deployment.builditem.nativeimage.ReflectiveClassBuildItem;
+import io.quarkus.deployment.builditem.nativeimage.ReflectiveHierarchyBuildItem;
+import io.quarkus.deployment.builditem.nativeimage.ReflectiveHierarchyBuildItem.DefaultIgnoreTypePredicate;
 import io.quarkus.deployment.builditem.nativeimage.RuntimeInitializedClassBuildItem;
 import io.quarkus.runtime.configuration.ConfigurationException;
 
@@ -75,6 +105,36 @@ public class MyBatisProcessor {
     private static final DotName MYBATIS_TYPE_HANDLER = DotName.createSimple(MappedTypes.class.getName());
     private static final DotName MYBATIS_JDBC_TYPE_HANDLER = DotName.createSimple(MappedJdbcTypes.class.getName());
     private static final DotName MYBATIS_MAPPER_DATA_SOURCE = DotName.createSimple(MapperDataSource.class.getName());
+    private static final DotName MYBATIS_CACHE_NAMESPACE = DotName.createSimple(CacheNamespace.class.getName());
+    private static final DotName MYBATIS_CACHE_NAMESPACE_REF = DotName.createSimple(CacheNamespaceRef.class.getName());
+    private static final Class<?>[] SERIALIZABLE_JDK_TYPES = {
+            ArrayList.class,
+            String.class,
+            Number.class,
+            Boolean.class,
+            Byte.class,
+            Character.class,
+            Short.class,
+            Integer.class,
+            Long.class,
+            Float.class,
+            Double.class,
+            BigDecimal.class,
+            BigInteger.class,
+            UUID.class,
+            Date.class,
+            java.sql.Date.class,
+            Time.class,
+            Timestamp.class,
+            Instant.class,
+            LocalDate.class,
+            LocalTime.class,
+            LocalDateTime.class,
+            OffsetTime.class,
+            OffsetDateTime.class,
+            ZonedDateTime.class,
+            Enum.class
+    };
 
     @BuildStep
     FeatureBuildItem feature() {
@@ -105,6 +165,144 @@ public class MyBatisProcessor {
                 SqlSessionManager.class, SystemMetaObject.class, MetaObject.class).methods(true).fields(true).build());
         reflectiveClass.produce(
                 ReflectiveClassBuildItem.builder(PerpetualCache.class, LruCache.class).methods(true).fields(true).build());
+    }
+
+    /**
+     * The default read / write second level cache (SerializedCache) stores query results using Java serialization.
+     * For mappers that use a second level cache, register the result types of mapper methods, together with common JDK
+     * value types, for serialization.
+     */
+    @BuildStep
+    void serializableResultTypes(List<MyBatisMapperBuildItem> mappers,
+            CombinedIndexBuildItem indexBuildItem,
+            ApplicationArchivesBuildItem applicationArchivesBuildItem,
+            BuildProducer<ReflectiveClassBuildItem> reflectiveClass,
+            BuildProducer<ReflectiveHierarchyBuildItem> reflectiveHierarchy) {
+        IndexView index = indexBuildItem.getIndex();
+        Set<DotName> cachedMappers = new HashSet<>();
+        collectAnnotationCachedMappers(index, cachedMappers);
+        collectXmlCachedMappers(applicationArchivesBuildItem, cachedMappers);
+
+        Set<DotName> visited = new HashSet<>();
+        Set<DotName> resultTypes = new HashSet<>();
+        for (MyBatisMapperBuildItem mapper : mappers) {
+            if (cachedMappers.contains(mapper.getMapperName())) {
+                collectMapperResultTypes(index, mapper.getMapperName(), visited, resultTypes);
+            }
+        }
+
+        if (visited.isEmpty()) {
+            // No mappers use a second level cache
+            return;
+        }
+
+        reflectiveClass.produce(ReflectiveClassBuildItem.builder(SERIALIZABLE_JDK_TYPES).serialization(true).build());
+        // java.time types are serialized via a writeReplace proxy
+        reflectiveClass.produce(ReflectiveClassBuildItem.builder("java.time.Ser").serialization(true).build());
+
+        for (DotName resultType : resultTypes) {
+            reflectiveHierarchy.produce(ReflectiveHierarchyBuildItem.builder(resultType)
+                    .index(index)
+                    .source(MyBatisProcessor.class.getSimpleName() + " > " + resultType)
+                    .ignoreTypePredicate(DefaultIgnoreTypePredicate.INSTANCE.or(MyBatisProcessor::isFrameworkType))
+                    .methods(false)
+                    .fields(false)
+                    .serialization(true)
+                    .build());
+        }
+    }
+
+    private static void collectAnnotationCachedMappers(IndexView index, Set<DotName> cachedMappers) {
+        for (AnnotationInstance cacheNamespace : index.getAnnotations(MYBATIS_CACHE_NAMESPACE)) {
+            AnnotationValue readWrite = cacheNamespace.value("readWrite");
+            if (cacheNamespace.target().kind() == AnnotationTarget.Kind.CLASS
+                    && (readWrite == null || readWrite.asBoolean())) {
+                cachedMappers.add(cacheNamespace.target().asClass().name());
+            }
+        }
+        // Mappers that share the cache of another namespace
+        for (AnnotationInstance cacheNamespaceRef : index.getAnnotations(MYBATIS_CACHE_NAMESPACE_REF)) {
+            if (cacheNamespaceRef.target().kind() == AnnotationTarget.Kind.CLASS) {
+                cachedMappers.add(cacheNamespaceRef.target().asClass().name());
+            }
+        }
+    }
+
+    private static void collectXmlCachedMappers(ApplicationArchivesBuildItem applicationArchivesBuildItem,
+            Set<DotName> cachedMappers) {
+        for (ApplicationArchive archive : applicationArchivesBuildItem.getAllApplicationArchives()) {
+            archive.accept(tree -> tree.walk(visit -> {
+                if (!visit.getRelativePath("/").endsWith(".xml") || Files.isDirectory(visit.getPath())) {
+                    return;
+                }
+                try {
+                    String content = Files.readString(visit.getPath());
+                    if (!content.contains("<mapper") || !content.contains("<cache")) {
+                        return;
+                    }
+                    XPathParser parser = new XPathParser(content, false, null, new XMLMapperEntityResolver());
+                    XNode mapper = parser.evalNode("/mapper");
+                    String namespace = mapper != null ? mapper.getStringAttribute("namespace") : null;
+                    if (namespace == null) {
+                        return;
+                    }
+                    XNode cache = parser.evalNode("/mapper/cache");
+                    if ((cache != null && !cache.getBooleanAttribute("readOnly", false))
+                            || parser.evalNode("/mapper/cache-ref") != null) {
+                        cachedMappers.add(DotName.createSimple(namespace));
+                    }
+                } catch (Exception e) {
+                    LOG.debugf(e, "Unable to determine second level cache usage from %s", visit.getRelativePath("/"));
+                }
+            }));
+        }
+    }
+
+    private static boolean isFrameworkType(DotName name) {
+        String className = name.toString();
+        return className.startsWith("org.apache.ibatis.") || className.startsWith("com.baomidou.");
+    }
+
+    private static void collectMapperResultTypes(IndexView index, DotName mapperName, Set<DotName> visited,
+            Set<DotName> resultTypes) {
+        if (!visited.add(mapperName)) {
+            return;
+        }
+        ClassInfo mapper = index.getClassByName(mapperName);
+        if (mapper == null) {
+            return;
+        }
+        for (MethodInfo method : mapper.methods()) {
+            collectTypes(method.returnType(), resultTypes);
+        }
+        for (Type superInterface : mapper.interfaceTypes()) {
+            // Generic base mappers, e.g. UserMapper extends BaseMapper<User>
+            if (superInterface.kind() == Type.Kind.PARAMETERIZED_TYPE) {
+                superInterface.asParameterizedType().arguments().forEach(argument -> collectTypes(argument, resultTypes));
+            }
+            collectMapperResultTypes(index, superInterface.name(), visited, resultTypes);
+        }
+    }
+
+    private static void collectTypes(Type type, Set<DotName> types) {
+        switch (type.kind()) {
+            case CLASS -> addType(type.name(), types);
+            case ARRAY -> collectTypes(type.asArrayType().elementType(), types);
+            case PARAMETERIZED_TYPE -> {
+                addType(type.name(), types);
+                type.asParameterizedType().arguments().forEach(argument -> collectTypes(argument, types));
+            }
+            default -> {
+                // Primitives, void, type variables and wildcards cannot be resolved to a concrete result type
+            }
+        }
+    }
+
+    private static void addType(DotName name, Set<DotName> types) {
+        // JDK types are registered explicitly via SERIALIZABLE_JDK_TYPES
+        if (!name.toString().startsWith("java.") && !isFrameworkType(name)) {
+            types.add(name);
+        }
     }
 
     @BuildStep
@@ -369,7 +567,7 @@ public class MyBatisProcessor {
                     .supplier(recorder.MyBatisSqlSessionFactorySupplier(sqlSessionFactoryBuildItem.getSqlSessionFactory()));
             String dataSourceName = sqlSessionFactoryBuildItem.getDataSourceName();
             if (!sqlSessionFactoryBuildItem.isDefaultDataSource()) {
-                configurator.defaultBean();
+                configurator.reserve(true);
                 configurator.addQualifier().annotation(Named.class).addValue("value", dataSourceName).done();
             }
             syntheticBeanBuildItemBuildProducer.produce(configurator.done());

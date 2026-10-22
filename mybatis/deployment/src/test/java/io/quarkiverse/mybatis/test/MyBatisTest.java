@@ -13,11 +13,11 @@ import org.jboss.shrinkwrap.api.spec.JavaArchive;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
 
-import io.quarkus.test.QuarkusUnitTest;
+import io.quarkus.test.QuarkusExtensionTest;
 
 public class MyBatisTest {
     @RegisterExtension
-    static final QuarkusUnitTest config = new QuarkusUnitTest().withConfigurationResource("application.properties")
+    static final QuarkusExtensionTest config = new QuarkusExtensionTest().withConfigurationResource("application.properties")
             .setArchiveProducer(
                     () -> ShrinkWrap.create(JavaArchive.class)
                             .addClasses(UserMapper.class, User.class, UuidTypeHandler.class, UuidJdbcTypeHandler.class));

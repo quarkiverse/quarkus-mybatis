@@ -10,10 +10,14 @@ public class BaseMyBatisTestCase {
 
     public void runTest() {
         RestAssured.when().get("/mybatis/user/1").then()
-                .body(is("{\"id\":1,\"name\":\"Test User1\",\"externalId\":\"ccb16b65-8924-4c3f-8c55-681d85a16e79\"}"));
+                .body("id", is(1))
+                .body("name", is("Test User1"))
+                .body("externalId", is("ccb16b65-8924-4c3f-8c55-681d85a16e79"));
 
         RestAssured.when().get("/mybatis/user/dynamic/1").then()
-                .body(is("{\"id\":1,\"name\":\"Test User1\",\"externalId\":\"ccb16b65-8924-4c3f-8c55-681d85a16e79\"}"));
+                .body("id", is(1))
+                .body("name", is("Test User1"))
+                .body("externalId", is("ccb16b65-8924-4c3f-8c55-681d85a16e79"));
 
         RestAssured.given().param("id", "5")
                 .param("name", "New User")
@@ -25,15 +29,23 @@ public class BaseMyBatisTestCase {
                 .body(is("1"));
 
         RestAssured.when().get("/mybatis/book/1").then()
-                .body(is(
-                        "{\"id\":1,\"author\":{\"id\":1,\"name\":\"Test User1\",\"externalId\":\"ccb16b65-8924-4c3f-8c55-681d85a16e79\"},\"title\":\"Test Title\"}"));
+                .body("id", is(1))
+                .body("title", is("Test Title"))
+                .body("author.id", is(1))
+                .body("author.name", is("Test User1"))
+                .body("author.externalId", is("ccb16b65-8924-4c3f-8c55-681d85a16e79"));
 
         RestAssured.when().get("/mybatis/book/xmlMapper/1").then()
-                .body(is(
-                        "{\"id\":1,\"author\":{\"id\":1,\"name\":\"Test User1\",\"externalId\":\"ccb16b65-8924-4c3f-8c55-681d85a16e79\"},\"title\":\"Test Title\"}"));
+                .body("id", is(1))
+                .body("title", is("Test Title"))
+                .body("author.id", is(1))
+                .body("author.name", is("Test User1"))
+                .body("author.externalId", is("ccb16b65-8924-4c3f-8c55-681d85a16e79"));
 
         RestAssured.when().get("/mybatis/user/xmlMapper/1").then()
-                .body(is("{\"id\":1,\"name\":\"Test User1\",\"externalId\":\"ccb16b65-8924-4c3f-8c55-681d85a16e79\"}"));
+                .body("id", is(1))
+                .body("name", is("Test User1"))
+                .body("externalId", is("ccb16b65-8924-4c3f-8c55-681d85a16e79"));
 
         RestAssured.when().get("/mybatis/user/cursor").then()
                 .body(is("[\"Test User1\",\"Test User2\",\"New User\"]"));

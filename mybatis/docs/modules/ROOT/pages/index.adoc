@@ -247,6 +247,22 @@ and then run with:
 ./target/mybatis-quickstart-1.0-SNAPSHOT-runner
 ----
 
+=== Second level cache in native mode
+The default read / write second level cache (enabled with `@CacheNamespace` or `<cache/>`) stores query results using Java serialization.
+For mappers that use a read / write cache (`@CacheNamespace`, `@CacheNamespaceRef`, or `<cache/>` / `<cache-ref/>` in the mapper XML),
+the extension registers the result types of the mapper interface methods (including the type arguments of generic base mappers),
+the types reachable from their fields, and common JDK value types, for serialization automatically.
+
+Types that cannot be discovered this way, such as JDK types not covered by the automatic registration, must be registered manually:
+
+[source,java]
+----
+@RegisterForReflection(serialization = true)
+public class User implements Serializable {
+    // ...
+}
+----
+
 == Support for multiple data sources
 You can choose a specific data source for MyBatis mapper using the annotation `@MapperDataSource`.
 Query in the next example will be running against data source with name `user`.

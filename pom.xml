@@ -4,7 +4,7 @@
   <parent>
     <groupId>io.quarkiverse</groupId>
     <artifactId>quarkiverse-parent</artifactId>
-    <version>25</version>
+    <version>26</version>
   </parent>
   <groupId>io.quarkiverse.mybatis</groupId>
   <artifactId>quarkus-parent</artifactId>
@@ -12,7 +12,7 @@
   <version>999-SNAPSHOT</version>
   <packaging>pom</packaging>
   <properties>
-    <quarkus.version>3.40.0</quarkus.version>
+    <quarkus.version>4.0.0.Beta1</quarkus.version>
     <mybatis.version>3.5.19</mybatis.version>
     <mybatis-plus.version>3.5.16</mybatis-plus.version>
     <vyarus.version>3.0.3</vyarus.version>
