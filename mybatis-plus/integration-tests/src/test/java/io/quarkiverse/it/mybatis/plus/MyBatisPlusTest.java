@@ -18,7 +18,9 @@ public class MyBatisPlusTest {
     @Test
     public void test() {
         RestAssured.when().get("/mybatis/plus/user/1").then()
-                .body(is("{\"id\":1,\"name\":\"Test User1\",\"externalId\":\"ccb16b65-8924-4c3f-8c55-681d85a16e79\"}"));
+                .body("id", is(1))
+                .body("name", is("Test User1"))
+                .body("externalId", is("ccb16b65-8924-4c3f-8c55-681d85a16e79"));
 
         RestAssured.when().get("/mybatis/plus/user/page/1/2").then().assertThat()
                 .body("records[0].name", is("Test User1"))
