@@ -191,40 +191,49 @@ public class TransactionalSqlSession implements SqlSession {
 
         @Override
         public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
+            Transaction transaction = getActiveTransaction();
             SqlSession sqlSession = null;
             try {
-                sqlSession = getSqlSession();
+                sqlSession = getSqlSession(transaction);
                 Object result = method.invoke(sqlSession, args);
                 sqlSession.commit();
                 return result;
             } catch (Throwable t) {
-                sqlSession.rollback();
+                if (sqlSession != null) {
+                    sqlSession.rollback();
+                }
                 throw ExceptionUtil.unwrapThrowable(t);
             } finally {
-                if (!isTransactionActive() && sqlSession != null) {
+                // Transactional sessions are owned by their completion callbacks, even after a timeout.
+                if (transaction == null && sqlSession != null) {
                     sqlSession.close();
                 }
             }
         }
 
-        private SqlSession getSqlSession() throws Exception {
-            if (isTransactionActive()) {
-                SqlSession sqlSession = sqlSessionMap.computeIfAbsent(transactionManager.getTransaction(),
-                        (transaction) -> {
+        private SqlSession getSqlSession(Transaction transaction) throws Exception {
+            if (transaction != null) {
+                SqlSession sqlSession = sqlSessionMap.computeIfAbsent(transaction,
+                        (tx) -> {
                             SqlSession session = sqlSessionFactory.openSession();
                             try {
-                                transaction.registerSynchronization(new Synchronization() {
+                                tx.registerSynchronization(new Synchronization() {
                                     @Override
                                     public void beforeCompletion() {
-                                        session.close();
-                                        sqlSessionMap.remove(transaction);
+                                        closeSqlSession(tx);
                                     }
 
                                     @Override
                                     public void afterCompletion(int status) {
+                                        closeSqlSession(tx);
                                     }
                                 });
                             } catch (Exception e) {
+                                try {
+                                    session.close();
+                                } catch (Exception closeException) {
+                                    e.addSuppressed(closeException);
+                                }
                                 throw new RuntimeException(
                                         "Session " + session + " can not register synchronization in transaction ", e);
                             }
@@ -236,17 +245,27 @@ public class TransactionalSqlSession implements SqlSession {
             }
         }
 
-        private boolean isTransactionActive() {
+        private void closeSqlSession(Transaction transaction) {
+            // Remove first so a failed close cannot retain the session or cause another callback to close it again.
+            SqlSession session = sqlSessionMap.remove(transaction);
+            if (session != null) {
+                session.close();
+            }
+        }
+
+        private Transaction getActiveTransaction() {
             try {
                 if (transactionManager == null) {
-                    return false;
+                    return null;
                 }
                 Transaction tx = transactionManager.getTransaction();
-                return tx != null
-                        && (tx.getStatus() == Status.STATUS_ACTIVE || tx.getStatus() == Status.STATUS_MARKED_ROLLBACK);
+                if (tx != null && (tx.getStatus() == Status.STATUS_ACTIVE || tx.getStatus() == Status.STATUS_MARKED_ROLLBACK)) {
+                    return tx;
+                }
             } catch (Exception e) {
-                return false;
+                return null;
             }
+            return null;
         }
     }
 }
