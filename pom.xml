@@ -9,7 +9,7 @@
   <groupId>io.quarkiverse.mybatis</groupId>
   <artifactId>quarkus-parent</artifactId>
   <name>Quarkus - Parent</name>
-  <version>999-SNAPSHOT</version>
+  <version>2.x-999-SNAPSHOT</version>
   <packaging>pom</packaging>
   <properties>
     <quarkus.version>4.0.0.Beta1</quarkus.version>
