@@ -8,11 +8,20 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Proxy;
+import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.atomic.AtomicReference;
+import java.util.function.Function;
 
 import jakarta.transaction.RollbackException;
 import jakarta.transaction.Status;
@@ -33,10 +42,14 @@ class TransactionalSqlSessionTest {
     private final CountDownLatch closed = new CountDownLatch(1);
     private final CountDownLatch completed = new CountDownLatch(1);
     private final AtomicBoolean sessionClosed = new AtomicBoolean();
+    private final List<String> events = new CopyOnWriteArrayList<>();
+    private final AtomicReference<Synchronization> synchronization = new AtomicReference<>();
     private volatile Thread closingThread;
     private volatile Thread completionThread;
     private boolean waitForTimeout;
     private RuntimeException invocationFailure;
+    private RuntimeException openFailure;
+    private RuntimeException commitFailure;
     private RuntimeException rollbackFailure;
     private RuntimeException closeFailure;
     private TransactionalSqlSession session;
@@ -50,6 +63,7 @@ class TransactionalSqlSessionTest {
                     if (method.getName().equals("toString")) {
                         return "Instrumented SqlSession";
                     }
+                    events.add(method.getName().equals("getConnection") ? "delegate" : method.getName());
                     if (method.getName().equals("close")) {
                         assertTrue(sessionClosed.compareAndSet(false, true), "Session closed twice");
                         closes.incrementAndGet();
@@ -60,6 +74,9 @@ class TransactionalSqlSessionTest {
                         }
                     } else {
                         assertTrue(!sessionClosed.get(), "Operation on closed session: " + method.getName());
+                        if (method.getName().equals("commit") && commitFailure != null) {
+                            throw commitFailure;
+                        }
                         if (method.getName().equals("rollback") && rollbackFailure != null) {
                             throw rollbackFailure;
                         }
@@ -67,9 +84,9 @@ class TransactionalSqlSessionTest {
                             assertTrue(completed.await(10, TimeUnit.SECONDS), "Transaction Reaper did not complete cleanup");
                             assertTrue(sessionMap().isEmpty(), "Completion must remove the entry while the call is in flight");
                             assertEquals(0, closes.get(), "Session closed while an invocation was still using it");
-                            if (invocationFailure != null) {
-                                throw invocationFailure;
-                            }
+                        }
+                        if (method.getName().equals("getConnection") && invocationFailure != null) {
+                            throw invocationFailure;
                         }
                     }
                     return null;
@@ -80,6 +97,9 @@ class TransactionalSqlSessionTest {
                         throw new UnsupportedOperationException(method.getName());
                     }
                     opens.incrementAndGet();
+                    if (openFailure != null) {
+                        throw openFailure;
+                    }
                     return delegate;
                 });
         session = new TransactionalSqlSession(factory, transactionManager);
@@ -113,6 +133,7 @@ class TransactionalSqlSessionTest {
         transactionManager.commit();
 
         assertCleanedUp();
+        assertEquals(List.of("delegate", "commit", "delegate", "commit", "close"), events);
     }
 
     @Test
@@ -157,6 +178,7 @@ class TransactionalSqlSessionTest {
         assertNotSame(Thread.currentThread(), completionThread);
         assertSame(Thread.currentThread(), closingThread);
         assertCleanedUp();
+        assertEquals(List.of("delegate", "commit", "close"), events);
     }
 
     @Test
@@ -168,6 +190,7 @@ class TransactionalSqlSessionTest {
 
         assertSame(Thread.currentThread(), closingThread);
         assertCleanedUp();
+        assertEquals(List.of("delegate", "rollback", "close"), events);
     }
 
     @Test
@@ -236,6 +259,187 @@ class TransactionalSqlSessionTest {
         session.getConnection();
 
         assertCleanedUp();
+        assertEquals(List.of("delegate", "commit", "close"), events);
+    }
+
+    @Test
+    void openFailurePreservesOriginalException() throws Exception {
+        openFailure = new IllegalStateException("Cannot open session");
+        transactionManager.begin();
+
+        assertSame(openFailure, assertThrows(IllegalStateException.class, session::getConnection));
+
+        transactionManager.rollback();
+        assertEquals(1, opens.get());
+        assertEquals(0, closes.get());
+        assertTrue(sessionMap().isEmpty());
+        assertTrue(events.isEmpty());
+    }
+
+    @Test
+    void nonTransactionalCommitFailureRollsBackAndCloses() throws Exception {
+        commitFailure = new IllegalStateException("Session commit failed");
+
+        assertSame(commitFailure, assertThrows(IllegalStateException.class, session::getConnection));
+
+        assertCleanedUp();
+        assertEquals(List.of("delegate", "commit", "rollback", "close"), events);
+    }
+
+    @Test
+    void transactionalCommitFailureReleasesSessionForCompletion() throws Exception {
+        commitFailure = new IllegalStateException("Session commit failed");
+        transactionManager.begin();
+
+        assertSame(commitFailure, assertThrows(IllegalStateException.class, session::getConnection));
+        assertEquals(0, closes.get());
+        assertEquals(1, sessionMap().size());
+        transactionManager.rollback();
+
+        assertCleanedUp();
+        assertEquals(List.of("delegate", "commit", "rollback", "close"), events);
+    }
+
+    @Test
+    void nonTransactionalCleanupFailuresDoNotMaskInvocationFailure() throws Exception {
+        invocationFailure = new IllegalStateException("Invocation failed");
+        rollbackFailure = new IllegalStateException("Session rollback failed");
+        closeFailure = new IllegalStateException("Session close failed");
+
+        RuntimeException failure = assertThrows(IllegalStateException.class, session::getConnection);
+
+        assertSame(invocationFailure, failure);
+        assertEquals(List.of(rollbackFailure, closeFailure), List.of(failure.getSuppressed()));
+        assertCleanedUp();
+        assertEquals(List.of("delegate", "rollback", "close"), events);
+    }
+
+    @Test
+    void completionBeforeAcquireRejectsInvocation() throws Exception {
+        useControlledTransaction(null, null);
+        PausingSessionMap map = installPausingMap();
+        ExecutorService executor = Executors.newSingleThreadExecutor();
+        try {
+            Future<?> invocation = executor.submit(() -> session.getConnection());
+            await(map.retrieved);
+
+            synchronization.get().afterCompletion(Status.STATUS_ROLLEDBACK);
+            assertCleanedUp();
+            map.allowAcquire.countDown();
+
+            assertRejected(invocation);
+            assertEquals(List.of("close"), events);
+            assertCleanedUp();
+        } finally {
+            map.allowAcquire.countDown();
+            executor.shutdownNow();
+            assertTrue(executor.awaitTermination(10, TimeUnit.SECONDS));
+        }
+    }
+
+    @Test
+    void completionDuringRegistrationDoesNotLoseUnpublishedSession() throws Exception {
+        CountDownLatch registered = new CountDownLatch(1);
+        CountDownLatch allowPublication = new CountDownLatch(1);
+        useControlledTransaction(registered, allowPublication);
+        PausingSessionMap map = installPausingMap();
+        ExecutorService executor = Executors.newFixedThreadPool(2);
+        try {
+            Future<?> invocation = executor.submit(() -> session.getConnection());
+            await(registered);
+            assertTrue(map.isEmpty(), "Session must not have been published yet");
+            Future<?> completion = executor.submit(() -> synchronization.get().afterCompletion(Status.STATUS_ROLLEDBACK));
+            await(map.removalStarted);
+
+            // ConcurrentHashMap.remove may wait for the mapping function; never wait for it inside that function.
+            allowPublication.countDown();
+            await(map.retrieved);
+            completion.get(10, TimeUnit.SECONDS);
+            assertCleanedUp();
+            map.allowAcquire.countDown();
+
+            assertRejected(invocation);
+            synchronization.get().afterCompletion(Status.STATUS_ROLLEDBACK);
+            assertCleanedUp();
+            assertEquals(List.of("close"), events);
+        } finally {
+            allowPublication.countDown();
+            map.allowAcquire.countDown();
+            executor.shutdownNow();
+            assertTrue(executor.awaitTermination(10, TimeUnit.SECONDS));
+        }
+    }
+
+    private void assertRejected(Future<?> invocation) {
+        ExecutionException failure = assertThrows(ExecutionException.class, () -> invocation.get(10, TimeUnit.SECONDS));
+        assertTrue(failure.getCause() instanceof IllegalStateException);
+        assertEquals("Transaction completed before the SqlSession could be acquired", failure.getCause().getMessage());
+    }
+
+    private void useControlledTransaction(CountDownLatch registered, CountDownLatch allowPublication) {
+        Transaction transaction = (Transaction) Proxy.newProxyInstance(Transaction.class.getClassLoader(),
+                new Class<?>[] { Transaction.class }, (proxy, method, args) -> {
+                    switch (method.getName()) {
+                        case "getStatus":
+                            return Status.STATUS_ACTIVE;
+                        case "hashCode":
+                            return System.identityHashCode(proxy);
+                        case "equals":
+                            return proxy == args[0];
+                        case "registerSynchronization":
+                            synchronization.set((Synchronization) args[0]);
+                            if (registered != null) {
+                                registered.countDown();
+                                await(allowPublication);
+                            }
+                            return null;
+                        default:
+                            throw new UnsupportedOperationException(method.getName());
+                    }
+                });
+        TransactionManager manager = (TransactionManager) Proxy.newProxyInstance(TransactionManager.class.getClassLoader(),
+                new Class<?>[] { TransactionManager.class }, (proxy, method, args) -> {
+                    if (method.getName().equals("getTransaction")) {
+                        return transaction;
+                    }
+                    throw new UnsupportedOperationException(method.getName());
+                });
+        session = new TransactionalSqlSession(factory, manager);
+    }
+
+    private PausingSessionMap installPausingMap() throws Exception {
+        PausingSessionMap map = new PausingSessionMap();
+        sessionMapField().set(interceptor(), map);
+        return map;
+    }
+
+    private static void await(CountDownLatch latch) {
+        try {
+            assertTrue(latch.await(10, TimeUnit.SECONDS), "Timed out waiting for controlled ordering");
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+            throw new AssertionError(e);
+        }
+    }
+
+    private static class PausingSessionMap extends ConcurrentHashMap<Transaction, Object> {
+        final CountDownLatch retrieved = new CountDownLatch(1);
+        final CountDownLatch allowAcquire = new CountDownLatch(1);
+        final CountDownLatch removalStarted = new CountDownLatch(1);
+
+        @Override
+        public Object computeIfAbsent(Transaction transaction, Function<? super Transaction, ?> mappingFunction) {
+            Object holder = super.computeIfAbsent(transaction, mappingFunction);
+            retrieved.countDown();
+            await(allowAcquire);
+            return holder;
+        }
+
+        @Override
+        public Object remove(Object transaction) {
+            removalStarted.countDown();
+            return super.remove(transaction);
+        }
     }
 
     private void assertCleanedUp() throws Exception {
@@ -281,11 +485,18 @@ class TransactionalSqlSessionTest {
     }
 
     private Map<?, ?> sessionMap() throws Exception {
+        return (Map<?, ?>) sessionMapField().get(interceptor());
+    }
+
+    private Object interceptor() throws Exception {
         Field proxyField = TransactionalSqlSession.class.getDeclaredField("sqlSessionProxy");
         proxyField.setAccessible(true);
-        Object interceptor = Proxy.getInvocationHandler(proxyField.get(session));
-        Field mapField = interceptor.getClass().getDeclaredField("sqlSessionMap");
+        return Proxy.getInvocationHandler(proxyField.get(session));
+    }
+
+    private Field sessionMapField() throws Exception {
+        Field mapField = interceptor().getClass().getDeclaredField("sqlSessionMap");
         mapField.setAccessible(true);
-        return (Map<?, ?>) mapField.get(interceptor);
+        return mapField;
     }
 }
