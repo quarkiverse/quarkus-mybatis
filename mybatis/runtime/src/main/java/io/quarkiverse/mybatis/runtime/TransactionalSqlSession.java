@@ -187,69 +187,90 @@ public class TransactionalSqlSession implements SqlSession {
     }
 
     private class TransactionalSqlSessionInterceptor implements InvocationHandler {
-        private final Map<Transaction, SqlSession> sqlSessionMap = new ConcurrentHashMap<>();
+        private final Map<Transaction, SqlSessionHolder> sqlSessionMap = new ConcurrentHashMap<>();
 
         @Override
         public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
             Transaction transaction = getActiveTransaction();
+            SqlSessionHolder holder = null;
             SqlSession sqlSession = null;
+            Throwable failure = null;
             try {
-                sqlSession = getSqlSession(transaction);
+                if (transaction == null) {
+                    sqlSession = sqlSessionFactory.openSession();
+                } else {
+                    holder = getSessionHolder(transaction);
+                    sqlSession = holder.acquire();
+                }
                 Object result = method.invoke(sqlSession, args);
                 sqlSession.commit();
                 return result;
             } catch (Throwable t) {
+                failure = ExceptionUtil.unwrapThrowable(t);
                 if (sqlSession != null) {
-                    sqlSession.rollback();
+                    try {
+                        sqlSession.rollback();
+                    } catch (Throwable rollbackFailure) {
+                        if (rollbackFailure != failure) {
+                            failure.addSuppressed(rollbackFailure);
+                        }
+                    }
                 }
-                throw ExceptionUtil.unwrapThrowable(t);
+                throw failure;
             } finally {
-                // Transactional sessions are owned by their completion callbacks, even after a timeout.
-                if (transaction == null && sqlSession != null) {
-                    sqlSession.close();
+                if (sqlSession != null) {
+                    try {
+                        if (holder == null) {
+                            sqlSession.close();
+                        } else {
+                            holder.release();
+                        }
+                    } catch (Throwable closeFailure) {
+                        if (failure == null) {
+                            throw closeFailure;
+                        }
+                        if (closeFailure != failure) {
+                            failure.addSuppressed(closeFailure);
+                        }
+                    }
                 }
             }
         }
 
-        private SqlSession getSqlSession(Transaction transaction) throws Exception {
-            if (transaction != null) {
-                SqlSession sqlSession = sqlSessionMap.computeIfAbsent(transaction,
-                        (tx) -> {
-                            SqlSession session = sqlSessionFactory.openSession();
-                            try {
-                                tx.registerSynchronization(new Synchronization() {
-                                    @Override
-                                    public void beforeCompletion() {
-                                        closeSqlSession(tx);
-                                    }
-
-                                    @Override
-                                    public void afterCompletion(int status) {
-                                        closeSqlSession(tx);
-                                    }
-                                });
-                            } catch (Exception e) {
-                                try {
-                                    session.close();
-                                } catch (Exception closeException) {
-                                    e.addSuppressed(closeException);
+        private SqlSessionHolder getSessionHolder(Transaction transaction) {
+            return sqlSessionMap.computeIfAbsent(transaction,
+                    (tx) -> {
+                        SqlSession session = sqlSessionFactory.openSession();
+                        try {
+                            tx.registerSynchronization(new Synchronization() {
+                                @Override
+                                public void beforeCompletion() {
+                                    closeSqlSession(tx);
                                 }
-                                throw new RuntimeException(
-                                        "Session " + session + " can not register synchronization in transaction ", e);
+
+                                @Override
+                                public void afterCompletion(int status) {
+                                    closeSqlSession(tx);
+                                }
+                            });
+                        } catch (Exception e) {
+                            try {
+                                session.close();
+                            } catch (Exception closeException) {
+                                e.addSuppressed(closeException);
                             }
-                            return session;
-                        });
-                return sqlSession;
-            } else {
-                return sqlSessionFactory.openSession();
-            }
+                            throw new RuntimeException(
+                                    "Session " + session + " can not register synchronization in transaction ", e);
+                        }
+                        return new SqlSessionHolder(session);
+                    });
         }
 
         private void closeSqlSession(Transaction transaction) {
-            // Remove first so a failed close cannot retain the session or cause another callback to close it again.
-            SqlSession session = sqlSessionMap.remove(transaction);
-            if (session != null) {
-                session.close();
+            // Detach immediately; a Reaper callback must not close a session still in use or wait for the invocation.
+            SqlSessionHolder holder = sqlSessionMap.remove(transaction);
+            if (holder != null) {
+                holder.requestClose();
             }
         }
 
@@ -266,6 +287,48 @@ public class TransactionalSqlSession implements SqlSession {
                 return null;
             }
             return null;
+        }
+    }
+
+    private static class SqlSessionHolder {
+        private final SqlSession session;
+        private int invocations;
+        private boolean closeRequested;
+
+        private SqlSessionHolder(SqlSession session) {
+            this.session = session;
+        }
+
+        private synchronized SqlSession acquire() {
+            if (closeRequested) {
+                throw new IllegalStateException("Transaction completed before the SqlSession could be acquired");
+            }
+            invocations++;
+            return session;
+        }
+
+        private void release() {
+            boolean close;
+            synchronized (this) {
+                close = --invocations == 0 && closeRequested;
+            }
+            if (close) {
+                session.close();
+            }
+        }
+
+        private void requestClose() {
+            boolean close;
+            synchronized (this) {
+                if (closeRequested) {
+                    return;
+                }
+                closeRequested = true;
+                close = invocations == 0;
+            }
+            if (close) {
+                session.close();
+            }
         }
     }
 }
