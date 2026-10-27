@@ -295,6 +295,19 @@ Injects session factory for data source `user`:
 SqlSessionFactory sqlSessionFactory;
 ----
 
+== Transaction completion and session cleanup
+
+With managed transactions, session cleanup runs on both commit and rollback, including transaction timeouts.
+Completion removes the transaction's cached session entry. If an invocation is still using the session,
+closing is deferred until the last active invocation exits; otherwise the session closes immediately.
+An empty session map therefore does not prove that all underlying resources have already been released.
+If an invocation never returns, its session close remains deferred. Configure appropriate JDBC statement,
+driver/network, and application timeouts for the operations in use; a JTA timeout alone does not guarantee
+that a blocked operation terminates.
+
+The invocation count coordinates session closing only. It does not serialize business operations or make
+the same MyBatis `SqlSession` safe for concurrent use by multiple threads.
+
 == XML Configuration Support
 
 You need to set ```quarkus.mybatis.xmlconfig.enable``` to ```true``` and set ```quarkus.mybatis.xmlconfig.path``` to the
