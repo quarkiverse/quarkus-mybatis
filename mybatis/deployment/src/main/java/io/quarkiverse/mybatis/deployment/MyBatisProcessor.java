@@ -34,6 +34,7 @@ import javax.xml.stream.XMLStreamReader;
 
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Named;
+import jakarta.inject.Singleton;
 
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.ibatis.annotations.CacheNamespace;
@@ -573,10 +574,12 @@ public class MyBatisProcessor {
                             sessionManagerBuildItem.getSqlSessionManager()));
             syntheticBeanBuildItemBuildProducer.produce(configurator.done());
         }
+        // Expose MyBatis-owned handler instances directly. CDI client proxies would also be
+        // discovered as TypeHandlers by XML package scanning during native builds.
         for (MyBatisMappedTypeBuildItem i : myBatisMappedTypesBuildItems) {
             SyntheticBeanBuildItem.ExtendedBeanConfigurator configurator = SyntheticBeanBuildItem
                     .configure(i.getMappedTypeName())
-                    .scope(ApplicationScoped.class)
+                    .scope(Singleton.class)
                     .setRuntimeInit()
                     .unremovable()
                     .supplier(recorder.MyBatisMappedTypeSupplier(i.getMappedTypeName().toString(),
@@ -586,7 +589,7 @@ public class MyBatisProcessor {
         for (MyBatisMappedJdbcTypeBuildItem i : myBatisMappedJdbcTypesBuildItems) {
             SyntheticBeanBuildItem.ExtendedBeanConfigurator configurator = SyntheticBeanBuildItem
                     .configure(i.getMappedJdbcTypeName())
-                    .scope(ApplicationScoped.class)
+                    .scope(Singleton.class)
                     .setRuntimeInit()
                     .unremovable()
                     .supplier(recorder.MyBatisMappedJdbcTypeSupplier(i.getMappedJdbcTypeName().toString(),
