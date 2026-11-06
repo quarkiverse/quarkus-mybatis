@@ -1,8 +1,11 @@
 package io.quarkiverse.mybatis.deployment;
 
+import java.io.IOException;
+import java.io.InputStream;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.nio.file.Files;
+import java.nio.file.Path;
 import java.sql.Time;
 import java.sql.Timestamp;
 import java.time.Instant;
@@ -24,8 +27,14 @@ import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
+import javax.xml.stream.XMLInputFactory;
+import javax.xml.stream.XMLStreamConstants;
+import javax.xml.stream.XMLStreamException;
+import javax.xml.stream.XMLStreamReader;
+
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Named;
+import jakarta.inject.Singleton;
 
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.ibatis.annotations.CacheNamespace;
@@ -39,6 +48,7 @@ import org.apache.ibatis.annotations.ResultType;
 import org.apache.ibatis.annotations.Results;
 import org.apache.ibatis.annotations.SelectProvider;
 import org.apache.ibatis.annotations.UpdateProvider;
+import org.apache.ibatis.builder.BuilderException;
 import org.apache.ibatis.builder.xml.XMLMapperEntityResolver;
 import org.apache.ibatis.cache.decorators.LruCache;
 import org.apache.ibatis.cache.impl.PerpetualCache;
@@ -181,7 +191,7 @@ public class MyBatisProcessor {
         IndexView index = indexBuildItem.getIndex();
         Set<DotName> cachedMappers = new HashSet<>();
         collectAnnotationCachedMappers(index, cachedMappers);
-        collectXmlCachedMappers(applicationArchivesBuildItem, cachedMappers);
+        collectXmlCachedMappers(applicationArchivesBuildItem, mappers, cachedMappers);
 
         Set<DotName> visited = new HashSet<>();
         Set<DotName> resultTypes = new HashSet<>();
@@ -229,32 +239,64 @@ public class MyBatisProcessor {
     }
 
     private static void collectXmlCachedMappers(ApplicationArchivesBuildItem applicationArchivesBuildItem,
-            Set<DotName> cachedMappers) {
+            List<MyBatisMapperBuildItem> mappers, Set<DotName> cachedMappers) {
+        Set<String> mapperResources = mappers.stream()
+                .map(mapper -> mapper.getMapperName().toString().replace('.', '/') + ".xml")
+                .collect(Collectors.toSet());
+        XMLInputFactory rootProbe = XMLInputFactory.newDefaultFactory();
+        rootProbe.setProperty(XMLInputFactory.IS_SUPPORTING_EXTERNAL_ENTITIES, false);
+        // The probe only needs the root element. MyBatis resolves the DTD when parsing the mapper.
+        rootProbe.setXMLResolver((publicId, systemId, baseUri, namespace) -> InputStream.nullInputStream());
         for (ApplicationArchive archive : applicationArchivesBuildItem.getAllApplicationArchives()) {
             archive.accept(tree -> tree.walk(visit -> {
-                if (!visit.getRelativePath("/").endsWith(".xml") || Files.isDirectory(visit.getPath())) {
+                String resource = visit.getRelativePath("/");
+                Path path = visit.getPath();
+                if (!resource.endsWith(".xml") || Files.isDirectory(path)) {
                     return;
                 }
+                boolean mapperResource = mapperResources.contains(resource);
                 try {
-                    String content = Files.readString(visit.getPath());
-                    if (!content.contains("<mapper") || !content.contains("<cache")) {
+                    if (!mapperResource && !hasMapperRoot(rootProbe, path)) {
                         return;
                     }
-                    XPathParser parser = new XPathParser(content, false, null, new XMLMapperEntityResolver());
-                    XNode mapper = parser.evalNode("/mapper");
-                    String namespace = mapper != null ? mapper.getStringAttribute("namespace") : null;
-                    if (namespace == null) {
-                        return;
+                    mapperResource = true;
+                    try (InputStream input = Files.newInputStream(path)) {
+                        XPathParser parser = new XPathParser(input, false, null, new XMLMapperEntityResolver());
+                        XNode mapper = parser.evalNode("/mapper");
+                        String namespace = mapper != null ? mapper.getStringAttribute("namespace") : null;
+                        if (namespace == null) {
+                            return;
+                        }
+                        XNode cache = parser.evalNode("/mapper/cache");
+                        if ((cache != null && !cache.getBooleanAttribute("readOnly", false))
+                                || parser.evalNode("/mapper/cache-ref") != null) {
+                            cachedMappers.add(DotName.createSimple(namespace));
+                        }
                     }
-                    XNode cache = parser.evalNode("/mapper/cache");
-                    if ((cache != null && !cache.getBooleanAttribute("readOnly", false))
-                            || parser.evalNode("/mapper/cache-ref") != null) {
-                        cachedMappers.add(DotName.createSimple(namespace));
+                } catch (IOException | XMLStreamException | BuilderException e) {
+                    if (mapperResource) {
+                        LOG.warn("Unable to scan mapper XML " + resource + " for native cache serialization", e);
+                    } else {
+                        LOG.debugf(e, "Unable to identify mapper XML from %s", resource);
                     }
-                } catch (Exception e) {
-                    LOG.debugf(e, "Unable to determine second level cache usage from %s", visit.getRelativePath("/"));
                 }
             }));
+        }
+    }
+
+    private static boolean hasMapperRoot(XMLInputFactory rootProbe, Path path) throws IOException, XMLStreamException {
+        try (InputStream input = Files.newInputStream(path)) {
+            XMLStreamReader reader = rootProbe.createXMLStreamReader(input);
+            try {
+                while (reader.hasNext()) {
+                    if (reader.next() == XMLStreamConstants.START_ELEMENT) {
+                        return "mapper".equals(reader.getLocalName()) && reader.getName().getPrefix().isEmpty();
+                    }
+                }
+                return false;
+            } finally {
+                reader.close();
+            }
         }
     }
 
@@ -532,10 +574,12 @@ public class MyBatisProcessor {
                             sessionManagerBuildItem.getSqlSessionManager()));
             syntheticBeanBuildItemBuildProducer.produce(configurator.done());
         }
+        // Expose MyBatis-owned handler instances directly, without CDI client proxies
+        // that XML TypeHandler package scanning could otherwise discover.
         for (MyBatisMappedTypeBuildItem i : myBatisMappedTypesBuildItems) {
             SyntheticBeanBuildItem.ExtendedBeanConfigurator configurator = SyntheticBeanBuildItem
                     .configure(i.getMappedTypeName())
-                    .scope(ApplicationScoped.class)
+                    .scope(Singleton.class)
                     .setRuntimeInit()
                     .unremovable()
                     .supplier(recorder.MyBatisMappedTypeSupplier(i.getMappedTypeName().toString(),
@@ -545,7 +589,7 @@ public class MyBatisProcessor {
         for (MyBatisMappedJdbcTypeBuildItem i : myBatisMappedJdbcTypesBuildItems) {
             SyntheticBeanBuildItem.ExtendedBeanConfigurator configurator = SyntheticBeanBuildItem
                     .configure(i.getMappedJdbcTypeName())
-                    .scope(ApplicationScoped.class)
+                    .scope(Singleton.class)
                     .setRuntimeInit()
                     .unremovable()
                     .supplier(recorder.MyBatisMappedJdbcTypeSupplier(i.getMappedJdbcTypeName().toString(),

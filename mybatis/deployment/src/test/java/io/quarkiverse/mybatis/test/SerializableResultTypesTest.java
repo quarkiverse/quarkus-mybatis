@@ -1,18 +1,22 @@
 package io.quarkiverse.mybatis.test;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
+import java.util.logging.Level;
 import java.util.stream.Collectors;
 
 import org.apache.ibatis.annotations.CacheNamespace;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.cursor.Cursor;
 import org.jboss.shrinkwrap.api.ShrinkWrap;
+import org.jboss.shrinkwrap.api.asset.ByteArrayAsset;
 import org.jboss.shrinkwrap.api.asset.StringAsset;
 import org.jboss.shrinkwrap.api.spec.JavaArchive;
 import org.junit.jupiter.api.Test;
@@ -27,9 +31,10 @@ import io.quarkus.test.QuarkusExtensionTest;
 public class SerializableResultTypesTest {
 
     private static final String XML_MAPPER = """
-            <?xml version="1.0" encoding="UTF-8"?>
+            <?xml version="1.0" encoding="ISO-8859-1"?>
             <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
             <mapper namespace="%s">
+                <!-- café -->
                 <cache/>
             </mapper>
             """.formatted(XmlCachedMapper.class.getName());
@@ -42,7 +47,18 @@ public class SerializableResultTypesTest {
                                     XmlCachedMapper.class, XmlCachedResult.class,
                                     ReadOnlyCachedMapper.class, ReadOnlyResult.class,
                                     UncachedMapper.class, UncachedResult.class)
-                            .addAsResource(new StringAsset(XML_MAPPER), "cache/XmlCachedMapper.xml"))
+                            .addAsResource(new ByteArrayAsset(XML_MAPPER.getBytes(StandardCharsets.ISO_8859_1)),
+                                    "cache/XmlCachedMapper.xml")
+                            .addAsResource(new StringAsset("<mapper namespace=\"example.MalformedMapper\"><cache></mapper>"),
+                                    "cache/MalformedMapper.xml")
+                            .addAsResource(new StringAsset("<settings"), "cache/Unrelated.xml"))
+            .setLogRecordPredicate(record -> record.getLevel().intValue() >= Level.WARNING.intValue()
+                    && record.getLoggerName().equals("io.quarkiverse.mybatis.deployment.MyBatisProcessor"))
+            .assertLogRecords(records -> {
+                assertEquals(1, records.size());
+                assertTrue(records.getFirst().getMessage().contains("cache/MalformedMapper.xml"));
+                assertNotNull(records.getFirst().getThrown());
+            })
             .addBuildChainCustomizer(builder -> builder.addBuildStep(SerializableResultTypesTest::verify)
                     .consumes(ReflectiveHierarchyBuildItem.class)
                     .consumes(ReflectiveClassBuildItem.class)

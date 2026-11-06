@@ -1,1 +1,2 @@
 * xref:index.adoc[Introduction]
+* xref:advanced-configuration.adoc[Advanced configuration]

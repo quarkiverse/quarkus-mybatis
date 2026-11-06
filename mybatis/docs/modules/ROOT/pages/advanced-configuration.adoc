@@ -1,0 +1,60 @@
+= Advanced configuration and mapper registration
+
+The extension's `MyBatisConfiguration` and `MyBatisPlusConfiguration`, including configurations
+loaded from XML, integrate mapper/cache registration with the transaction cache coordinator.
+For application transaction setup and cache limitations, see xref:index.adoc#transactions[Transactions and session cleanup].
+
+== Custom configurations
+
+Complete initial configuration before constructing the first `TransactionalSqlSession`.
+For later registration, extend the extension's configuration class or delegate the relevant
+registration methods through `CacheRegistrationSupport`:
+
+[source, java]
+----
+@Override
+public void addMappedStatement(MappedStatement statement) {
+    CacheRegistrationSupport.addMappedStatement(statement, super::addMappedStatement);
+}
+
+@Override
+public void addCache(Cache cache) {
+    CacheRegistrationSupport.addCache(this, cache, super::addCache);
+}
+----
+
+These overrides are for a custom subclass of MyBatis `Configuration` that does not already inherit
+the extension's hooks. `CacheRegistrationSupport` is in `io.quarkiverse.mybatis.runtime`.
+The publisher callbacks must perform superclass registration without SQL/cache I/O or throwing
+after successful publication. Cache identity accessors must likewise avoid coordinated I/O.
+
+Without these hooks, existing protected statements and later uncached statements remain usable.
+With second-level caching enabled, calls depending on a later unprotected cached statement are
+rejected before opening/acquiring a session; validation also follows nested mappings and select-key statements.
+Disabling second-level caching permits these statements. Recreating the facade does not repair them.
+Custom resolvers exposing additional statements after facade creation can call
+`CacheRegistrationSupport.prepare(statement)` once before exposure, and must return the same
+prepared statement throughout an invocation, including nested queries.
+
+== Registration and extension boundaries
+
+Finish registering a mapper before using it. Registration hooks do not make multi-step mapper
+registration, removal or replacement atomic. Coordinate replacements and result-map changes
+with application calls; concurrent replacement is unsupported. Replacing a previously used
+statement ID through these hooks invalidates existing caches, even if registration later fails.
+Finalize executor settings, plugins and transaction factories before serving calls.
+
+Custom `Configuration.newExecutor` overrides must preserve standard executor creation and its
+interceptor chain to use the extension's lazy-loading lifecycle protection, for example by decorating
+`super.newExecutor(...)`. Completely replacing executor or result-loader creation is outside that
+protection and requires its own deferred-query resource management.
+
+Native images still require mapper proxies, result types and resources to be known at build time.
+Runtime registration does not remove those requirements.
+
+Custom session factories must release resources acquired by an opener that throws before returning
+a session. Custom factories, configurations and plugins can cause additional conservative cache
+invalidation when the facade cannot establish whether failed work executed SQL.
+Custom cache decorators must not hide a `BlockingCache`. Cache-provider callbacks must not
+recursively request cross-region publication or recovery; these operations can be rejected with
+`IllegalStateException`. A failed invalidation disables shared-cache access until recovery succeeds.
