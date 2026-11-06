@@ -410,11 +410,12 @@ public class MyBatisRecorder {
         };
     }
 
+    @SuppressWarnings("unchecked")
     public Supplier<Object> MyBatisMappedTypeSupplier(String name, RuntimeValue<TransactionalSqlSession> sqlSessionManager) {
         return () -> {
             try {
                 return sqlSessionManager.getValue().getConfiguration().getTypeHandlerRegistry()
-                        .getTypeHandler(Resources.classForName(name));
+                        .getMappingTypeHandler((Class<? extends TypeHandler<?>>) Resources.classForName(name));
             } catch (ClassNotFoundException e) {
                 return null;
             }
@@ -423,14 +424,7 @@ public class MyBatisRecorder {
 
     public Supplier<Object> MyBatisMappedJdbcTypeSupplier(String name,
             RuntimeValue<TransactionalSqlSession> sqlSessionManager) {
-        return () -> {
-            try {
-                return sqlSessionManager.getValue().getConfiguration().getTypeHandlerRegistry()
-                        .getTypeHandler(Resources.classForName(name));
-            } catch (ClassNotFoundException e) {
-                return null;
-            }
-        };
+        return MyBatisMappedTypeSupplier(name, sqlSessionManager);
     }
 
     public Supplier<Object> MyBatisSqlSessionFactorySupplier(RuntimeValue<SqlSessionFactory> sqlSessionFactory) {

@@ -11,7 +11,7 @@ To complete this guide, you need:
 
 * less than 15 minutes
 * an IDE
-* JDK 11+ installed with `JAVA_HOME` configured appropriately
+* JDK 17+ installed with `JAVA_HOME` configured appropriately
 * Apache Maven
 * A running Mysql Database server
 * GraalVM, or Docker, installed if you want to run in native mode.
@@ -41,7 +41,7 @@ cd mybatis-quickstart
 
 [TIP]
 ====
-Maven 3.6.2+ is required for this to work.
+After creating the project, use its Maven wrapper (`./mvnw`) for the remaining commands.
 ====
 
 This command generates a Maven project, with its pom.xml importing the quarkus-mybatis extension.
@@ -295,24 +295,129 @@ Injects session factory for data source `user`:
 SqlSessionFactory sqlSessionFactory;
 ----
 
-== Transaction completion and session cleanup
+[[transactions]]
+== Transactions and session cleanup
 
-With managed transactions, session cleanup runs on both commit and rollback, including transaction timeouts.
-Completion removes the transaction's cached session entry. If an invocation is still using the session,
-closing is deferred until the last active invocation exits; otherwise the session closes immediately.
-An empty session map therefore does not prove that all underlying resources have already been released.
-If an invocation never returns, its session close remains deferred. Configure appropriate JDBC statement,
-driver/network, and application timeouts for the operations in use; a JTA timeout alone does not guarantee
-that a blocked operation terminates.
+To group mapper calls into one JTA transaction, use the `MANAGED` transaction factory
+(the default), a datasource that participates in JTA, and a CDI method annotated with `@Transactional`.
 
-The invocation count coordinates session closing only. It does not serialize business operations or make
-the same MyBatis `SqlSession` safe for concurrent use by multiple threads.
+[source, properties]
+----
+quarkus.mybatis.transaction-factory=MANAGED
+quarkus.datasource.jdbc.transactions=enabled
+----
+
+For example, this service uses the `UserMapper` defined above to replace a user within one transaction:
+
+[source, java]
+----
+package org.acme.mybatis;
+
+import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.inject.Inject;
+import jakarta.transaction.Transactional;
+
+@ApplicationScoped
+public class UserService {
+    @Inject
+    UserMapper userMapper;
+
+    @Transactional
+    public void replaceUser(Integer id, String name) {
+        userMapper.removeUser(id);
+        userMapper.createUser(id, name);
+    }
+}
+----
+
+JTA controls JDBC commit and rollback. If the insert throws a runtime exception that leaves this method,
+the earlier delete is rolled back too. When using XML configuration, select `MANAGED` in the XML
+`transactionManager` element as shown below.
+
+=== Commit, rollback and failures
+
+With `MANAGED` and an active JTA transaction, successful mapper calls clear the first-level cache
+and flush BATCH statements before returning, but do not commit the JDBC transaction individually.
+A caught mapper exception does not by itself mark JTA rollback-only; earlier successful writes can
+still commit. The database or a transactional interceptor can independently require rollback.
+If failed work cannot be discarded, or session initialization fails after it could have executed SQL,
+the facade requests rollback-only. Cleanup failures are attached to the original exception.
+
+Other transaction factories retain per-call MyBatis commit behavior. In particular, `JDBC` with a
+datasource that does not enlist in JTA commits successful calls independently; an outer JTA rollback
+cannot undo those commits. Outside JTA, the facade completes and closes each MyBatis session before
+returning. Use `MANAGED` with a JTA-enabled datasource for the transaction semantics described here.
+
+=== Second-level cache behavior and limits
+
+For managed JTA sessions, eligible second-level cache results are published only after a successful
+JTA commit. Potential writes invalidate affected cache regions before executing SQL and prevent
+stale publication until transaction completion. Effects that cannot be isolated to one region
+invalidate caches across the configuration. A rollback can therefore cause extra cache misses.
+
+Rollback, timeout and unknown transaction outcomes discard pending results. An unknown outcome
+also triggers conservative invalidation when the session may have affected database state;
+known pure reads need not clear unrelated caches. Cache-provider or cleanup failures can also cause
+conservative invalidation. Cache publication is not an XA resource and cannot undo an already committed database transaction.
+
+The current managed cache implementation supports leaf `selectOne` and `selectList` queries whose
+rows contain only nulls, strings or primitive wrappers; `selectList` must return a standard `ArrayList`.
+DTOs, custom collections, nested-query results, cursors and result-handler calls do not populate
+the second-level cache. Such mappings still return their normal results. Other eligible queries
+in the same transaction can remain cacheable.
+
+Managed cursor iteration uses the creating session's cache context and bypasses second-level cache
+lookups for nested queries. Within the originating JTA transaction, lazy getters running outside a
+managed facade scope also bypass that cache, including inside an immediate facade's callback.
+Bypassing the second-level cache does not disable MyBatis's first-level cache or change database isolation.
+Immediate calls also bypass second-level caches for nested mappings that span cache regions or include uncached statements.
+
+With caching enabled, calling `TransactionalSqlSession.getConnection()` in a managed JTA session
+invalidates the configuration's caches before returning the connection, keeps invalidation protection
+until transaction completion, and disables publication from that session. JDBC writes through
+connections obtained independently of the facade are not tracked.
+
+Coordination covers calls through `TransactionalSqlSession` sharing one configuration in one process.
+It does not provide cross-node consistency or coordinate direct `SqlSessionFactory` sessions and external writers.
+Managed facades in the same JTA transaction share the cache-version boundary established by the first facade;
+a database snapshot established before any facade participates is outside this boundary.
+
+MyBatis `BlockingCache` (`blocking=true`) is rejected for managed JTA sessions when second-level
+caching is enabled, even if the current statement does not use that cache. Set `blocking=false`
+for all caches in the configuration or disable second-level caching. This rejection does not itself
+mark JTA rollback-only. Non-JTA calls continue to support blocking caches.
+
+For custom configurations and runtime mapper registration, see xref:advanced-configuration.adoc[Advanced configuration].
+
+=== Cursors and resource cleanup
+
+Consume and close cursors within the transaction that created them, using try-with-resources.
+With `REUSE`, ordinary mapper calls retain statement reuse within the call and release statements
+at the call boundary. Open cursors retain their own statements across mapper calls and use the
+same JDBC connection. Intervening facade calls clear the associated local caches so later nested
+cursor queries can observe writes made in the transaction.
+
+While the originating managed JTA session is active, lazy queries on the result's creating thread
+participate in its lifecycle protection. Outside an active mapper call or cursor read on that session,
+they use a short-lived `SIMPLE` executor sharing its JDBC connection. Query cleanup closes the
+statements without closing an open cursor or the connection.
+
+Lazy loading on another thread, or after the originating session completes, follows MyBatis's
+independent-executor path and is outside the originating session's lifecycle protection.
+
+Session resources are cleaned up on commit, rollback and timeout. Cleanup waits for an active
+facade call, protected lazy query, cursor read or cursor close to finish before closing the session.
+A JTA timeout alone does not guarantee that blocked JDBC work will terminate; configure JDBC and driver/network timeouts.
+This lifecycle protection does not make a `SqlSession` thread-safe. Do not use the same session
+concurrently or commit a transaction while another thread is still using its JDBC resources.
 
 == XML Configuration Support
 
 You need to set ```quarkus.mybatis.xmlconfig.enable``` to ```true``` and set ```quarkus.mybatis.xmlconfig.path``` to the
 mybatis xml configuration which the default value is ```mybatis-config.xml```.
-Aslo ```quarkus.mybatis.environment``` is relevant to the element of ```environment``` in the xml configuration file.
+The `quarkus.mybatis.environment` property selects the environment in the XML configuration file.
+For the JTA behavior described in <<transactions>>, use `MANAGED` in that environment's
+`transactionManager` element and enable JTA participation on its datasource.
 
 [source, text]
 ----
@@ -321,6 +426,7 @@ quarkus.datasource.h2.db-kind=h2
 quarkus.datasource.h2.username=sa
 quarkus.datasource.h2.password=sa
 quarkus.datasource.h2.jdbc.url=jdbc:h2:tcp://localhost/mem:default
+quarkus.datasource.h2.jdbc.transactions=enabled
 
 # MyBatis
 quarkus.mybatis.xmlconfig.enable=true
@@ -343,7 +449,7 @@ quarkus.mybatis.h2.initial-sql=insert-h2.sql
     <!-- setup environment with Quarkus data source -->
     <environments default="development">
         <environment id="development">
-            <transactionManager type="JDBC"/>
+            <transactionManager type="MANAGED"/>
             <dataSource type="QUARKUS">
                 <property name="db" value="h2"/>
             </dataSource>

@@ -11,7 +11,7 @@ To complete this guide, you need:
 
 * less than 15 minutes
 * an IDE
-* JDK 11+ installed with `JAVA_HOME` configured appropriately
+* JDK 17+ installed with `JAVA_HOME` configured appropriately
 * Apache Maven
 * A running Mysql Database server
 * GraalVM, or Docker, installed if you want to run in native mode.
@@ -54,7 +54,7 @@ to your project by adding the following dependency in your `pom.xml`:
 <dependency>
     <groupId>io.quarkiverse.mybatis</groupId>
     <artifactId>quarkus-mybatis-plus</artifactId>
-    <version>{quarkus-mybatis-version}</version>
+    <version>{quarkus-mybatis-plus-version}</version>
 </dependency>
 ----
 
@@ -209,7 +209,7 @@ public class MyBatisPlusResource {
     @POST
     @Produces(MediaType.TEXT_PLAIN)
     @Consumes(MediaType.APPLICATION_FORM_URLENCODED)
-    public Integer createUser(@FormParam("id") Integer id, @FormParam("name") String name) {
+    public boolean createUser(@FormParam("id") Integer id, @FormParam("name") String name) {
         User user = new User();
         user.setId(id);
         user.setName(name);
@@ -219,7 +219,7 @@ public class MyBatisPlusResource {
     @Path("/user/{id}")
     @DELETE
     @Produces(MediaType.TEXT_PLAIN)
-    public Integer removeUser(@PathParam("id") Integer id) {
+    public boolean removeUser(@PathParam("id") Integer id) {
         return userService.removeById(id);
     }
 }
