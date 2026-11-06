@@ -26,7 +26,6 @@ import java.util.stream.Collectors;
 
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Named;
-import jakarta.inject.Singleton;
 
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.ibatis.annotations.CacheNamespace;
@@ -536,7 +535,7 @@ public class MyBatisProcessor {
         for (MyBatisMappedTypeBuildItem i : myBatisMappedTypesBuildItems) {
             SyntheticBeanBuildItem.ExtendedBeanConfigurator configurator = SyntheticBeanBuildItem
                     .configure(i.getMappedTypeName())
-                    .scope(Singleton.class)
+                    .scope(ApplicationScoped.class)
                     .setRuntimeInit()
                     .unremovable()
                     .supplier(recorder.MyBatisMappedTypeSupplier(i.getMappedTypeName().toString(),
@@ -546,7 +545,7 @@ public class MyBatisProcessor {
         for (MyBatisMappedJdbcTypeBuildItem i : myBatisMappedJdbcTypesBuildItems) {
             SyntheticBeanBuildItem.ExtendedBeanConfigurator configurator = SyntheticBeanBuildItem
                     .configure(i.getMappedJdbcTypeName())
-                    .scope(Singleton.class)
+                    .scope(ApplicationScoped.class)
                     .setRuntimeInit()
                     .unremovable()
                     .supplier(recorder.MyBatisMappedJdbcTypeSupplier(i.getMappedJdbcTypeName().toString(),
