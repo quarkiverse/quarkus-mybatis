@@ -574,8 +574,8 @@ public class MyBatisProcessor {
                             sessionManagerBuildItem.getSqlSessionManager()));
             syntheticBeanBuildItemBuildProducer.produce(configurator.done());
         }
-        // Expose MyBatis-owned handler instances directly. CDI client proxies would also be
-        // discovered as TypeHandlers by XML package scanning during native builds.
+        // Expose MyBatis-owned handler instances directly, without CDI client proxies
+        // that XML TypeHandler package scanning could otherwise discover.
         for (MyBatisMappedTypeBuildItem i : myBatisMappedTypesBuildItems) {
             SyntheticBeanBuildItem.ExtendedBeanConfigurator configurator = SyntheticBeanBuildItem
                     .configure(i.getMappedTypeName())

@@ -465,6 +465,18 @@ quarkus.mybatis.h2.initial-sql=insert-h2.sql
 The dataSource type must be ```QUARKUS``` and the property ```db``` could be specified to the datasource name in the
 quarkus configuration.
 
+=== Type handlers and CDI
+
+MyBatis creates and registers type handlers. The extension exposes registered handlers annotated with
+`@MappedTypes` or `@MappedJdbcTypes` as CDI `@Singleton` beans, without client proxies that XML
+`<typeHandlers><package .../></typeHandlers>` scanning could otherwise discover. This applies to
+both JVM and native deployments.
+
+Exposing these MyBatis-owned instances through CDI does not apply CDI field injection or interceptors
+such as `@Transactional`. Avoid also declaring the handler classes as CDI managed beans, for example
+by adding `@ApplicationScoped` or `@Singleton` to them. Independently discovered beans can cause
+ambiguous injection or generate handler proxies and subclasses that XML package scanning does not exclude.
+
 
 == Configuration References
 include::includes/quarkus-mybatis.adoc[opts=optional, leveloffset=+1]

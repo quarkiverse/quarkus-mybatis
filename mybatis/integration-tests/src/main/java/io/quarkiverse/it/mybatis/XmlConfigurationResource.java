@@ -1,5 +1,8 @@
 package io.quarkiverse.it.mybatis;
 
+import java.util.Set;
+import java.util.stream.Collectors;
+
 import jakarta.enterprise.inject.Instance;
 import jakarta.inject.Inject;
 import jakarta.inject.Named;
@@ -38,6 +41,13 @@ public class XmlConfigurationResource {
         if (environment == null || !"development".equals(environment.getId())
                 || !(environment.getTransactionFactory() instanceof JdbcTransactionFactory)) {
             throw new IllegalStateException("XML development/JDBC environment was not loaded");
+        }
+        Set<Class<?>> handlerTypes = configuration.getTypeHandlerRegistry().getTypeHandlers().stream()
+                .map(Object::getClass)
+                .filter(type -> type.getName().startsWith(UuidTypeHandler.class.getPackageName() + "."))
+                .collect(Collectors.toSet());
+        if (!handlerTypes.equals(Set.of(UuidTypeHandler.class, UuidJdbcTypeHandler.class))) {
+            throw new IllegalStateException("Unexpected XML package-scanned type handlers: " + handlerTypes);
         }
         try (SqlSession session = factory.openSession(true)) {
             return session.getMapper(UserMapper.class).getUser(1);
