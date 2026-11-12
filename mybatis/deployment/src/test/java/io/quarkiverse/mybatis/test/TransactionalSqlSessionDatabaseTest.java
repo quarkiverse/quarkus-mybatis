@@ -43,11 +43,11 @@ import org.junit.jupiter.api.extension.RegisterExtension;
 
 import io.agroal.api.AgroalDataSource;
 import io.quarkiverse.mybatis.runtime.TransactionalSqlSession;
-import io.quarkus.test.QuarkusUnitTest;
+import io.quarkus.test.QuarkusExtensionTest;
 
 public class TransactionalSqlSessionDatabaseTest {
     @RegisterExtension
-    static final QuarkusUnitTest config = new QuarkusUnitTest()
+    static final QuarkusExtensionTest config = new QuarkusExtensionTest()
             .setArchiveProducer(() -> ShrinkWrap.create(JavaArchive.class).addClass(TimeoutAfterWrite.class))
             .overrideConfigKey("quarkus.datasource.db-kind", "h2")
             .overrideConfigKey("quarkus.datasource.jdbc.url", "jdbc:h2:mem:session_lifecycle;DB_CLOSE_DELAY=-1")
